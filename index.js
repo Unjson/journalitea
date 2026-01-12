@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Menu } = require('electron/main')
+const db = require('./src/services/database')
 
 const isDev = process.env.NODE_ENV === 'development'
 const VITE_DEV_SERVER_URL = 'http://localhost:5173'
@@ -6,6 +7,7 @@ const VITE_DEV_SERVER_URL = 'http://localhost:5173'
 let mainWindow
 
 app.whenReady().then(() => {
+  db.initialize()
   createWindow()
   createMenu()
 
@@ -15,7 +17,8 @@ app.whenReady().then(() => {
     }
   })
 })
-
+db.close()
+  
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
