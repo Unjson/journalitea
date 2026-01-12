@@ -178,6 +178,12 @@ const zeroLine = computed(() => {
         r="4"
         fill="rgb(59, 130, 246)"
         class="data-point"
+        :style="{
+          '--start-x': `${center}px`,
+          '--start-y': `${center}px`,
+          '--end-x': `${getPoint(i, point.value).x}px`,
+          '--end-y': `${getPoint(i, point.value).y}px`,
+        }"
       />
       
       <!-- Labels -->
@@ -203,11 +209,14 @@ const zeroLine = computed(() => {
   align-items: center;
 }
 
-.data-polygon,
-.data-point {
+.data-polygon {
   animation: radarGrow .6s ease-out;
   transform-origin: center;
   transform-box: fill-box;
+}
+
+.data-point {
+  animation: pointSlide .6s ease-out;
 }
 
 @keyframes radarGrow {
@@ -217,6 +226,19 @@ const zeroLine = computed(() => {
   }
   to {
     transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pointSlide {
+  from {
+    cx: var(--start-x);
+    cy: var(--start-y);
+    opacity: 0;
+  }
+  to {
+    cx: var(--end-x);
+    cy: var(--end-y);
     opacity: 1;
   }
 }
