@@ -7,6 +7,6 @@ const count = ref(0);
 </script>
 
 <template>
-	<h1>Hello {{ packageJson.name }}</h1>
-	<button @click="count++">{{ count }}</button>
+	<h1 class="text-3xl font-bold">Hello {{ packageJson.name }}</h1>
+	<button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded" @click="count++">{{ count }}</button>
 </template>

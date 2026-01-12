@@ -9,6 +9,8 @@
     "start": "vite build && electron ."
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18",
     "vue": "latest"
   },
   "devDependencies": {
