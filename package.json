@@ -4,7 +4,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "vite build && (vite build -w & electron .)"
+    "dev": "NODE_ENV=development vite & sleep 2 && NODE_ENV=development electron .",
+    "build": "vite build",
+    "start": "vite build && electron ."
   },
   "dependencies": {
     "vue": "latest"
