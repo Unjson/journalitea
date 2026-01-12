@@ -20,7 +20,7 @@ class DatabaseService {
   listRecords(): Record[] {
     if (!this.db) throw new Error('Database not initialized');
     
-    const stmt = this.db.prepare('SELECT * FROM records ORDER BY dateAdded DESC');
+    const stmt = this.db.prepare('SELECT * FROM records ORDER BY date_added DESC');
     const rows = stmt.all();
     
     return rows.map(row => this.rowToRecord(row));
@@ -40,9 +40,9 @@ class DatabaseService {
     
     const stmt = this.db.prepare(`
       INSERT INTO records (
-        name, type, subtype, dateAdded, seller, origin, year, price, currency,
-        weight, weightUnit, preparationMethod, preparationNotes, dryLeaves,
-        wetLeaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
+        name, type, subtype, date_added, seller, origin, year, price, currency,
+        weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
+        wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
         aroma_spicy, aroma_firey, aroma_fruity, aroma_plants, aroma_earthy,
         aroma_minerals, aroma_marine, notes, rating, photo
       ) VALUES (
@@ -92,9 +92,9 @@ class DatabaseService {
     
     const stmt = this.db.prepare(`
       UPDATE records SET
-        name = ?, type = ?, subtype = ?, dateAdded = ?, seller = ?, origin = ?,
-        year = ?, price = ?, currency = ?, weight = ?, weightUnit = ?,
-        preparationMethod = ?, preparationNotes = ?, dryLeaves = ?, wetLeaves = ?,
+        name = ?, type = ?, subtype = ?, date_added = ?, seller = ?, origin = ?,
+        year = ?, price = ?, currency = ?, weight = ?, weight_unit = ?,
+        preparation_method = ?, preparation_notes = ?, dry_leaves = ?, wet_leaves = ?,
         liquor = ?, color = ?, aroma_sweet = ?, aroma_floral = ?, aroma_nutty = ?,
         aroma_spicy = ?, aroma_firey = ?, aroma_fruity = ?, aroma_plants = ?,
         aroma_earthy = ?, aroma_minerals = ?, aroma_marine = ?, notes = ?,
@@ -143,18 +143,18 @@ class DatabaseService {
     record.name = row.name;
     record.type = row.type;
     record.subtype = row.subtype;
-    record.dateAdded = new Date(row.dateAdded);
+    record.dateAdded = new Date(row.date_added);
     record.seller = row.seller;
     record.origin = row.origin;
     record.year = row.year;
     record.price = row.price;
     record.currency = row.currency;
     record.weight = row.weight;
-    record.weightUnit = row.weightUnit;
-    record.preparationMethod = row.preparationMethod;
-    record.preparationNotes = row.preparationNotes;
-    record.dryLeaves = row.dryLeaves;
-    record.wetLeaves = row.wetLeaves;
+    record.weightUnit = row.weight_unit;
+    record.preparationMethod = row.preparation_method;
+    record.preparationNotes = row.preparation_notes;
+    record.dryLeaves = row.dry_leaves;
+    record.wetLeaves = row.wet_leaves;
     record.liquor = row.liquor;
     record.color = row.color;
     record.aroma_sweet = row.aroma_sweet;
@@ -182,18 +182,18 @@ class DatabaseService {
         name TEXT NOT NULL,
         type INTEGER NOT NULL,
         subtype TEXT,
-        dateAdded TEXT NOT NULL,
+        date_added TEXT NOT NULL,
         seller TEXT,
         origin TEXT,
         year INTEGER,
         price REAL,
         currency INTEGER,
         weight REAL,
-        weightUnit INTEGER,
-        preparationMethod TEXT,
-        preparationNotes TEXT,
-        dryLeaves TEXT,
-        wetLeaves TEXT,
+        weight_unit INTEGER,
+        preparation_method TEXT,
+        preparation_notes TEXT,
+        dry_leaves TEXT,
+        wet_leaves TEXT,
         liquor TEXT,
         color INTEGER,
         aroma_sweet INTEGER,

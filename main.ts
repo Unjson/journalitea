@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import db from './src/services/database';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -8,6 +8,7 @@ let mainWindow: BrowserWindow | null = null;
 
 app.whenReady().then(() => {
   db.initialize();
+  setupIpcHandlers();
   createWindow();
   createMenu();
 
@@ -88,4 +89,43 @@ const createMenu = (): void => {
     },
   ]);
   Menu.setApplicationMenu(menu);
+};
+
+// Setup IPC handlers for database operations
+const setupIpcHandlers = (): void => {
+  ipcMain.handle('db:listRecords', async () => {
+    try {
+      return db.listRecords();
+    } catch (error) {
+      console.error('Error listing records:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('db:getRecordById', async (event, id: number) => {
+    try {
+      return db.getRecordById(id);
+    } catch (error) {
+      console.error('Error getting record:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('db:saveRecord', async (event, record) => {
+    try {
+      return db.saveRecord(record);
+    } catch (error) {
+      console.error('Error saving record:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('db:updateRecord', async (event, record) => {
+    try {
+      return db.updateRecord(record);
+    } catch (error) {
+      console.error('Error updating record:', error);
+      throw error;
+    }
+  });
 };
