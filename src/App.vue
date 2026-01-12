@@ -19,7 +19,10 @@ onMounted(() => {
   });
 	electron.ipcRenderer.on('goToAbout', () => {
     router.push('/about');
-  });
+	});
+	electron.ipcRenderer.on('goToRecordsList', () => {
+	router.push('/records-list');
+	});
 });
 
 </script>
@@ -56,6 +59,13 @@ onMounted(() => {
 					>
 						<span class="text-lg">ℹ️</span>
 						<span v-if="!sidebarCollapsed">About</span>
+					</router-link>
+					<router-link 
+						to="/records-list" 
+						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
+					>
+						<span class="text-lg">📋</span>
+						<span v-if="!sidebarCollapsed">Records List</span>
 					</router-link>
 				</nav>
 			</div>
