@@ -90,6 +90,21 @@ export class Record {
 			reader.readAsDataURL(this.photo);
 		});
 	}
+
+	getTypeName(): string {
+		return TeaType[this.type];
+	}
+
+	getPreparationMethodName(): string {
+		return PreparationMethod[Number(this.preparationMethod)];
+	}
+
+	getCurrencyName(): string {
+		return CurrencyType[this.currency];
+	}
+
+
+
 }
 
 enum TeaType
@@ -102,6 +117,15 @@ enum TeaType
 	YELLOW,	
 	HERBAL,
 	OTHER
+}
+
+enum PreparationMethod{
+	WESTERN = 0,
+	GAIWAN = 1,
+	CLAY = 2,
+	TEABAG = 3,
+	COLDBREW = 4,
+	OTHER = 5
 }
 
 enum CurrencyType

@@ -15,19 +15,32 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 const photoUrl = ref<string | null>(null);
 
+const teaType = ref<string | null>(null);
+const preparationMethod = ref<string | null>(null);
+
 const loadRecord = async () => {
   loading.value = true;
   error.value = null;
   
   try {
     const id = Number(route.params.id);
-    record.value = await ipcRenderer.invoke('db:getRecordById', id);
+    const data = await ipcRenderer.invoke('db:getRecordById', id);
     
-    if (!record.value) {
+    if (!data) {
       error.value = 'Record not found';
-	} else if (record.value.photo) {
+      return;
+    }
+    
+    // Convert plain object to Record instance
+    const recordInstance = Object.assign(new Record(), data);
+    record.value = recordInstance;
+    
+    teaType.value = recordInstance.getTypeName();
+    preparationMethod.value = recordInstance.getPreparationMethodName();
+
+    if (recordInstance.photo) {
       // Convert photo Blob to displayable URL
-      photoUrl.value = await record.value.getPhotoUrl();
+      photoUrl.value = await recordInstance.getPhotoUrl();
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load record';
@@ -70,7 +83,7 @@ onMounted(() => {
       <section class="mb-6">
         <h2 class="text-xl font-semibold mb-3 border-b pb-2">Details</h2>
         <div class="grid grid-cols-2 gap-4">
-          <div><span class="font-medium text-gray-700">Type:</span> {{ record.type }}</div>
+          <div><span class="font-medium text-gray-700">Type:</span> {{ teaType }}</div>
           <div v-if="record.subtype"><span class="font-medium text-gray-700">Subtype:</span> {{ record.subtype }}</div>
           <div v-if="record.origin"><span class="font-medium text-gray-700">Origin:</span> {{ record.origin }}</div>
           <div v-if="record.year"><span class="font-medium text-gray-700">Year:</span> {{ record.year }}</div>
@@ -87,7 +100,7 @@ onMounted(() => {
         <div class="space-y-2">
           <div v-if="record.preparationMethod">
             <span class="font-medium text-gray-700">Method:</span>
-            <p class="text-gray-600">{{ record.preparationMethod }}</p>
+            <p class="text-gray-600">{{ preparationMethod }}</p>
           </div>
           <div v-if="record.preparationNotes">
             <span class="font-medium text-gray-700">Notes:</span>

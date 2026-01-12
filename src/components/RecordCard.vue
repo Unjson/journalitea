@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Record } from '../models/record';
 
@@ -8,10 +9,17 @@ interface Props {
 
 const props = defineProps<Props>();
 const router = useRouter();
+const teaType = ref<string | null>(null);
 
 const openDetail = () => {
   router.push({ name: 'record-detail', params: { id: props.record.id } });
 };
+
+onMounted(() => {
+	const recordInstance = Object.assign(new Record(), props.record);
+  	teaType.value = recordInstance.getTypeName();
+});
+
 </script>
 
 <template>
@@ -23,7 +31,7 @@ const openDetail = () => {
       <div class="flex-1">
         <h3 class="text-xl font-semibold mb-2">{{ record.name }}</h3>
         <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-          <div><span class="font-medium">Type:</span> {{ record.type }}</div>
+          <div><span class="font-medium">Type:</span> {{ teaType }}</div>
           <div v-if="record.subtype"><span class="font-medium">Subtype:</span> {{ record.subtype }}</div>
           <div v-if="record.origin"><span class="font-medium">Origin:</span> {{ record.origin }}</div>
           <div v-if="record.year"><span class="font-medium">Year:</span> {{ record.year }}</div>
