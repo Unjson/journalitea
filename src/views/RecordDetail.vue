@@ -61,13 +61,6 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
-    <button 
-      @click="goBack" 
-      class="mb-4 text-blue-500 hover:text-blue-700 flex items-center gap-2"
-    >
-      ← Back to Records
-    </button>
-
     <div v-if="loading" class="text-center py-8 text-gray-500">
       Loading record...
     </div>
@@ -167,6 +160,22 @@ onMounted(() => {
         <h2 class="text-xl font-semibold mb-3 border-b pb-2">Photo</h2>
         <img :src="photoUrl" alt="Tea photo" class="max-w-md rounded-lg shadow-md" />
       </section>
+
+      <!-- Edit Button -->
+      <div class="gap-4 mt-6 pt-6 border-t flex justify-end">
+		<button 
+      		@click="$router.push('/records-list')" 
+      		class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+    	>
+      ← Back to Records List
+	    </button>
+        <button
+        	@click="$router.push({ name: 'record-edit', params: { id: record.id } })"
+        	class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+        >
+          Edit Record
+        </button>
+	  </div>
     </div>
   </div>
 </template>

@@ -40,7 +40,7 @@ class DatabaseService {
     
     const stmt = this.db.prepare(`
       INSERT INTO records (
-        name, type, subtype, date_added, seller, origin, year, price, currency,
+        name, type, sub_type, date_added, seller, origin, year, price, currency,
         weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
         wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
         aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
@@ -92,7 +92,7 @@ class DatabaseService {
     
     const stmt = this.db.prepare(`
       UPDATE records SET
-        name = ?, type = ?, subtype = ?, date_added = ?, seller = ?, origin = ?,
+        name = ?, type = ?, sub_type = ?, date_added = ?, seller = ?, origin = ?,
         year = ?, price = ?, currency = ?, weight = ?, weight_unit = ?,
         preparation_method = ?, preparation_notes = ?, dry_leaves = ?, wet_leaves = ?,
         liquor = ?, color = ?, aroma_sweet = ?, aroma_floral = ?, aroma_nutty = ?,
@@ -181,7 +181,7 @@ class DatabaseService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         type INTEGER NOT NULL,
-        subtype TEXT,
+        sub_type TEXT,
         date_added TEXT NOT NULL,
         seller TEXT,
         origin TEXT,

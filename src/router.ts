@@ -21,6 +21,16 @@ const routes: RouteRecordRaw[] = [
     name: 'record-detail',
     component: () => import('./views/RecordDetail.vue'),
   },
+  {
+    path: '/record/:id/edit',
+    name: 'record-edit',
+    component: () => import('./views/EditRecord.vue'),
+  },
+  {
+    path: '/record/new',
+    name: 'record-new',
+    component: () => import('./views/EditRecord.vue'),
+  },
 ];
 
 export default createRouter({
