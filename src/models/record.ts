@@ -26,7 +26,7 @@ export class Record {
 	aroma_floral: number
 	aroma_nutty: number;
 	aroma_spicy: number;
-	aroma_firey: number;
+	aroma_fire: number;
 	aroma_fruity: number;
 	aroma_plants: number;
 	aroma_earthy: number
@@ -63,7 +63,7 @@ export class Record {
 		this.aroma_floral = 0;
 		this.aroma_nutty = 0;
 		this.aroma_spicy = 0;
-		this.aroma_firey = 0;
+		this.aroma_fire = 0;
 		this.aroma_fruity = 0;
 		this.aroma_plants = 0;
 		this.aroma_earthy = 0;
@@ -109,14 +109,15 @@ export class Record {
 
 enum TeaType
 {
-	GREEN,
-	BLACK,
-	OOLONG,
-	WHITE, 
-	DARK,
-	YELLOW,	
-	HERBAL,
-	OTHER
+	GREEN = 0,
+	BLACK = 1,
+	OOLONG = 2,
+	WHITE = 3, 
+	DARK = 4,
+	YELLOW = 5,
+	// 6 not used atm (used to be PURPLE)	
+	HERBAL = 7,
+	OTHER = 8
 }
 
 enum PreparationMethod{
@@ -130,17 +131,17 @@ enum PreparationMethod{
 
 enum CurrencyType
 {
-	USD,
-	EUR,
-	GBP,
-	CNY,
-	JPY,
-	INR,
-	TWD,
-	OTHER
+	USD = 0,
+	EUR = 1,
+	GBP = 2,
+	CNY = 3,
+	JPY = 4,
+	INR = 5,
+	TWD = 6,
+	OTHER = 7
 }
 
 enum WeightUnit {
-	METRIC_GRAM,
-	IMPERIAL_OUNCE
+	METRIC_GRAM = 0,
+	IMPERIAL_OUNCE = 1
 }

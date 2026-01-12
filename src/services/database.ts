@@ -43,7 +43,7 @@ class DatabaseService {
         name, type, subtype, date_added, seller, origin, year, price, currency,
         weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
         wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
-        aroma_spicy, aroma_firey, aroma_fruity, aroma_plants, aroma_earthy,
+        aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
         aroma_minerals, aroma_marine, notes, rating, photo
       ) VALUES (
         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
@@ -73,7 +73,7 @@ class DatabaseService {
       record.aroma_floral,
       record.aroma_nutty,
       record.aroma_spicy,
-      record.aroma_firey,
+      record.aroma_fire,
       record.aroma_fruity,
       record.aroma_plants,
       record.aroma_earthy,
@@ -96,7 +96,7 @@ class DatabaseService {
         year = ?, price = ?, currency = ?, weight = ?, weight_unit = ?,
         preparation_method = ?, preparation_notes = ?, dry_leaves = ?, wet_leaves = ?,
         liquor = ?, color = ?, aroma_sweet = ?, aroma_floral = ?, aroma_nutty = ?,
-        aroma_spicy = ?, aroma_firey = ?, aroma_fruity = ?, aroma_plants = ?,
+        aroma_spicy = ?, aroma_fire = ?, aroma_fruity = ?, aroma_plants = ?,
         aroma_earthy = ?, aroma_minerals = ?, aroma_marine = ?, notes = ?,
         rating = ?, photo = ?
       WHERE id = ?
@@ -124,7 +124,7 @@ class DatabaseService {
       record.aroma_floral,
       record.aroma_nutty,
       record.aroma_spicy,
-      record.aroma_firey,
+      record.aroma_fire,
       record.aroma_fruity,
       record.aroma_plants,
       record.aroma_earthy,
@@ -161,7 +161,7 @@ class DatabaseService {
     record.aroma_floral = row.aroma_floral;
     record.aroma_nutty = row.aroma_nutty;
     record.aroma_spicy = row.aroma_spicy;
-    record.aroma_firey = row.aroma_firey;
+    record.aroma_fire = row.aroma_fire;
     record.aroma_fruity = row.aroma_fruity;
     record.aroma_plants = row.aroma_plants;
     record.aroma_earthy = row.aroma_earthy;
@@ -200,7 +200,7 @@ class DatabaseService {
         aroma_floral INTEGER,
         aroma_nutty INTEGER,
         aroma_spicy INTEGER,
-        aroma_firey INTEGER,
+        aroma_fire INTEGER,
         aroma_fruity INTEGER,
         aroma_plants INTEGER,
         aroma_earthy INTEGER,
