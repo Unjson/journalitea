@@ -1,10 +1,30 @@
-const { app, BrowserWindow } = require('electron/main')
+const { app, BrowserWindow, Menu } = require('electron/main')
 
 const isDev = process.env.NODE_ENV === 'development'
 const VITE_DEV_SERVER_URL = 'http://localhost:5173'
 
+let mainWindow
+
+app.whenReady().then(() => {
+  createWindow()
+  createMenu()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+// Create the main application window
 const createWindow = () => {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -15,15 +35,46 @@ const createWindow = () => {
 
   if (isDev) {
     // Load from Vite dev server with HMR support
-    win.loadURL(VITE_DEV_SERVER_URL)
+    mainWindow.loadURL(VITE_DEV_SERVER_URL)
     // Open DevTools in development mode
-    win.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
   } else {
     // Load from built files in production
-    win.loadFile('dist/index.html')
+    mainWindow.loadFile('dist/index.html')
   }
 }
 
-app.whenReady().then(() => {
-  createWindow()
-})
+// Create application menu
+const createMenu = () => {
+  var menu = Menu.buildFromTemplate([
+      {
+          label: 'Menu',
+          submenu: [
+            {
+              label: 'Home',
+                click(){
+                  console.log("Navigate to Home");
+                  mainWindow.webContents.send('goToHome');
+                }
+            
+              },
+            {
+              label: 'About',                 
+              
+               click(){
+                console.log("Navigate to About");
+                mainWindow.webContents.send('goToAbout');
+              }
+            },
+            {
+              label: 'Exit',                 
+               click() { 
+                app.quit() 
+              }
+            }
+          ]
+      }
+])
+Menu.setApplicationMenu(menu)
+}
+
