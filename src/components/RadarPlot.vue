@@ -6,7 +6,7 @@ interface Props {
   floral: number;
   nutty: number;
   spicy: number;
-  firey: number;
+  fire: number;
   fruity: number;
   plants: number;
   earthy: number;
@@ -38,7 +38,7 @@ const dataPoints = computed(() => [
   { label: 'Plants', value: sanitizeValue(props.plants) },
   { label: 'Nutty', value: sanitizeValue(props.nutty) },
   { label: 'Spicy', value: sanitizeValue(props.spicy) },
-  { label: 'Fire / Animal', value: sanitizeValue(props.firey) },
+  { label: 'Fire / Animal', value: sanitizeValue(props.fire) },
   { label: 'Marine', value: sanitizeValue(props.marine) },
   { label: 'Earthy', value: sanitizeValue(props.earthy) },
   { label: 'Minerals', value: sanitizeValue(props.minerals) },

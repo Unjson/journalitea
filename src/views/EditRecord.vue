@@ -47,14 +47,17 @@ const saveRecord = async () => {
   error.value = null;
   
   try {
+    // Convert Record instance to plain object for IPC (removes methods, keeps data)
+    const plainRecord = record.value.convertToPlainObject();
+    
     if (isNewRecord.value || record.value.id === -1) {
       // Create new record
-      const newId = await ipcRenderer.invoke('db:saveRecord', record.value);
+      const newId = await ipcRenderer.invoke('db:saveRecord', plainRecord);
       console.log('Created new record with ID:', newId);
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
       // Update existing record
-      await ipcRenderer.invoke('db:updateRecord', record.value);
+      await ipcRenderer.invoke('db:updateRecord', plainRecord);
       console.log('Updated record:', record.value.id);
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
@@ -68,7 +71,7 @@ const saveRecord = async () => {
 
 const cancel = () => {
   if (isNewRecord.value) {
-    router.push({ name: 'records-list' });
+    router.replace({ name: 'records-list' });
   } else {
     router.push({ name: 'record-detail', params: { id: record.value.id } });
   }
@@ -120,8 +123,8 @@ onMounted(() => {
               <option :value="3">White</option>
               <option :value="4">Dark</option>
               <option :value="5">Yellow</option>
-              <option :value="6">Herbal</option>
-              <option :value="7">Other</option>
+              <option :value="7">Herbal</option>
+              <option :value="8">Other</option>
             </select>
           </div>
           
@@ -160,21 +163,20 @@ onMounted(() => {
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
+          <div></div>
           
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+            <div class="flex flex-row items-center gap-4">
             <input
               v-model.number="record.price"
               type="number"
               step="0.01"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
             <select
-              v-model.number="record.currency"
+              v-model.number="record.price_currency"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option :value="0">USD</option>
@@ -186,20 +188,17 @@ onMounted(() => {
               <option :value="6">TWD</option>
               <option :value="7">Other</option>
             </select>
+            </div>
           </div>
-          
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Weight</label>
+            <div class="flex flex-row items-center gap-4">
             <input
               v-model.number="record.weight"
               type="number"
               step="0.01"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Weight Unit</label>
             <select
               v-model.number="record.weightUnit"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -207,6 +206,10 @@ onMounted(() => {
               <option :value="0">Grams (g)</option>
               <option :value="1">Ounces (oz)</option>
             </select>
+            </div>
+        </div>
+          <div>
+
           </div>
         </div>
       </section>
@@ -277,6 +280,7 @@ onMounted(() => {
             <input
               v-model.number="record.color"
               type="number"
+              step="0.01"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -291,11 +295,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Sweet</label>
             <input
               v-model.number="record.aroma_sweet"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -303,11 +307,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Floral</label>
             <input
               v-model.number="record.aroma_floral"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -315,11 +319,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Nutty</label>
             <input
               v-model.number="record.aroma_nutty"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -327,11 +331,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Spicy</label>
             <input
               v-model.number="record.aroma_spicy"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -339,11 +343,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Fire / Animal</label>
             <input
               v-model.number="record.aroma_fire"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -351,11 +355,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Fruity</label>
             <input
               v-model.number="record.aroma_fruity"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -363,11 +367,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Plants</label>
             <input
               v-model.number="record.aroma_plants"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -375,11 +379,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Earthy</label>
             <input
               v-model.number="record.aroma_earthy"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -387,11 +391,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Minerals</label>
             <input
               v-model.number="record.aroma_minerals"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           
@@ -399,11 +403,11 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Marine</label>
             <input
               v-model.number="record.aroma_marine"
-              type="number"
+              type="range"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -429,8 +433,8 @@ onMounted(() => {
               type="number"
               min="0"
               max="5"
-              step="0.1"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              step="1"
+              class="w-full p-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>

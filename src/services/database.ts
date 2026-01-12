@@ -40,7 +40,7 @@ class DatabaseService {
     
     const stmt = this.db.prepare(`
       INSERT INTO records (
-        name, type, sub_type, date_added, seller, origin, year, price, currency,
+        name, type, sub_type, date_added, seller, origin, year, price, price_currency,
         weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
         wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
         aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
@@ -60,7 +60,7 @@ class DatabaseService {
       record.origin,
       record.year,
       record.price,
-      record.currency,
+      record.price_currency,
       record.weight,
       record.weightUnit,
       record.preparationMethod,
@@ -93,7 +93,7 @@ class DatabaseService {
     const stmt = this.db.prepare(`
       UPDATE records SET
         name = ?, type = ?, sub_type = ?, date_added = ?, seller = ?, origin = ?,
-        year = ?, price = ?, currency = ?, weight = ?, weight_unit = ?,
+        year = ?, price = ?, price_currency = ?, weight = ?, weight_unit = ?,
         preparation_method = ?, preparation_notes = ?, dry_leaves = ?, wet_leaves = ?,
         liquor = ?, color = ?, aroma_sweet = ?, aroma_floral = ?, aroma_nutty = ?,
         aroma_spicy = ?, aroma_fire = ?, aroma_fruity = ?, aroma_plants = ?,
@@ -111,7 +111,7 @@ class DatabaseService {
       record.origin,
       record.year,
       record.price,
-      record.currency,
+      record.price_currency,
       record.weight,
       record.weightUnit,
       record.preparationMethod,
@@ -142,13 +142,13 @@ class DatabaseService {
     record.id = row.id;
     record.name = row.name;
     record.type = row.type;
-    record.subtype = row.subtype;
+    record.subtype = row.sub_type;
     record.dateAdded = new Date(row.date_added);
     record.seller = row.seller;
     record.origin = row.origin;
     record.year = row.year;
     record.price = row.price;
-    record.currency = row.currency;
+    record.price_currency = row.price_currency;
     record.weight = row.weight;
     record.weightUnit = row.weight_unit;
     record.preparationMethod = row.preparation_method;
@@ -187,7 +187,7 @@ class DatabaseService {
         origin TEXT,
         year INTEGER,
         price REAL,
-        currency INTEGER,
+        price_currency INTEGER,
         weight REAL,
         weight_unit INTEGER,
         preparation_method TEXT,

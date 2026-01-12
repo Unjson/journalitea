@@ -14,6 +14,7 @@ const record = ref<Record | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const photoUrl = ref<string | null>(null);
+const currencyString = ref<string | null>(null);
 
 const teaType = ref<string | null>(null);
 const preparationMethod = ref<string | null>(null);
@@ -37,6 +38,7 @@ const loadRecord = async () => {
     
     teaType.value = recordInstance.getTypeName();
     preparationMethod.value = recordInstance.getPreparationMethodName();
+    currencyString.value = recordInstance.getPriceStringWithCurrency();
 
     if (recordInstance.photo) {
       // Convert photo Blob to displayable URL
@@ -82,7 +84,7 @@ onMounted(() => {
           <div v-if="record.year"><span class="font-medium text-gray-700">Year:</span> {{ record.year }}</div>
           <div v-if="record.seller"><span class="font-medium text-gray-700">Seller:</span> {{ record.seller }}</div>
           <div><span class="font-medium text-gray-700">Date Added:</span> {{ new Date(record.dateAdded).toLocaleDateString() }}</div>
-          <div v-if="record.price"><span class="font-medium text-gray-700">Price:</span> {{ record.price }} {{ record.currency }}</div>
+          <div v-if="record.price"><span class="font-medium text-gray-700">Price:</span> {{ currencyString }}</div>
           <div v-if="record.weight"><span class="font-medium text-gray-700">Weight:</span> {{ record.weight }}{{ record.weightUnit === 0 ? 'g' : 'oz' }}</div>
         </div>
       </section>
@@ -132,7 +134,7 @@ onMounted(() => {
           :floral="record.aroma_floral"
           :nutty="record.aroma_nutty"
           :spicy="record.aroma_spicy"
-          :firey="record.aroma_fire"
+          :fire="record.aroma_fire"
           :fruity="record.aroma_fruity"
           :plants="record.aroma_plants"
           :earthy="record.aroma_earthy"
@@ -164,7 +166,7 @@ onMounted(() => {
       <!-- Edit Button -->
       <div class="gap-4 mt-6 pt-6 border-t flex justify-end">
 		<button 
-      		@click="$router.push('/records-list')" 
+      		@click="$router.replace('/records-list')" 
       		class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
     	>
       ← Back to Records List
