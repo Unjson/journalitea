@@ -1,15 +1,24 @@
 <script lang="ts" setup>
+import { useRouter } from 'vue-router';
 import { Record } from '../models/record';
 
 interface Props {
   record: Record;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+const router = useRouter();
+
+const openDetail = () => {
+  router.push({ name: 'record-detail', params: { id: props.record.id } });
+};
 </script>
 
 <template>
-  <div class="bg-white border rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+  <div 
+    @click="openDetail"
+    class="bg-white border rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
+  >
     <div class="flex justify-between items-start">
       <div class="flex-1">
         <h3 class="text-xl font-semibold mb-2">{{ record.name }}</h3>

@@ -11,12 +11,16 @@ const routes: RouteRecordRaw[] = [
     name: 'about',
     component: () => import('./views/About.vue'),
   },
-	{
-		path: '/records-list',
-		name: 'records-list',
-		component: () => import('./views/RecordsList.vue'),
-}
-	
+  {
+    path: '/records-list',
+    name: 'records-list',
+    component: () => import('./views/RecordsList.vue'),
+  },
+  {
+    path: '/record/:id',
+    name: 'record-detail',
+    component: () => import('./views/RecordDetail.vue'),
+  },
 ];
 
 export default createRouter({
