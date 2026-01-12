@@ -1,0 +1,17 @@
+{
+  "name": "minimal-electron-vue",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite build && (vite build -w & electron .)"
+  },
+  "dependencies": {
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "latest",
+    "electron": "latest",
+    "vite": "latest"
+  }
+}
