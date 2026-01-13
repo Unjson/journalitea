@@ -31,6 +31,11 @@ const routes: RouteRecordRaw[] = [
     name: 'record-new',
     component: () => import('./views/EditRecord.vue'),
   },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('./views/Settings.vue'),
+  }
 ];
 
 export default createRouter({

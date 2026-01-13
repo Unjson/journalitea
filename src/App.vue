@@ -15,16 +15,18 @@ const toggleSidebar = () => {
 
 onMounted(() => {
   electron.ipcRenderer.on('goToHome', () => {
-    router.push('/');
-  });
+    router.replace('/');
+	});
 	electron.ipcRenderer.on('goToAbout', () => {
-    router.push('/about');
+    router.replace('/about');
 	});
 	electron.ipcRenderer.on('goToRecordsList', () => {
-	router.push('/records-list');
+	router.replace('/records-list');
+	});
+	electron.ipcRenderer.on('goToSettings', () => {
+	router.replace('/settings');
 	});
 });
-
 </script>
 
 <template>
@@ -42,10 +44,10 @@ onMounted(() => {
 				<span v-else>←</span>
 			</button>
 			
-			<div class="sidebar-content p-4">
+			<div class="sidebar-content p-4 flex flex-col h-full">
 				<h2 v-if="!sidebarCollapsed" class="text-xl font-bold mb-6">Navigation</h2>
 				
-				<nav class="flex flex-col gap-2">
+				<nav class="flex h-full flex-col gap-2">
 					<router-link 
 						to="/" 
 						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
@@ -67,6 +69,14 @@ onMounted(() => {
 						<span class="text-lg">📋</span>
 						<span v-if="!sidebarCollapsed">Records List</span>
 					</router-link>
+					<div class="flex-1 grow"></div>
+					<router-link 
+						to="/settings" 
+						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
+					>
+						<span class="text-lg">⚙️</span>
+						<span v-if="!sidebarCollapsed">Settings</span>
+					</router-link>					
 				</nav>
 			</div>
 		</aside>

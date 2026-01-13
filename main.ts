@@ -80,6 +80,13 @@ const createMenu = (): void => {
           },
         },
         {
+          label: 'Settings',
+          click() {
+            console.log('Navigate to Settings');
+            mainWindow?.webContents.send('goToSettings');
+          }
+        },
+        {
           label: 'Exit',
           click() {
             app.quit();

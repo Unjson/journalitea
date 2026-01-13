@@ -100,7 +100,7 @@ onMounted(() => {
       <!-- Basic Information -->
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Basic Information</h2>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
             <input
@@ -217,7 +217,7 @@ onMounted(() => {
       <!-- Preparation -->
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Preparation</h2>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Method</label>
             <select
@@ -290,7 +290,7 @@ onMounted(() => {
       <!-- Aroma Profile (ITMC Scale) -->
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Aroma Profile (0-5)</h2>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Sweet</label>
             <input
