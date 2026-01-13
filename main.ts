@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import db from './src/services/database';
+import { parseTranslationsFromCSV } from './src/services/i18n/csvParser';
 
 const isDev = process.env.NODE_ENV === 'development';
 const VITE_DEV_SERVER_URL = 'http://localhost:5173';
@@ -135,7 +136,7 @@ const setupIpcHandlers = (): void => {
       throw error;
     }
   });
-  
+
   ipcMain.handle('db:getSetting', async (event, key: string) => {
     try {
       return db.getSettingsValue(key);
@@ -149,6 +150,15 @@ const setupIpcHandlers = (): void => {
       return db.setSetingsValue(key, intValue, strValue);
     } catch (error) {
       console.error('Error setting setting:', error);
+      throw error;
+    }
+  });
+  ipcMain.handle('i18n:loadTranslations', async () => {
+    try {
+      const translations = parseTranslationsFromCSV('translations.csv');
+      return translations;
+    } catch (error) {
+      console.error('Error loading translations:', error);
       throw error;
     }
   });

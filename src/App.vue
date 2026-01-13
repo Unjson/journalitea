@@ -2,9 +2,11 @@
 import fs = require('fs');
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getLocaleFromLanguage } from './models/enums';
+import { useI18n } from 'vue-i18n';
 
 const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-
+const { t, locale } = useI18n();
 const electron = window.require("electron");
 const router = useRouter();
 const sidebarCollapsed = ref(false);
@@ -13,7 +15,7 @@ const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 };
 
-onMounted(() => {
+onMounted(async() => {
   electron.ipcRenderer.on('goToHome', () => {
     router.replace('/');
 	});
@@ -26,6 +28,12 @@ onMounted(() => {
 	electron.ipcRenderer.on('goToSettings', () => {
 	router.replace('/settings');
 	});
+
+	const language = await electron.ipcRenderer.invoke('db:getSetting', 'language');
+	if(language.intVal != -1){
+		const newLocale = getLocaleFromLanguage(language.intVal);
+		locale.value = newLocale;
+	}
 });
 </script>
 
@@ -84,7 +92,7 @@ onMounted(() => {
 		<!-- Main Content -->
 		<main class="flex-1 overflow-auto">
 			<header class="bg-white shadow p-4">
-				<h1 class="text-3xl font-bold">Hello {{ packageJson.name }}</h1>
+				<h1 class="text-3xl font-bold">{{ t('POPUP_DB_NOT_FOUND_TITLE') }}</h1>
 			</header>
 			<div class="p-6">
 				<router-view/>

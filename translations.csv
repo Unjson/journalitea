@@ -1,0 +1,156 @@
+key;en;de
+POPUP_DB_NOT_FOUND_TITLE;Hi There!;Hallo!
+POPUP_DB_NOT_FOUND_BODY;It seems like you're using Leaflet for the first time.\nWould you like to create a new Database now?;Es scheint, als ob Sie Leaflet zum ersten Mal verwenden.\nMöchten Sie jetzt eine neue Datenbank erstellen?
+POPUP_DB_NOT_FOUND_CREATE_NEW;Create DB;Neue Datenbank\nErstellen
+POPUP_DB_NOT_FOUND_LOAD_EXTERNAL;Load External;Extern laden
+SPLASH_LOADING_TITLE;getting things ready...;bereite alles vor...
+HEADER_TITLE_MAIN_MENU;Leaflet;Leaflet
+HEADER_TITLE_MY_TEAS;My Teas;Meine Tees
+HEADER_TITLE_CREATE_RECORD;New Record;Neuer Eintrag
+HEADER_TITLE_EDIT_RECORD;Edit Record;Eintrag bearbeiten
+HEADER_TITLE_VIEW_RECORD;View Record;Eintrag ansehen
+HEADER_TITLE_TIMER;Timer;Timer
+HEADER_TITLE_STATS;Stats for Nerds;Statistiken für Nerds
+HEADER_TITLE_SETTINGS;Settings;Einstellungen
+HEADER_TITLE_ABOUT;About;Über
+MENU_ITEM_MY_TEAS;My Teas;Meine Tees
+MENU_ITEM_TIMER;Timer;Timer
+MENU_ITEM_STATS;Stats for Nerds;Statistiken für Nerds
+MENU_ITEM_SETTINGS;Settings;Einstellungen
+MENU_ITEM_ABOUT;About;Über diese App
+CREATE_RECORD_TITLE;Create new Record;Neuen Eintrag erstellen
+EDIT_RECORD_TITLE;Edit Record;Eintrag bearbeiten
+EDIT_RECORD_NAME_LABEL;Name;Name
+EDIT_RECORD_NAME_PLACEHOLDER;Enter a name;Namen eingeben
+EDIT_RECORD_TYPE_LABEL;Type;Typ
+EDIT_RECORD_SUBTYPE_LABEL;Subtype;Untertyp
+EDIT_RECORD_SELLER_LABEL;Seller;Verkäufer
+EDIT_RECORD_ORIGIN_LABEL;Origin;Herkunft
+EDIT_RECORD_YEAR_LABEL;Year;Jahr
+EDIT_RECORD_PRICE_LABEL;Price;Preis
+EDIT_RECORD_WEIGHT_LABEL;Net Weight;Menge
+EDIT_RECORD_PREPARATION_LABEL;Preparation;Zubereitung
+EDIT_RECORD_PREPARATION_NOTES_LABEL;Preparation Notes;Zubereitungsnotizen
+EDIT_RECORD_DRY_LEAVES_LABEL;Dry Leaves;Trockene Blätter
+EDIT_RECORD_WET_LEAVES_LABEL;Wet Leaves;Nasse Blätter
+EDIT_RECORD_LIQUOR_LABEL;Liquor;Aufguss
+EDIT_RECORD_COLOR_LABEL;Color;Farbe
+EDIT_RECORD_AROMAS_LABEL;Aromas;Aromen
+EDIT_RECORD_AROMAS_SWEET;Sweet;Süß
+EDIT_RECORD_AROMAS_FLORAL;Floral;Blumig
+EDIT_RECORD_AROMAS_NUTTY;Nutty;Nussig
+EDIT_RECORD_AROMAS_SPICY;Spicy;Würzig
+EDIT_RECORD_AROMAS_FRUITY;Fruity;Fruchtig
+EDIT_RECORD_AROMAS_FIRE;Fire / Animal;Feuer / Tierisch
+EDIT_RECORD_AROMAS_VEGETAL;Vegetables / Plants;Gemüse / Pflanzlich
+EDIT_RECORD_AROMAS_EARTHY;Earthy;Erdig
+EDIT_RECORD_AROMAS_MINERAL;Mineral;Mineralisch
+EDIT_RECORD_AROMAS_MARINE;Marine;Maritim
+EDIT_RECORD_NOTES_LABEL;Notes;Notizen
+EDIT_RECORD_RATING_LABEL;Rating;Bewertung
+EDIT_RECORD_CANCEL_BUTTON;Cancel;Abbrechen
+EDIT_RECORD_CREATE_BUTTON;Create;Erstellen
+EDIT_RECORD_UPDATE_BUTTON;Update;Aktualisieren
+EDIT_RECORD_QUIT_POPUP_TITLE;Quit Editing;Bearbeitung beenden
+EDIT_RECORD_QUIT_POPUP_MESSAGE;Are you sure you want to quit without saving?;Sind Sie sicher, dass Sie die Bearbeitung ohne zu speichern beenden möchten?
+EDIT_RECORD_QUIT_POPUP_CANCEL;Back;Zurück
+EDIT_RECORD_QUIT_POPUP_CONFIRM;Quit;Beenden
+VIEW_RECORD_EDIT_BUTTON;Edit;Bearbeiten
+VIEW_RECORD_BACK_BUTTON;Back;Zurück
+VIEW_RECORD_STATS_TITLE;Stats;Statistiken
+VIEW_RECORD_AROMAS_TITLE;Aromas;Aromen
+VIEW_RECORD_OBSERVATIONS_TITLE;Observations;Beobachtungen
+POPUP_CREATE_RECORD_TITLE;Create new;Neu erstellen
+POPUP_CREATE_RECORD_GREEN;Green;Grün
+POPUP_CREATE_RECORD_BLACK;Black;Schwarz
+POPUP_CREATE_RECORD_OOLONG;Oolong;Oolong
+POPUP_CREATE_RECORD_WHITE;White;Weiß
+POPUP_CREATE_RECORD_DARK;Dark;Dunkel
+POPUP_CREATE_RECORD_YELLOW;Yellow;Gelb
+POPUP_CREATE_RECORD_PURPLE;Purple;Purpur
+POPUP_CREATE_RECORD_HERBAL;Herbal;Kräuter
+POPUP_CREATE_RECORD_OTHER;Other;Andere
+POPUP_DELETE_RECORD_TITLE;Delete Record;Eintrag löschen
+POPUP_DELETE_RECORD_BODY;Are you sure you want to delete this record?;Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?
+POPUP_DELETE_RECORD_CONFIRM;Delete;Bestätigen
+POPUP_DELETE_RECORD_CANCEL;Cancel;Abbrechen
+RECORD_BUTTON_CREATED;created;erstellt am
+TYPE_ENUM_GREEN;Green;Grün
+TYPE_ENUM_BLACK;Black;Schwarz
+TYPE_ENUM_OOLONG;Oolong;Oolong
+TYPE_ENUM_WHITE;White;Weiß
+TYPE_ENUM_DARK;Dark;Dunkel
+TYPE_ENUM_YELLOW;Yellow;Gelb
+TYPE_ENUM_PURPLE;Purple;Purpur
+TYPE_ENUM_HERBAL;Herbal;Kräuter
+TYPE_ENUM_OTHER;Other;Andere
+METHOD_ENUM_WESTERN;Western;Westlich
+METHOD_ENUM_GAIWAN;Gaiwan;Gaiwan
+METHOD_ENUM_TEAPOT;Clay;Tonkanne
+METHOD_ENUM_TEA_BAG;Tea Bag;Teebeutel
+METHOD_ENUM_COLD_BREW;Cold Brew;Kalt
+METHOD_ENUM_OTHER;Other;Andere
+AROMAS_SWEET;Sweet;Süß
+AROMAS_FLORAL;Floral;Blumig
+AROMAS_NUTTY;Nutty;Nussig
+AROMAS_SPICY;Spicy;Würzig
+AROMAS_FRUITY;Fruity;Fruchtig
+AROMAS_FIRE;Fire /\nAnimal;Feuer /\nTierisch
+AROMAS_VEGETAL;Vegetables / Plants;Gemüse /\nPflanzlich
+AROMAS_EARTHY;Earthy;Erdig
+AROMAS_MINERAL;Mineral;Mineralisch
+AROMAS_MARINE;Marine;Maritim
+AROMAS_SIMPLE_SPICY;Nutty /\nSpicy;Nussig-Würzig
+AROMAS_SIMPLE_EARTHY;Earth and Stone;Erde und Gestein
+AROMAS_SIMPLE_FIRE;Gamey;Tierisch
+STATS_CUMULATIVE_TAB;Cumulative;Kumulativ
+STATS_AROMAS_TAB;Aromas;Aromen
+STATS_ORIGINS_TAB;Origins;Herkünfte
+STATS_HISTOGRAMS_TAB;Histograms;Histogramme
+STATS_CUMULATIVE_TITLE;Cumulative Stats;Kumulative Statistiken
+STATS_CUMULATIVE_TOTAL_PRICE;Total Price;Gesamtpreis
+STATS_CUMULATIVE_TOTAL_WEIGHT;Total amount of tea bought;Gesamtmenge an gekauftem Tee
+STATS_CUMULATIVE_AVG_PRICE_100G;Average Price per 100g;Durchschnittspreis pro 100g
+STATS_CUMULATIVE_AVG_PRICE_OZ;Average Price per oz;Durchschnittspreis pro Unze
+STATS_CUMULATIVE_MOST_POPULAR_TYPE;Most popular type of tea;Beliebteste Teesorte
+STATS_CUMULATIVE_MOST_EXPENSIVE;Most expensive;Teuerster Tee
+STATS_HISTOGRAMS_TITLE;Histograms;Histogramme
+STATS_HISTOGRAMS_ABSOLUTE_TITLE;Absolute Prices;Absolute Preise
+STATS_HISTOGRAMS_100G_TITLE;Prices per 100g;Preise pro 100g
+STATS_HISTOGRAMS_OZ_TITLE;Prices per oz;Preise pro Unze
+TYPE_PIE_CHART_TITLE;Separated by tea type:;Aufteilung nach Sorten:
+TYPE_PIE_CHART_LEGEND;Types;Sorten
+SETTINGS_LANGUAGE_TITLE;Language;Sprache
+SETTINGS_LANGUAGE_BODY;Select your preferred language;Wählen Sie Ihre bevorzugte Sprache
+SETTINGS_VIEWMODE_TITLE;View Mode;Ansichtsmodus
+SETTINGS_VIEWMODE_BODY;Simple mode hides some text input fields and reduces the number of Aromas from 10 to 6.;Der einfache Modus blendet einige Texteingabefelder aus und reduziert die Anzahl der Aromen von 10 auf 6.
+SETTINGS_VIEWMODE_TOOLTIP_FULL;Full;Vollständig
+SETTINGS_VIEWMODE_TOOLTIP_SIMPLE;Simple;Vereinfacht
+SETTINGS_TIMERMODE_TITLE;Timer Mode;Timer-Modus
+SETTINGS_TIMERMODE_BODY;Toggle between Western and Gongfu Mode for the tea timer. Will adjust presets and steps accordingly.;Wechseln Sie zwischen dem westlichen und dem Gongfu-Modus für den Teetimer. Die Voreinstellungen und Schritte werden entsprechend angepasst.
+SETTINGS_TIMERMODE_TOOLTIP_GONGFU;Gongfu;Gongfu
+SETTINGS_TIMERMODE_TOOLTIP_WESTERN;Western;Westlich
+SETTINGS_CURRENCY_TITLE;Preferred Currency;Hauptwährung
+SETTINGS_CURRENCY_BODY;Will automatically convert prices in your records to that currency for comparisons.;Wird die Preise in Ihren Einträgen automatisch in diese Währung umrechnen.
+SETTINGS_CURRENCY_REFRESH_BUTTON;Refresh Rates;Wechselkurse\naktualisieren
+SETTINGS_WEIGHTUNIT_TITLE;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+SETTINGS_WEIGHTUNIT_BODY;Will automatically convert weights in your records to that unit for comparisons.;Wird die Gewichte in Ihren Einträgen automatisch in diese Einheit umrechnen.
+SETTINGS_WEIGHTUNIT_GRAMS;Grams (g);Gramm (g)
+SETTINGS_WEIGHTUNIT_OUNCES;Ounces (oz);Unzen (oz)
+SETTINGS_DATABASE_TITLE;Database Settings;Datenbank-Einstellungen
+SETTINGS_DATABASE_IMPORT;Import from external file;Aus externer Datei importieren
+SETTINGS_DATABASE_EXPORT;Export database;Datenbank exportieren
+SETTINGS_DATABASE_IMPORT_BTN;Import;Importieren
+SETTINGS_DATABASE_EXPORT_BTN;Export;Exportieren
+SETTINGS_DATABASE_IMPORT_POPUP_TITLE;Import Database;Datenbank importieren
+SETTINGS_DATABASE_IMPORT_POPUP_BODY;Would you like to append the records to your existing database, or overwrite it completely?;Möchten Sie die Einträge zu Ihrer bestehenden Datenbank hinzufügen oder sie vollständig überschreiben?
+SETTINGS_DATABASE_IMPORT_POPUP_APPEND;Append;Hinzufügen
+SETTINGS_DATABASE_IMPORT_POPUP_OVERWRITE;Overwrite;Überschreiben
+SETTINGS_DATABASE_IMPORT_OVERWRITE_CONFIRM_TITLE;Overwrite Database;Datenbank überschreiben
+SETTINGS_DATABASE_IMPORT_OVERWRITE_CONFIRM_BODY;Are you sure you want to overwrite your existing database? All records and Settings will be lost!;Sind Sie sicher, dass Sie Ihre bestehende Datenbank überschreiben möchten? Ihre alten Einträge und Einstellungen werden dadurch gelöscht!
+SETTINGS_DATABASE_IMPORT_OVERWRITE_CONFIRM_YES;Yes, overwrite;Ja, überschreiben
+SETTINGS_DATABASE_IMPORT_OVERWRITE_CONFIRM_NO;No, go back;Nein, zurück
+QUIT_APP_POPUP_TITLE;Quit App;App beenden
+QUIT_APP_POPUP_MESSAGE;Are you sure you want to quit?;Sind Sie sicher, dass Sie die App beenden möchten?
+QUIT_APP_POPUP_CANCEL;Cancel;Abbrechen
+QUIT_APP_POPUP_CONFIRM;Quit;Beenden

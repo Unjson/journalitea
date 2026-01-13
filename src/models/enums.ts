@@ -41,3 +41,14 @@ export enum Language{
 	ENGLISH = 0,
 	GERMAN = 1
 }
+
+export function getLocaleFromLanguage(lang: Language): string {
+	switch(lang){
+		case Language.ENGLISH:
+			return "en";
+		case Language.GERMAN:
+			return "de";
+		default:		
+		return "en";
+	}
+}

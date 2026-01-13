@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { Language, CurrencyType } from '../models/enums';
+import { Language, CurrencyType, getLocaleFromLanguage } from '../models/enums';
+import { useI18n } from 'vue-i18n';
+
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
-
+const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 
@@ -18,6 +20,7 @@ const onCurrencyChanged = async () => {
 const onLanguageChanged = async () => {
   try {
 	await ipcRenderer.invoke('db:setSetting', 'language', languageSetting.value);
+	locale.value = getLocaleFromLanguage(languageSetting.value);
   } catch (err) {
 	console.error('Error saving language setting:', err);
   }
@@ -45,7 +48,7 @@ onMounted(async() => {
 	<div class="mt-6">
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="language">
-				Language
+				{{ t('SETTINGS_LANGUAGE_TITLE') }}
 			</label>
 			<select v-model="languageSetting" @change="onLanguageChanged" id="language" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
 				<option :value="Language.ENGLISH">English</option>
@@ -55,7 +58,7 @@ onMounted(async() => {
 
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
-				Preferred Currency
+				{{ t('SETTINGS_CURRENCY_TITLE') }}
 			</label>
 			<select v-model="preferredCurrency" @change="onCurrencyChanged" id="currency" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
 				<option :value="CurrencyType.USD">USD</option>
