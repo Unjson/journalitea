@@ -1,3 +1,5 @@
+import { TeaType, PreparationMethod, CurrencyType, WeightUnit } from './enums';
+
 export class Record {
 	//Data Block
 	id: number;
@@ -12,7 +14,7 @@ export class Record {
 	price_currency: CurrencyType;
 	weight: number;
 	weightUnit: WeightUnit
-	preparationMethod: string;
+	preparationMethod: PreparationMethod;
 	preparationNotes: string;
 
 	//Tasting Notes Block
@@ -51,7 +53,7 @@ export class Record {
 		this.price_currency = CurrencyType.OTHER;
 		this.weight = 0;
 		this.weightUnit = WeightUnit.METRIC_GRAM;
-		this.preparationMethod = "";
+		this.preparationMethod = PreparationMethod.OTHER;
 		this.preparationNotes = "";
 
 		this.dryLeaves = "";
@@ -169,43 +171,4 @@ export class Record {
 				return "";
 		}
 	}
-}
-
-enum TeaType
-{
-	GREEN = 0,
-	BLACK = 1,
-	OOLONG = 2,
-	WHITE = 3, 
-	DARK = 4,
-	YELLOW = 5,
-	// 6 not used atm (used to be PURPLE)	
-	HERBAL = 7,
-	OTHER = 8
-}
-
-enum PreparationMethod{
-	WESTERN = 0,
-	GAIWAN = 1,
-	CLAY = 2,
-	TEABAG = 3,
-	COLDBREW = 4,
-	OTHER = 5
-}
-
-enum CurrencyType
-{
-	USD = 0,
-	EUR = 1,
-	GBP = 2,
-	CNY = 3,
-	JPY = 4,
-	INR = 5,
-	TWD = 6,
-	OTHER = 7
-}
-
-enum WeightUnit {
-	METRIC_GRAM = 0,
-	IMPERIAL_OUNCE = 1
 }

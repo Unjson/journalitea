@@ -14,6 +14,7 @@ class DatabaseService {
     console.log(`Database initialized: ${dbPath}`);
     
     this.createRecordsTable();
+    this.createSettingsTable();
     return this.db;
   }
 
@@ -173,7 +174,35 @@ class DatabaseService {
     return record;
   }
 
-    private createRecordsTable(): void {
+  setSetingsValue(key: string, intVal: number | null, strVal: string | null): void {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    //Check is key already exists in DB
+    const selectStmt = this.db.prepare('SELECT id FROM settings WHERE key = ?');
+    const row = selectStmt.get(key) as { id: number } | undefined;
+    const id = row ? row.id : null;
+
+    if (id) {
+      const updateStmt = this.db.prepare('UPDATE settings SET int_val = ?, str_val = ? WHERE key = ?');
+      updateStmt.run(intVal, strVal, key);
+      return;
+    }
+    else{
+      const insertStmt = this.db.prepare('INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)');
+      insertStmt.run(key, intVal, strVal);
+    }
+  }
+
+  getSettingsValue(key: string): { intVal: number | null; strVal: string } | null {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    const stmt = this.db.prepare('SELECT int_val, str_val FROM settings WHERE key = ?');
+    const row = stmt.get(key) as { int_val: number | null; str_val: string | null } | undefined;
+    
+    return row ? { intVal: row.int_val ?? -1, strVal: row.str_val ?? "" } : null;
+  }
+
+  private createRecordsTable(): void {
     if (!this.db) throw new Error('Database not initialized');
     
     this.db.exec(`
@@ -211,6 +240,17 @@ class DatabaseService {
         photo BLOB
       )
     `);
+  }
+
+  private createSettingsTable(): void {
+    if (!this.db) throw new Error('Database not initialized');
+
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT NOT NULL,
+        int_val INTEGER,
+        str_val TEXT)`);
   }
 
   close(): void {

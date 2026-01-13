@@ -135,4 +135,21 @@ const setupIpcHandlers = (): void => {
       throw error;
     }
   });
+  
+  ipcMain.handle('db:getSetting', async (event, key: string) => {
+    try {
+      return db.getSettingsValue(key);
+    } catch (error) {
+      console.error('Error getting setting:', error);
+      throw error;
+    }
+  });
+  ipcMain.handle('db:setSetting', async (event, key: string, intValue: number | null, strValue: string | null) => {
+    try {
+      return db.setSetingsValue(key, intValue, strValue);
+    } catch (error) {
+      console.error('Error setting setting:', error);
+      throw error;
+    }
+  });
 };
