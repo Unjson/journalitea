@@ -26,6 +26,9 @@ onMounted(async() => {
 	electron.ipcRenderer.on('goToSettings', () => {
 	router.replace('/settings');
 	});
+	electron.ipcRenderer.on('goToStats', () => {
+	router.replace('/stats');
+	});
 
 	const language = await electron.ipcRenderer.invoke('db:getSetting', 'language');
 	if(language.intVal != -1){
@@ -74,6 +77,13 @@ onMounted(async() => {
 					>
 						<span class="text-lg">📋</span>
 						<span v-if="!sidebarCollapsed">Records List</span>
+					</router-link>
+					<router-link 
+						to="/stats" 
+						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
+					>
+						<span class="text-lg">📊</span>
+						<span v-if="!sidebarCollapsed">Stats for Nerds</span>
 					</router-link>
 					<div class="flex-1 grow"></div>
 					<router-link 

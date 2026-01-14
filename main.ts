@@ -88,6 +88,13 @@ const createMenu = (): void => {
           }
         },
         {
+          label: 'Stats',
+          click() {
+            console.log('Navigate to Stats');
+            mainWindow?.webContents.send('goToStats');
+          }
+        },
+        {
           label: 'Exit',
           click() {
             app.quit();
