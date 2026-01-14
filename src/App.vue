@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
 import { useI18n } from 'vue-i18n';
 
-const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const { t, locale } = useI18n();
 const electron = window.require("electron");
 const router = useRouter();
