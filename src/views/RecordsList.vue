@@ -24,6 +24,10 @@ const loadRecords = async () => {
   }
 };
 
+const createRecord = async () =>{
+
+}
+
 onMounted(() => {
   loadRecords();
 });
@@ -34,11 +38,10 @@ onMounted(() => {
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold">Records List</h1>
       <button 
-        @click="loadRecords" 
+        @click="$router.push({ name: 'record-new' })" 
         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        :disabled="loading"
       >
-        {{ loading ? 'Loading...' : 'Refresh' }}
+        {{ "New" }}
       </button>
     </div>
 

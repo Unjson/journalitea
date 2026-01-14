@@ -15,10 +15,10 @@ const error = ref<string | null>(null);
 const isNewRecord = ref(true);
 
 const loadRecord = async () => {
-  const id = route.params.id;
-  
+  const id = Number(route.params.id);
+
   // Check if we're creating a new record
-  if (id === 'new') {
+  if (isNaN(id) || id === -1) {
     isNewRecord.value = true;
     record.value = new Record();
     return;
