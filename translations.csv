@@ -37,16 +37,6 @@ edit.record_wet_leaves_label;Wet Leaves;Nasse Blätter
 edit.record_liquor_label;Liquor;Aufguss
 edit.record_color_label;Color;Farbe
 edit.record_aromas_label;Aromas;Aromen
-edit.record_aromas_sweet;Sweet;Süß
-edit.record_aromas_floral;Floral;Blumig
-edit.record_aromas_nutty;Nutty;Nussig
-edit.record_aromas_spicy;Spicy;Würzig
-edit.record_aromas_fruity;Fruity;Fruchtig
-edit.record_aromas_fire;Fire / Animal;Feuer / Tierisch
-edit.record_aromas_vegetal;Vegetables / Plants;Gemüse / Pflanzlich
-edit.record_aromas_earthy;Earthy;Erdig
-edit.record_aromas_mineral;Mineral;Mineralisch
-edit.record_aromas_marine;Marine;Maritim
 edit.record_notes_label;Notes;Notizen
 edit.record_rating_label;Rating;Bewertung
 edit.record_cancel_button;Cancel;Abbrechen
@@ -61,49 +51,39 @@ view.record_back_button;Back;Zurück
 view.record_stats_title;Stats;Statistiken
 view.record_aromas_title;Aromas;Aromen
 view.record_observations_title;Observations;Beobachtungen
-popup.create_record_title;Create new;Neu erstellen
-popup.create_record_green;Green;Grün
-popup.create_record_black;Black;Schwarz
-popup.create_record_oolong;Oolong;Oolong
-popup.create_record_white;White;Weiß
-popup.create_record_dark;Dark;Dunkel
-popup.create_record_yellow;Yellow;Gelb
-popup.create_record_purple;Purple;Purpur
-popup.create_record_herbal;Herbal;Kräuter
-popup.create_record_other;Other;Andere
 popup.delete_record_title;Delete Record;Eintrag löschen
 popup.delete_record_body;Are you sure you want to delete this record?;Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?
 popup.delete_record_confirm;Delete;Bestätigen
 popup.delete_record_cancel;Cancel;Abbrechen
 record.button_created;created;erstellt am
-type.enum_green;Green;Grün
-type.enum_black;Black;Schwarz
-type.enum_oolong;Oolong;Oolong
-type.enum_white;White;Weiß
-type.enum_dark;Dark;Dunkel
-type.enum_yellow;Yellow;Gelb
-type.enum_purple;Purple;Purpur
-type.enum_herbal;Herbal;Kräuter
-type.enum_other;Other;Andere
-method.enum_western;Western;Westlich
-method.enum_gaiwan;Gaiwan;Gaiwan
-method.enum_teapot;Clay;Tonkanne
-method.enum_tea_bag;Tea Bag;Teebeutel
-method.enum_cold_brew;Cold Brew;Kalt
-method.enum_other;Other;Andere
-aromas.sweet;Sweet;Süß
-aromas.floral;Floral;Blumig
-aromas.nutty;Nutty;Nussig
-aromas.spicy;Spicy;Würzig
-aromas.fruity;Fruity;Fruchtig
-aromas.fire;Fire /\nAnimal;Feuer /\nTierisch
-aromas.vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
-aromas.earthy;Earthy;Erdig
-aromas.mineral;Mineral;Mineralisch
-aromas.marine;Marine;Maritim
-aromas.simple_spicy;Nutty /\nSpicy;Nussig-Würzig
-aromas.simple_earthy;Earth and Stone;Erde und Gestein
-aromas.simple_fire;Gamey;Tierisch
+enum.type_green;Green;Grün
+enum.type_black;Black;Schwarz
+enum.type_oolong;Oolong;Oolong
+enum.type_white;White;Weiß
+enum.type_dark;Dark;Dunkel
+enum.type_yellow;Yellow;Gelb
+enum.type_purple;Purple;Purpur
+enum.type_herbal;Herbal;Kräuter
+enum.type_other;Other;Andere
+enum.method_western;Western;Westlich
+enum.method_gaiwan;Gaiwan;Gaiwan
+enum.method_teapot;Clay;Tonkanne
+enum.method_tea_bag;Tea Bag;Teebeutel
+enum.method_cold_brew;Cold Brew;Kalt
+enum.method_other;Other;Andere
+enum.aromas_sweet;Sweet;Süß
+enum.aromas_floral;Floral;Blumig
+enum.aromas_nutty;Nutty;Nussig
+enum.aromas_spicy;Spicy;Würzig
+enum.aromas_fruity;Fruity;Fruchtig
+enum.aromas_fire;Fire /\nAnimal;Feuer /\nTierisch
+enum.aromas_vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
+enum.aromas_earthy;Earthy;Erdig
+enum.aromas_mineral;Mineral;Mineralisch
+enum.aromas_marine;Marine;Maritim
+enum.aromas_simple_spicy;Nutty /\nSpicy;Nussig-Würzig
+enum.aromas_simple_earthy;Earth and Stone;Erde und Gestein
+enum.aromas_simple_fire;Gamey;Tierisch
 stats.cumulative_tab;Cumulative;Kumulativ
 stats.aromas_tab;Aromas;Aromen
 stats.origins_tab;Origins;Herkünfte

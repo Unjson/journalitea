@@ -154,7 +154,7 @@ onMounted(() => {
       <!-- Edit Button -->
       <div class="gap-4 mt-6 pt-6 border-t flex justify-end">
 		<button 
-      		@click="$router.replace('/records-list')" 
+      		@click="$router.replace('/')" 
       		class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
     	>
       ← Back to Records List

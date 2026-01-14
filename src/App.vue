@@ -14,14 +14,11 @@ const toggleSidebar = () => {
 };
 
 onMounted(async() => {
-  electron.ipcRenderer.on('goToHome', () => {
-    router.replace('/');
+	electron.ipcRenderer.on('goToRecordsList', () => {
+	router.replace('/');
 	});
 	electron.ipcRenderer.on('goToAbout', () => {
     router.replace('/about');
-	});
-	electron.ipcRenderer.on('goToRecordsList', () => {
-	router.replace('/records-list');
 	});
 	electron.ipcRenderer.on('goToSettings', () => {
 	router.replace('/settings');
@@ -61,29 +58,15 @@ onMounted(async() => {
 						to="/" 
 						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
 					>
-						<span class="text-lg">🏠</span>
-						<span v-if="!sidebarCollapsed">Home</span>
-					</router-link>
-					<router-link 
-						to="/about" 
-						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
-					>
-						<span class="text-lg">ℹ️</span>
-						<span v-if="!sidebarCollapsed">About</span>
-					</router-link>
-					<router-link 
-						to="/records-list" 
-						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
-					>
 						<span class="text-lg">📋</span>
-						<span v-if="!sidebarCollapsed">Records List</span>
+						<span v-if="!sidebarCollapsed">{{t('menu.item_my_teas')}}</span>
 					</router-link>
 					<router-link 
 						to="/stats" 
 						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
 					>
 						<span class="text-lg">📊</span>
-						<span v-if="!sidebarCollapsed">Stats for Nerds</span>
+						<span v-if="!sidebarCollapsed">{{t('menu.item_stats')}}</span>
 					</router-link>
 					<div class="flex-1 grow"></div>
 					<router-link 
@@ -91,7 +74,14 @@ onMounted(async() => {
 						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
 					>
 						<span class="text-lg">⚙️</span>
-						<span v-if="!sidebarCollapsed">Settings</span>
+						<span v-if="!sidebarCollapsed">{{t('menu.item_settings')}}</span>
+					</router-link>
+										<router-link 
+						to="/about" 
+						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
+					>
+						<span class="text-lg">ℹ️</span>
+						<span v-if="!sidebarCollapsed">{{t('menu.item_about')}}</span>
 					</router-link>					
 				</nav>
 			</div>
@@ -100,7 +90,7 @@ onMounted(async() => {
 		<!-- Main Content -->
 		<main class="flex-1 overflow-auto">
 			<header class="bg-white shadow p-4">
-				<h1 class="text-3xl font-bold">{{ t('POPUP_DB_NOT_FOUND_TITLE') }}</h1>
+				<h1 class="text-3xl font-bold">{{ t('app.title') }}</h1>
 			</header>
 			<div class="p-6">
 				<router-view/>

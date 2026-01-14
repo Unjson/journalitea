@@ -60,13 +60,6 @@ const createMenu = (): void => {
       label: 'Menu',
       submenu: [
         {
-          label: 'Home',
-          click() {
-            console.log('Navigate to Home');
-            mainWindow?.webContents.send('goToHome');
-          },
-        },
-        {
           label: 'About',
           click() {
             console.log('Navigate to About');
