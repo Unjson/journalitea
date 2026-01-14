@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { Language, CurrencyType, WeightUnit, getLocaleFromLanguage } from '../models/enums';
 import { useI18n } from 'vue-i18n';
+import { PREFS } from '../appSettings.js';
 
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
@@ -12,7 +13,7 @@ const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 
 const onCurrencyChanged = async () => {
   try {
-	await ipcRenderer.invoke('db:setSetting', 'main_currency', preferredCurrency.value);
+	await ipcRenderer.invoke('db:setSetting', PREFS.CURRENCY, preferredCurrency.value);
   } catch (err) {
 	console.error('Error saving preferred currency:', err);
   }
@@ -20,7 +21,7 @@ const onCurrencyChanged = async () => {
 
 const onLanguageChanged = async () => {
   try {
-	await ipcRenderer.invoke('db:setSetting', 'language', languageSetting.value);
+	await ipcRenderer.invoke('db:setSetting', PREFS.LANGUAGE, languageSetting.value);
 	locale.value = getLocaleFromLanguage(languageSetting.value);
   } catch (err) {
 	console.error('Error saving language setting:', err);
@@ -29,7 +30,7 @@ const onLanguageChanged = async () => {
 
 const onWeightUnitChanged = async () => {
   try {
-	await ipcRenderer.invoke('db:setSetting', 'weight_unit', preferredWeightUnit.value);
+	await ipcRenderer.invoke('db:setSetting', PREFS.WEIGHT_UNIT, preferredWeightUnit.value);
   } catch (err) {
 	console.error('Error saving preferred weight unit:', err);
   }
@@ -37,15 +38,15 @@ const onWeightUnitChanged = async () => {
 
 onMounted(async() => {
   try{
-	const language = await ipcRenderer.invoke('db:getSetting', 'language');
+	const language = await ipcRenderer.invoke('db:getSetting', PREFS.LANGUAGE);
 	if(language.intVal != -1){
 		languageSetting.value = language.intVal;
 	}
-	const currency = await ipcRenderer.invoke('db:getSetting', 'main_currency');
+	const currency = await ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY);
 	if(currency.intVal != -1){
 		preferredCurrency.value = currency.intVal;
 	}
-	const weightUnit = await ipcRenderer.invoke('db:getSetting', 'weight_unit');
+	const weightUnit = await ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
 	if(weightUnit.intVal != -1){
 		preferredWeightUnit.value = weightUnit.intVal;
 	}

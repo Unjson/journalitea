@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
+import { CurrencyType, WeightUnit, TeaType } from '../models/enums';
+import { PREFS } from '../appSettings.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -45,11 +47,11 @@ const loadRecord = async () => {
 
 const setDefaults = () => {
   //poll settings db for preferred currency and weight unit
-  ipcRenderer.invoke('db:getSetting', 'main_currency').then((currency: any) => {
+  ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY).then((currency: any) => {
     if(currency.intVal != -1){
       record.value.price_currency = currency.intVal; 
     }});
-  ipcRenderer.invoke('db:getSetting', 'weight_unit').then((weightUnit: any) => {
+  ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT).then((weightUnit: any) => {
     if(weightUnit.intVal != -1){
       record.value.weightUnit = weightUnit.intVal;
     }})
@@ -132,14 +134,14 @@ onMounted(() => {
               v-model.number="record.type"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option :value="0">Green</option>
-              <option :value="1">Black</option>
-              <option :value="2">Oolong</option>
-              <option :value="3">White</option>
-              <option :value="4">Dark</option>
-              <option :value="5">Yellow</option>
-              <option :value="7">Herbal</option>
-              <option :value="8">Other</option>
+              <option :value="TeaType.GREEN">Green</option>
+              <option :value="TeaType.BLACK">Black</option>
+              <option :value="TeaType.OOLONG">Oolong</option>
+              <option :value="TeaType.WHITE">White</option>
+              <option :value="TeaType.DARK">Dark</option>
+              <option :value="TeaType.YELLOW">Yellow</option>
+              <option :value="TeaType.HERBAL">Herbal</option>
+              <option :value="TeaType.OTHER">Other</option>
             </select>
           </div>
           
@@ -194,14 +196,14 @@ onMounted(() => {
               v-model.number="record.price_currency"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option :value="0">USD</option>
-              <option :value="1">EUR</option>
-              <option :value="2">GBP</option>
-              <option :value="3">CNY</option>
-              <option :value="4">JPY</option>
-              <option :value="5">INR</option>
-              <option :value="6">TWD</option>
-              <option :value="7">Other</option>
+              <option :value="CurrencyType.USD">USD</option>
+              <option :value="CurrencyType.EUR">EUR</option>
+              <option :value="CurrencyType.GBP">GBP</option>
+              <option :value="CurrencyType.CNY">CNY</option>
+              <option :value="CurrencyType.JPY">JPY</option>
+              <option :value="CurrencyType.INR">INR</option>
+              <option :value="CurrencyType.TWD">TWD</option>
+              <option :value="CurrencyType.OTHER">Other</option>
             </select>
             </div>
           </div>
@@ -218,8 +220,8 @@ onMounted(() => {
               v-model.number="record.weightUnit"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option :value="0">Grams (g)</option>
-              <option :value="1">Ounces (oz)</option>
+              <option :value="WeightUnit.METRIC_GRAM">Grams (g)</option>
+              <option :value="WeightUnit.IMPERIAL_OUNCE">Ounces (oz)</option>
             </select>
             </div>
         </div>
