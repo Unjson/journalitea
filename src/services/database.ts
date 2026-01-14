@@ -2,8 +2,8 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { Record } from '../models/record';
-import { APP_USER_FOLDER, DATABASE_NAME } from '../appSettings';
+import { Record } from '../models/record.js';
+import { APP_USER_FOLDER, DATABASE_NAME } from '../appSettings.js';
 
 class DatabaseService {
   private db: Database.Database | null = null;

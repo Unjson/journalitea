@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "CommonJS",
+    "module": "ES2022",
     "lib": ["ES2022"],
     "outDir": "./dist-electron",
     "rootDir": "./",
@@ -16,8 +16,9 @@
   "include": [
     "main.ts",
     "index.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts"
+    "src/services/database.ts",
+    "src/services/i18n/csvParser.ts",
+    "src/models/*.ts"
   ],
   "exclude": [
     "node_modules",

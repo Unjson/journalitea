@@ -1,4 +1,4 @@
-import { TeaType, PreparationMethod, CurrencyType, WeightUnit } from './enums';
+import { TeaType, PreparationMethod, CurrencyType, WeightUnit } from './enums.js';
 
 export class Record {
 	//Data Block

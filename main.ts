@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Menu, ipcMain } from 'electron';
-import db from './src/services/database';
-import { parseTranslationsFromCSV } from './src/services/i18n/csvParser';
+import db from './src/services/database.js';
+import { parseTranslationsFromCSV } from './src/services/i18n/csvParser.js';
 
 const isDev = process.env.NODE_ENV === 'development';
 const VITE_DEV_SERVER_URL = 'http://localhost:5173';
