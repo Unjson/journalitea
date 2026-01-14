@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import fs = require('fs');
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';

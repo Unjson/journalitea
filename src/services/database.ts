@@ -1,15 +1,19 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 import { app } from 'electron';
 import { Record } from '../models/record';
+import { APP_USER_FOLDER, DATABASE_NAME } from '../appSettings';
 
 class DatabaseService {
   private db: Database.Database | null = null;
 
-  initialize(dbName: string = 'app.db'): Database.Database {
+  initialize(dbName: string = DATABASE_NAME): Database.Database {
     if (this.db) return this.db;
+    fs.mkdirSync(path.join(app.getPath('userData'), APP_USER_FOLDER), { recursive: true });
+    
 
-    const dbPath = path.join(app.getPath('userData'), dbName);
+    const dbPath = path.join(app.getPath('userData'), APP_USER_FOLDER, dbName);
     this.db = new Database(dbPath);
     console.log(`Database initialized: ${dbPath}`);
     
@@ -198,8 +202,9 @@ class DatabaseService {
     
     const stmt = this.db.prepare('SELECT int_val, str_val FROM settings WHERE key = ?');
     const row = stmt.get(key) as { int_val: number | null; str_val: string | null } | undefined;
-    
-    return row ? { intVal: row.int_val ?? -1, strVal: row.str_val ?? "" } : null;
+
+    if (!row) return { intVal: -1, strVal: "" };
+    else  return { intVal: row.int_val ?? -1, strVal: row.str_val ?? "" };
   }
 
   private createRecordsTable(): void {

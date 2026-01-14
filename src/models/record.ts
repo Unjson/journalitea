@@ -76,23 +76,6 @@ export class Record {
 		this.photo = null;
 	}
 
-	/**
-	 * Converts the photo Blob to a displayable image URL
-	 * @returns Promise<string | null> - Data URL for the image or null if no photo
-	 */
-	async getPhotoUrl(): Promise<string | null> {
-		if (!this.photo) {
-			return null;
-		}
-
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.onloadend = () => resolve(reader.result as string);
-			reader.onerror = reject;
-			reader.readAsDataURL(this.photo);
-		});
-	}
-
 	getTypeName(): string {
 		return TeaType[this.type];
 	}

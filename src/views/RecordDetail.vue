@@ -39,11 +39,6 @@ const loadRecord = async () => {
     teaType.value = recordInstance.getTypeName();
     preparationMethod.value = recordInstance.getPreparationMethodName();
     currencyString.value = recordInstance.getPriceStringWithCurrency();
-
-    if (recordInstance.photo) {
-      // Convert photo Blob to displayable URL
-      photoUrl.value = await recordInstance.getPhotoUrl();
-    }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load record';
     console.error('Error loading record:', err);
@@ -156,13 +151,6 @@ onMounted(() => {
           <span class="text-2xl font-bold text-blue-600 ml-2">{{ record.rating }}/5</span>
         </div>
       </section>
-
-      <!-- Photo -->
-      <section v-if="record.photo">
-        <h2 class="text-xl font-semibold mb-3 border-b pb-2">Photo</h2>
-        <img :src="photoUrl" alt="Tea photo" class="max-w-md rounded-lg shadow-md" />
-      </section>
-
       <!-- Edit Button -->
       <div class="gap-4 mt-6 pt-6 border-t flex justify-end">
 		<button 
