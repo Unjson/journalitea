@@ -3,11 +3,14 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
 import { useI18n } from 'vue-i18n';
+import Sidebar from './components/Sidebar.vue';
+import Header from './components/Header.vue';
 
 const { t, locale } = useI18n();
 const electron = window.require("electron");
 const router = useRouter();
 const sidebarCollapsed = ref(false);
+const headerTitle = ref(t('app.title'));
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -26,6 +29,34 @@ onMounted(async() => {
 	electron.ipcRenderer.on('goToStats', () => {
 	router.replace('/stats');
 	});
+	
+	router.afterEach((to) => {
+		switch(to.name) {
+			case 'records-list':
+				headerTitle.value = t('header.title_my_teas');
+				break;
+			case 'record-detail':
+				headerTitle.value = t('header.title_view_record');
+				break;
+			case 'record-edit':
+				headerTitle.value = t('header.title_edit_record');
+				break;
+			case 'record-new':
+				headerTitle.value = t('header.title_create_record');
+				break;
+			case 'stats':
+				headerTitle.value = t('header.title_stats');
+				break;
+			case 'about':
+				headerTitle.value = t('header.title_about');
+				break;
+			case 'settings':
+				headerTitle.value = t('header.title_settings');
+				break;
+			default:
+				headerTitle.value = t('app.title');
+		}
+	});
 
 	const language = await electron.ipcRenderer.invoke('db:getSetting', 'language');
 	if(language.intVal != -1){
@@ -36,62 +67,20 @@ onMounted(async() => {
 </script>
 
 <template>
-	<div id="app" class="flex h-screen">
-		<!-- Sidebar -->
-		<aside 
-			:class="['sidebar', { 'collapsed': sidebarCollapsed }]"
-			class="bg-gray-800 text-white transition-all duration-300"
-		>
-			<button 
-				@click="toggleSidebar" 
-				class="toggle-btn absolute -right-3 top-4 bg-gray-700 hover:bg-gray-600 rounded-full w-6 h-6 flex items-center justify-center"
-			>
-				<span v-if="sidebarCollapsed">→</span>
-				<span v-else>←</span>
-			</button>
-			
-			<div class="sidebar-content p-4 flex flex-col h-full">
-				<h2 v-if="!sidebarCollapsed" class="text-xl font-bold mb-6">Navigation</h2>
-				
-				<nav class="flex h-full flex-col gap-2">
-					<router-link 
-						to="/" 
-						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
-					>
-						<span class="text-lg">📋</span>
-						<span v-if="!sidebarCollapsed">{{t('menu.item_my_teas')}}</span>
-					</router-link>
-					<router-link 
-						to="/stats" 
-						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
-					>
-						<span class="text-lg">📊</span>
-						<span v-if="!sidebarCollapsed">{{t('menu.item_stats')}}</span>
-					</router-link>
-					<div class="flex-1 grow"></div>
-					<router-link 
-						to="/settings" 
-						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
-					>
-						<span class="text-lg">⚙️</span>
-						<span v-if="!sidebarCollapsed">{{t('menu.item_settings')}}</span>
-					</router-link>
-										<router-link 
-						to="/about" 
-						class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
-					>
-						<span class="text-lg">ℹ️</span>
-						<span v-if="!sidebarCollapsed">{{t('menu.item_about')}}</span>
-					</router-link>					
-				</nav>
-			</div>
-		</aside>
+	<div id="app" class="h-screen">
+		<!-- Backdrop overlay -->
+		<div 
+			v-if="!sidebarCollapsed"
+			class="backdrop"
+			@click="toggleSidebar"
+		></div>
+
+		<!-- Sidebar overlay -->
+		<Sidebar :collapsed="sidebarCollapsed" @toggle="toggleSidebar" />
 
 		<!-- Main Content -->
-		<main class="flex-1 overflow-auto">
-			<header class="bg-white shadow p-4">
-				<h1 class="text-3xl font-bold">{{ t('app.title') }}</h1>
-			</header>
+		<main class="main-content">
+			<Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :header-title="headerTitle" />
 			<div class="p-6">
 				<router-view/>
 			</div>
@@ -100,27 +89,25 @@ onMounted(async() => {
 </template>
 
 <style scoped>
-.sidebar {
-	width: 250px;
+#app {
 	position: relative;
-	min-height: 100vh;
+	overflow: hidden;
 }
 
-.sidebar.collapsed {
-	width: 70px;
+.backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 40;
+	transition: opacity 0.3s ease-in-out;
 }
 
-.toggle-btn {
-	z-index: 10;
-}
-
-.nav-link {
-	text-decoration: none;
-	color: inherit;
-}
-
-.nav-link.router-link-active {
-	background-color: #374151;
-	font-weight: 600;
+.main-content {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
 }
 </style>

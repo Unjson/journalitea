@@ -1,5 +1,6 @@
 key;en;de
-app.title;Journalitea - Personal Tea Journal;Journalitea - Persönliches Tee-Tagebuch
+app.title;Journalitea;Journalitea
+app.title_full;Journalitea - Personal Tea Journal;Journalitea - Persönliches Tee-Tagebuch
 popup.db_not_found_title;Hi There!;Hallo!
 popup.db_not_found_body;It seems like you're using Journalitea for the first time.\nWould you like to create a new Database now?;Es scheint, als ob Sie Journalitea zum ersten Mal verwenden.\nMöchten Sie jetzt eine neue Datenbank erstellen?
 popup.db_not_found_create_new;Create DB;Neue Datenbank\nErstellen

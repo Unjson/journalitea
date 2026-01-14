@@ -1,3 +1,13 @@
+export enum Page{
+	RECORDS_LIST = 0,
+	ABOUT = 1,
+	RECORD_DETAIL = 2,
+	EDIT_RECORD = 3,
+	NEW_RECORD = 4,
+	SETTINGS = 5,
+	STATS = 6
+}
+
 export enum TeaType
 {
 	GREEN = 0,
