@@ -62,7 +62,7 @@ onMounted(async() => {
 	<div class="mt-6">
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="language">
-				{{ t('SETTINGS_LANGUAGE_TITLE') }}
+				{{ t('settings.language_title') }}
 			</label>
 			<select v-model="languageSetting" @change="onLanguageChanged" id="language" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
 				<option :value="Language.ENGLISH">English</option>
@@ -72,7 +72,7 @@ onMounted(async() => {
 
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
-				{{ t('SETTINGS_CURRENCY_TITLE') }}
+				{{ t('settings.currency_title') }}
 			</label>
 			<select v-model="preferredCurrency" @change="onCurrencyChanged" id="currency" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
 				<option :value="CurrencyType.USD">USD</option>
@@ -88,7 +88,7 @@ onMounted(async() => {
 
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
-				{{ t('SETTINGS_CURRENCY_TITLE') }}
+				{{ t('settings.weight_unit_title') }}
 			</label>
 			<select v-model="preferredWeightUnit" @change="onWeightUnitChanged" id="weight" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
 				<option :value="WeightUnit.METRIC_GRAM">Grams (g)</option>
