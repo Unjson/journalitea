@@ -9,7 +9,7 @@ import Header from './components/Header.vue';
 const { t, locale } = useI18n();
 const electron = window.require("electron");
 const router = useRouter();
-const sidebarCollapsed = ref(false);
+const sidebarCollapsed = ref(true);
 const headerTitle = ref(t('app.title'));
 
 const toggleSidebar = () => {

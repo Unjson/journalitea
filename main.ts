@@ -62,28 +62,24 @@ const createMenu = (): void => {
         {
           label: 'About',
           click() {
-            console.log('Navigate to About');
             mainWindow?.webContents.send('goToAbout');
           },
         },
         {
           label: 'Records List',
           click() {
-            console.log('Navigate to Records List');
             mainWindow?.webContents.send('goToRecordsList');
           },
         },
         {
           label: 'Settings',
           click() {
-            console.log('Navigate to Settings');
             mainWindow?.webContents.send('goToSettings');
           }
         },
         {
           label: 'Stats',
           click() {
-            console.log('Navigate to Stats');
             mainWindow?.webContents.send('goToStats');
           }
         },
