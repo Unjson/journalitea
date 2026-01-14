@@ -43,7 +43,7 @@ export class Record {
 	constructor() {
 		this.id = -1;
 		this.name = "";
-		this.type = TeaType.OTHER;
+		this.type = TeaType.GREEN;
 		this.subtype = "";
 		this.dateAdded = new Date(Date.now());
 		this.seller = "";
@@ -53,7 +53,7 @@ export class Record {
 		this.price_currency = CurrencyType.OTHER;
 		this.weight = 0;
 		this.weightUnit = WeightUnit.METRIC_GRAM;
-		this.preparationMethod = PreparationMethod.OTHER;
+		this.preparationMethod = PreparationMethod.GAIWAN;
 		this.preparationNotes = "";
 
 		this.dryLeaves = "";

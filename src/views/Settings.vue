@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { Language, CurrencyType, getLocaleFromLanguage } from '../models/enums';
+import { Language, CurrencyType, WeightUnit, getLocaleFromLanguage } from '../models/enums';
 import { useI18n } from 'vue-i18n';
 
 const electron = (window as any).require('electron');
@@ -8,6 +8,7 @@ const { ipcRenderer } = electron;
 const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
+const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 
 const onCurrencyChanged = async () => {
   try {
@@ -26,6 +27,14 @@ const onLanguageChanged = async () => {
   }
 };
 
+const onWeightUnitChanged = async () => {
+  try {
+	await ipcRenderer.invoke('db:setSetting', 'weight_unit', preferredWeightUnit.value);
+  } catch (err) {
+	console.error('Error saving preferred weight unit:', err);
+  }
+};
+
 onMounted(async() => {
   try{
 	const language = await ipcRenderer.invoke('db:getSetting', 'language');
@@ -35,6 +44,10 @@ onMounted(async() => {
 	const currency = await ipcRenderer.invoke('db:getSetting', 'main_currency');
 	if(currency.intVal != -1){
 		preferredCurrency.value = currency.intVal;
+	}
+	const weightUnit = await ipcRenderer.invoke('db:getSetting', 'weight_unit');
+	if(weightUnit.intVal != -1){
+		preferredWeightUnit.value = weightUnit.intVal;
 	}
   } catch (err) {
 	console.error('Error loading settings:', err);
@@ -71,5 +84,16 @@ onMounted(async() => {
 				<option :value="CurrencyType.OTHER">OTHER</option>
 			</select>
 		</div>
+
+		<div class="mb-4">
+			<label class="block text-gray-700 font-bold mb-2" for="currency">
+				{{ t('SETTINGS_CURRENCY_TITLE') }}
+			</label>
+			<select v-model="preferredWeightUnit" @change="onWeightUnitChanged" id="weight" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+				<option :value="WeightUnit.METRIC_GRAM">Grams (g)</option>
+				<option :value="WeightUnit.IMPERIAL_OUNCE">Ounces (oz)</option>
+			</select>
+		</div>
+
 	</div>
 </template>

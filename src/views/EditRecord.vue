@@ -21,6 +21,7 @@ const loadRecord = async () => {
   if (isNaN(id) || id === -1) {
     isNewRecord.value = true;
     record.value = new Record();
+    setDefaults();
     return;
   }
   
@@ -40,6 +41,20 @@ const loadRecord = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const setDefaults = () => {
+  //poll settings db for preferred currency and weight unit
+  ipcRenderer.invoke('db:getSetting', 'main_currency').then((currency: any) => {
+    if(currency.intVal != -1){
+      record.value.price_currency = currency.intVal; 
+    }});
+  ipcRenderer.invoke('db:getSetting', 'weight_unit').then((weightUnit: any) => {
+    if(weightUnit.intVal != -1){
+      record.value.weightUnit = weightUnit.intVal;
+    }})
+  .catch((err: any) => {
+    console.error('Error loading default settings:', err);})
 };
 
 const saveRecord = async () => {
