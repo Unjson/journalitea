@@ -34,6 +34,7 @@ const onInput = (event: Event) => {
 				max="1"
 				:step="step ?? 0.01"
 				:value="safeValue"
+				:style="{ '--thumb-border-color': safeValue >= 0.78 ? '#ffffff' : '#1f2937' }"
 				@input="onInput"
 				aria-label="Color value"
 			/>
@@ -50,16 +51,7 @@ input[type='range']::-webkit-slider-thumb {
 	height: 44px;
 	border-radius: 4px;
 	background: transparent;
-	border: 1px solid #1f2937;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-input[type='range']::-moz-range-thumb {
-	width: 12px;
-	height: 44px;
-	border-radius: 4px;
-	background: transparent;
-	border: 1px solid #1f2937;
+	border: 1px solid var(--thumb-border-color, #1f2937);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -67,7 +59,4 @@ input[type='range']::-webkit-slider-runnable-track {
 	background: transparent;
 }
 
-input[type='range']::-moz-range-track {
-	background: transparent;
-}
 </style>
