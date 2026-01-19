@@ -24,8 +24,8 @@ const onInput = (event: Event) => {
 </script>
 
 <template>
-	<div class="space-y-2 w-full max-w-2xl">
-		<div class="relative h-12 rounded-md overflow-hidden border border-gray-300">
+	<div class="flex flex-row justify-center gap-4 items-center">
+		<div class="relative flex-1 h-12 rounded-md overflow-hidden border border-gray-300">
 			<div class="absolute inset-0" :style="{ background: teaColorGradientCss }"></div>
 			<input
 				class="absolute inset-0 w-full h-full appearance-none bg-transparent cursor-pointer"
@@ -38,10 +38,7 @@ const onInput = (event: Event) => {
 				aria-label="Color value"
 			/>
 		</div>
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 rounded-md border border-gray-300" :style="{ backgroundColor: getColorForRating(safeValue) }"></div>
-			<div class="text-xs text-gray-500">Value: {{ safeValue.toFixed(2) }}</div>
-		</div>
+		<div class="w-12 h-12 rounded-md border border-gray-300" :style="{ backgroundColor: getColorForRating(safeValue) }"></div>
 	</div>
 </template>
 
