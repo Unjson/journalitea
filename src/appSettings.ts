@@ -7,4 +7,5 @@ export const PREFS = {
 	CURRENCY: "main_currency",
 	LANGUAGE: "language",
 	WEIGHT_UNIT: "weight_unit",
+	EXCHANGE_RATES: "exchange_rates"
 }

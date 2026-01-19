@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { Language, CurrencyType, WeightUnit, getLocaleFromLanguage } from '../models/enums';
+import { lookUpExchangeRates } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import { PREFS } from '../appSettings.js';
 
@@ -14,6 +15,9 @@ const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const onCurrencyChanged = async () => {
   try {
 	await ipcRenderer.invoke('db:setSetting', PREFS.CURRENCY, preferredCurrency.value);
+	const exchangeRates = await lookUpExchangeRates(preferredCurrency.value);
+	console.log('Fetched exchange rates:', JSON.stringify(exchangeRates));
+	await ipcRenderer.invoke('db:setSetting', PREFS.EXCHANGE_RATES, JSON.stringify(exchangeRates));
   } catch (err) {
 	console.error('Error saving preferred currency:', err);
   }
