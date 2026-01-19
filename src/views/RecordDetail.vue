@@ -14,12 +14,13 @@ const { ipcRenderer } = electron;
 const record = ref<Record | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
-const photoUrl = ref<string | null>(null);
 const currencyString = ref<string | null>(null);
 
 const teaType = ref<string | null>(null);
 const preparationMethod = ref<string | null>(null);
 const showDeleteConfirm = ref(false);
+const aromaOpen = ref(false);
+const aromaPlotVersion = ref(0);
 
 const loadRecord = async () => {
   loading.value = true;
@@ -62,6 +63,14 @@ const deleteRecord = async () => {
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to delete record';
     console.error('Error deleting record:', err);
+  }
+};
+
+const handleAromaToggle = (event: Event) => {
+  const isOpen = (event.target as HTMLDetailsElement).open;
+  aromaOpen.value = isOpen;
+  if (isOpen) {
+    aromaPlotVersion.value += 1;
   }
 };
 
@@ -137,20 +146,28 @@ onMounted(() => {
 
       <!-- ITMC Scale Ratings -->
       <section class="mb-6">
-        <h2 class="text-xl font-semibold mb-3 border-b pb-2">Aroma Profile</h2>
-        <RadarPlot
-          :sweet="record.aroma_sweet"
-          :floral="record.aroma_floral"
-          :nutty="record.aroma_nutty"
-          :spicy="record.aroma_spicy"
-          :fire="record.aroma_fire"
-          :fruity="record.aroma_fruity"
-          :plants="record.aroma_plants"
-          :earthy="record.aroma_earthy"
-          :minerals="record.aroma_minerals"
-          :marine="record.aroma_marine"
-          :max-value="5"
-        />
+        <details class="border rounded-lg" @toggle="handleAromaToggle">
+          <summary class="flex items-center justify-between cursor-pointer select-none px-4 py-3">
+            <span class="text-lg font-semibold">{{aromaOpen ? "Hide Plot" : "Show Plot"}}</span>
+          </summary>
+          <div class="px-4 pb-4">
+            <RadarPlot
+              v-if="aromaOpen"
+              :key="aromaPlotVersion"
+              :sweet="record.aroma_sweet"
+              :floral="record.aroma_floral"
+              :nutty="record.aroma_nutty"
+              :spicy="record.aroma_spicy"
+              :fire="record.aroma_fire"
+              :fruity="record.aroma_fruity"
+              :plants="record.aroma_plants"
+              :earthy="record.aroma_earthy"
+              :minerals="record.aroma_minerals"
+              :marine="record.aroma_marine"
+              :max-value="5"
+            />
+          </div>
+        </details>
       </section>
 
       <!-- Notes & Rating -->
