@@ -2,7 +2,7 @@ import { Record as TeaRecord } from './record';
 import { TeaType, CurrencyType, WeightUnit, getExchangeRateRecordFromJSONResponse } from './enums';
 import { get } from 'node:http';
 
-export const OZ_IN_G = 0.03527396;
+export const OZ_IN_G = 28.34952;
 const exchangeRateApi = 'https://api.frankfurter.dev/v1/latest'
 
 export function getCumulativeStats(
@@ -15,12 +15,15 @@ export function getCumulativeStats(
     totalWeight: number;
     pricePerWeight: number;
     mostExpensiveTea: TeaRecord | null;
+	mostExpensivePerWeightTea: TeaRecord | null;
     teaCountByType:  Record<TeaType, number>;
   } {
 
 	let totalMoneySpent = 0.0;
 	let totalWeight = 0.0;
 	let mostExpensiveTea: TeaRecord | null = null;
+	let mostExpensivePerWeightTea: TeaRecord | null = null;
+	let highestPricePerWeight = 0.0;
 	let mostexpensivePrice = 0.0;
 	const teaCountByType: Record<TeaType, number> = {
 		[TeaType.GREEN]: 0,
@@ -39,6 +42,19 @@ export function getCumulativeStats(
 			mainCurrency, 
 			exchangeRates
 		);
+		const pricePerWeight = convertToPricePerDesiredUnit(
+			record.price,
+			record.weight,
+			record.weightUnit,
+			preferredWeightUnit,
+			record.priceCurrency,
+			mainCurrency,
+			exchangeRates
+		);
+		if (pricePerWeight > highestPricePerWeight) {
+			highestPricePerWeight = pricePerWeight;
+			mostExpensivePerWeightTea = record;
+		}
 		totalMoneySpent += priceInMainCurrency;
 		if(priceInMainCurrency > mostexpensivePrice){
 			mostexpensivePrice = priceInMainCurrency;
@@ -54,6 +70,7 @@ export function getCumulativeStats(
 			totalWeight: totalWeight,
 			pricePerWeight: totalWeight > 0 ? totalMoneySpent / totalWeight : 0.0,
 			mostExpensiveTea: mostExpensiveTea,
+			mostExpensivePerWeightTea: mostExpensivePerWeightTea,
 			teaCountByType: teaCountByType
 		};
 	}

@@ -99,7 +99,7 @@ export class Record {
 			origin: this.origin,
 			year: this.year,
 			price: this.price,
-			price_currency: this.priceCurrency,
+			priceCurrency: this.priceCurrency,
 			weight: this.weight,
 			weightUnit: this.weightUnit,
 			preparationMethod: this.preparationMethod,
