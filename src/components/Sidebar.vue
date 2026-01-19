@@ -62,7 +62,7 @@ const emit = defineEmits<{
 	top: 0;
 	left: 0;
 	height: 100vh;
-	z-index: 50;
+	z-index: 60;
 	transition: transform 0.3s ease-in-out;
 	transform: translateX(0);
 }
