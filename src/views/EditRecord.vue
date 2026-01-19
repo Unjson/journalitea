@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
 import { CurrencyType, WeightUnit, TeaType } from '../models/enums';
+import ColorSlider from '../components/ColorSlider.vue';
 import { PREFS } from '../appSettings.js';
 
 const route = useRoute();
@@ -294,12 +295,7 @@ onMounted(() => {
           
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-            <input
-              v-model.number="record.color"
-              type="number"
-              step="0.01"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <ColorSlider v-model="record.color" />
           </div>
         </div>
       </section>

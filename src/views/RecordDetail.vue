@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
+import { getColorForRating } from '../models/colors';
 import RadarPlot from '../components/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 
@@ -138,8 +139,13 @@ onMounted(() => {
             <span class="font-medium text-gray-700">Liquor:</span>
             <p class="text-gray-600">{{ record.liquor }}</p>
           </div>
-          <div v-if="record.color">
-            <span class="font-medium text-gray-700">Color:</span> {{ record.color }}
+          <div v-if="record.color !== null && record.color !== undefined">
+            <span class="font-medium text-gray-700">Color:</span>
+            <span
+              class="inline-block align-middle ml-2 w-24 h-8 rounded border border-gray-300"
+              :style="{ backgroundColor: getColorForRating(record.color) }"
+              aria-label="Tea color"
+            ></span>
           </div>
         </div>
       </section>
