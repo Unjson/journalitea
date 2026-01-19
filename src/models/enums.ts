@@ -1,3 +1,4 @@
+
 export enum Page{
 	RECORDS_LIST = 0,
 	ABOUT = 1,
@@ -38,11 +39,11 @@ export enum CurrencyType
 	CNY = 3,
 	JPY = 4,
 	INR = 5,
-	TWD = 6,
+	HKD = 6,
 	OTHER = 7
 }
 
-export enum WeightUnit {
+export enum WeightUnit {	
 	METRIC_GRAM = 0,
 	IMPERIAL_OUNCE = 1
 }
@@ -61,4 +62,78 @@ export function getLocaleFromLanguage(lang: Language): string {
 		default:		
 		return "en";
 	}
+}
+export function getCurrencySymbols(): Record<CurrencyType, string> {
+	return {
+		[CurrencyType.USD]: "$",
+		[CurrencyType.EUR]: "€",
+		[CurrencyType.GBP]: "£",
+		[CurrencyType.CNY]: "¥",
+		[CurrencyType.JPY]: "¥",
+		[CurrencyType.INR]: "₹",
+		[CurrencyType.HKD]: "HK$",
+		[CurrencyType.OTHER]: ""
+	}
+}
+
+export function getTeaTypeNames(): Record<TeaType, string> {
+	return {
+		[TeaType.GREEN]: "enum.type_green",
+		[TeaType.BLACK]: "enum.type_black",
+		[TeaType.OOLONG]: "enum.type_oolong",
+		[TeaType.WHITE]: "enum.type_white",
+		[TeaType.DARK]: "enum.type_dark",
+		[TeaType.YELLOW]: "enum.type_yellow",
+		[TeaType.HERBAL]: "enum.type_herbal",
+		[TeaType.OTHER]: "enum.type_other"
+	}
+}
+
+export function getWeightUnitNames(): Record<WeightUnit, string> {
+	return {
+		[WeightUnit.METRIC_GRAM]: "g",
+		[WeightUnit.IMPERIAL_OUNCE]: "oz"
+	}
+}
+
+export function getExchangeRateRecordFromJSONResponse(json: object): Record<CurrencyType, number> {
+	var exchangeRates: Record<CurrencyType, number> = {
+		[CurrencyType.USD]: 0,
+		[CurrencyType.EUR]: 0,
+		[CurrencyType.GBP]: 0,
+		[CurrencyType.CNY]: 0,
+		[CurrencyType.JPY]: 0,
+		[CurrencyType.INR]: 0,
+		[CurrencyType.HKD]: 0,
+		[CurrencyType.OTHER]: 0
+	};
+	
+	const jsonObj = json as any;
+	for (const key in jsonObj.rates) {
+		switch(key){
+			case "USD":
+				exchangeRates[CurrencyType.USD] = jsonObj.rates[key];
+				break;
+			case "EUR":
+				exchangeRates[CurrencyType.EUR] = jsonObj.rates[key];
+				break;
+			case "GBP":
+				exchangeRates[CurrencyType.GBP] = jsonObj.rates[key];
+			case "CNY":
+				exchangeRates[CurrencyType.CNY] = jsonObj.rates[key];
+				break;
+			case "JPY":
+				exchangeRates[CurrencyType.JPY] = jsonObj.rates[key];
+				break;
+			case "INR":
+				exchangeRates[CurrencyType.INR] = jsonObj.rates[key];
+				break;
+			case "HKD":
+				exchangeRates[CurrencyType.HKD] = jsonObj.rates[key];
+				break;
+			default:
+				break;
+		}
+	}
+	return exchangeRates;
 }

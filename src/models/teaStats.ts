@@ -1,5 +1,5 @@
 import { Record as TeaRecord } from './record';
-import { TeaType, CurrencyType, WeightUnit } from './enums';
+import { TeaType, CurrencyType, WeightUnit, getExchangeRateRecordFromJSONResponse } from './enums';
 import { get } from 'node:http';
 
 export const OZ_IN_G = 0.03527396;
@@ -9,7 +9,7 @@ export function getCumulativeStats(
 	records: TeaRecord[], 
 	mainCurrency: CurrencyType, 
 	preferredWeightUnit: WeightUnit,
-	exchangeRates: object
+	exchangeRates: Record<CurrencyType, number>
 ): {
     totalMoneySpent: number;
     totalWeight: number;
@@ -62,39 +62,29 @@ export function getCumulativeStats(
   export async function lookUpExchangeRates(mainCurrency: CurrencyType) : Promise<Record<CurrencyType, number>> {
 	const keys = Object.keys(CurrencyType).filter(k => k !== 'OTHER' && isNaN(Number(k)));
 	const requestUrl = `${exchangeRateApi}?base=${keys[mainCurrency]}&symbols=${keys.join(',')}`;
-	
-
-	var exchangeRates: Record<CurrencyType, number> = {
-		[CurrencyType.USD]: 0,
-		[CurrencyType.EUR]: 0,
-		[CurrencyType.GBP]: 0,
-		[CurrencyType.CNY]: 0,
-		[CurrencyType.JPY]: 0,
-		[CurrencyType.INR]: 0,
-		[CurrencyType.TWD]: 0,
-		[CurrencyType.OTHER]: -1
-	} ;
-
 	const response = await fetch(requestUrl)
 	const data = await response.json();
 	
-	for (const key of keys) {
-		const currencyType = CurrencyType[key as keyof typeof CurrencyType];
-		if (currencyType !== mainCurrency && data.rates[key] !== undefined) {
-			exchangeRates[currencyType] = data.rates[key];
-		} else if (currencyType === mainCurrency) {
-			exchangeRates[currencyType] = 1.0;
-		}
-	}
-
-	return exchangeRates;
+	return getExchangeRateRecordFromJSONResponse(data);
   }
   
 
 
-  export function getPriceInMainCurrency(price: number, priceCurrency: CurrencyType, mainCurrency: CurrencyType, exchangeRates: object): number {
+  export function getPriceInMainCurrency(
+	price: number,
+	priceCurrency: CurrencyType,
+	mainCurrency: CurrencyType,
+	exchangeRates: Record<string, number>
+  ): number {
+	if (!price || isNaN(price)) {
+		return 0.0;
+	}
 	if (priceCurrency !== mainCurrency) {
-		return price / exchangeRates[String(priceCurrency)];
+		const rate = exchangeRates?.[String(priceCurrency)];
+		if (!rate || isNaN(rate) || rate === 0) {
+			return price;
+		}
+		return price / rate;
 	}
 	return price;
   }
@@ -106,7 +96,7 @@ export function getCumulativeStats(
 	desiredUnit: WeightUnit, 
 	priceCurrency: CurrencyType, 
 	mainCurrency: CurrencyType, 
-	exchangeRates: object): number {
+	exchangeRates: Record<string, number>): number {
 		
 	var priceInMainCurrency: number = getPriceInMainCurrency(price, priceCurrency, mainCurrency, exchangeRates);
 	if (weight === 0.0 || price === 0.0) {

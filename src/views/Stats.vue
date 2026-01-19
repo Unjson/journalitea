@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { CurrencyType, WeightUnit, TeaType } from '../models/enums';
+import { ref, onMounted, onActivated } from 'vue';
+import { CurrencyType, WeightUnit, getTeaTypeNames, getWeightUnitNames, getCurrencySymbols } from '../models/enums';
 import { PREFS } from '../appSettings.js';
 import { getCumulativeStats } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import PieChart from '../components/PieChart.vue';
+import { Record as TeaRecord } from '../models/record';
 
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
@@ -12,53 +13,40 @@ const { t, locale } = useI18n();
 
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
-const exchangeRates = ref<object>({});
+const exchangeRates = ref<Record<CurrencyType, number> | null >(null);
+const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
-
-const teaTypeNames: Record<number, string> = {
-	[TeaType.GREEN]: 'Green Tea',
-	[TeaType.BLACK]: 'Black Tea',
-	[TeaType.OOLONG]: 'Oolong Tea',
-	[TeaType.WHITE]: 'White Tea',
-	[TeaType.DARK]: 'Dark Tea',
-	[TeaType.YELLOW]: 'Yellow Tea',
-	[TeaType.HERBAL]: 'Herbal Tea',
-	[TeaType.OTHER]: 'Other'
-};
-
-const currencySymbols: Record<number, string> = {
-	[CurrencyType.USD]: '$',
-	[CurrencyType.EUR]: '€',
-	[CurrencyType.GBP]: '£',
-	[CurrencyType.CNY]: '¥',
-	[CurrencyType.JPY]: '¥',
-	[CurrencyType.INR]: '₹',
-	[CurrencyType.TWD]: 'NT$',
-	[CurrencyType.OTHER]: ''
-};
-
-const weightUnitNames: Record<number, string> = {
-	[WeightUnit.METRIC_GRAM]: 'g',
-	[WeightUnit.IMPERIAL_OUNCE]: 'oz'
-};
+const currencySymbols = getCurrencySymbols();
+const weightUnitNames = getWeightUnitNames();
 
 
-
-onMounted(async() => {
-
+const loadStats = async () => {
 	const currency = await ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY);
-	if(currency.intVal != -1){
+	if (currency.intVal != -1) {
+		console.log('Setting preferred currency to', currency.intVal);
 		preferredCurrency.value = currency.intVal;
 	}
 	const weightUnit = await ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
-	if(weightUnit.intVal != -1){
+	if (weightUnit.intVal != -1) {
 		preferredWeightUnit.value = weightUnit.intVal;
 	}
-	exchangeRates.value = await ipcRenderer.invoke('db:getSetting', PREFS.EXCHANGE_RATES).then((res: any) => res.strVal ? JSON.parse(res.strVal) : {});
-	const records = await ipcRenderer.invoke('db:listRecords');
-	cumulativeStats.value = getCumulativeStats(records, preferredCurrency.value, preferredWeightUnit.value, exchangeRates.value);
+	const resResult = await ipcRenderer	.invoke('db:getSetting', PREFS.EXCHANGE_RATES).strVal;
+	console.log("Exchange Rates Raw:", resResult);
+	exchangeRates.value = await ipcRenderer
+		.invoke('db:getSetting', PREFS.EXCHANGE_RATES)
+		.then((res: any) => (res.strVal ? JSON.parse(res.strVal) : {}));
+	records.value = await ipcRenderer.invoke('db:listRecords');
+	console.log("Exchange Rates:", exchangeRates.value[3]);
+	cumulativeStats.value = getCumulativeStats(
+		records.value,
+		preferredCurrency.value,
+		preferredWeightUnit.value,
+		exchangeRates.value
+	);
+};
 
-});
+onMounted(loadStats);
+onActivated(loadStats);
 
 </script>
 
@@ -109,7 +97,7 @@ onMounted(async() => {
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<PieChart
 					:teaCountByType="cumulativeStats.teaCountByType"
-					:labelMap="teaTypeNames"
+					:labelMap="getTeaTypeNames()"
 					title="Tea Collection by Type"
 				/>
 			</div>

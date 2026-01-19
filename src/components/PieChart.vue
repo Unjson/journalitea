@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { TeaColors } from '../models/colors';
+import { useI18n } from 'vue-i18n';
+
+const { t, locale } = useI18n();
 
 interface PieItem {
 	label: string;
@@ -76,7 +79,7 @@ const pieChartData = computed<PieItem[]>(() => {
 				<div v-for="slice in pieChartData" :key="slice.label" class="flex items-center gap-3">
 					<div :style="{ backgroundColor: slice.color }" class="w-4 h-4 rounded"></div>
 					<span class="text-sm">
-						{{ slice.label }}: <strong>{{ slice.count }}</strong> ({{ slice.percentage }}%)
+						{{ t(slice.label) }}: <strong>{{ slice.count }}</strong> ({{ slice.percentage }}%)
 					</span>
 				</div>
 			</div>

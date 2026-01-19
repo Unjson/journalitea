@@ -66,6 +66,7 @@ enum.type_yellow;Yellow;Gelb
 enum.type_purple;Purple;Purpur
 enum.type_herbal;Herbal;Kräuter
 enum.type_other;Other;Andere
+enum.type_unknown;Unknown;Unbekannt
 enum.method_western;Western;Westlich
 enum.method_gaiwan;Gaiwan;Gaiwan
 enum.method_teapot;Clay;Tonkanne

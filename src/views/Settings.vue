@@ -16,8 +16,8 @@ const onCurrencyChanged = async () => {
   try {
 	await ipcRenderer.invoke('db:setSetting', PREFS.CURRENCY, preferredCurrency.value);
 	const exchangeRates = await lookUpExchangeRates(preferredCurrency.value);
-	console.log('Fetched exchange rates:', JSON.stringify(exchangeRates));
-	await ipcRenderer.invoke('db:setSetting', PREFS.EXCHANGE_RATES, JSON.stringify(exchangeRates));
+
+	await ipcRenderer.invoke('db:setSetting', PREFS.EXCHANGE_RATES, -1, JSON.stringify(exchangeRates));
   } catch (err) {
 	console.error('Error saving preferred currency:', err);
   }
@@ -85,7 +85,7 @@ onMounted(async() => {
 				<option :value="CurrencyType.JPY">JPY</option>
 				<option :value="CurrencyType.CNY">CNY</option>
 				<option :value="CurrencyType.INR">INR</option>
-				<option :value="CurrencyType.TWD">TWD</option>
+				<option :value="CurrencyType.HKD">HKD</option>
 				<option :value="CurrencyType.OTHER">OTHER</option>
 			</select>
 		</div>

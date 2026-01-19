@@ -202,7 +202,7 @@ onMounted(() => {
               <option :value="CurrencyType.CNY">CNY</option>
               <option :value="CurrencyType.JPY">JPY</option>
               <option :value="CurrencyType.INR">INR</option>
-              <option :value="CurrencyType.TWD">TWD</option>
+              <option :value="CurrencyType.HKD">HKD</option>
               <option :value="CurrencyType.OTHER">Other</option>
             </select>
             </div>
