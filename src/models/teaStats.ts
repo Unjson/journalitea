@@ -133,9 +133,9 @@ function getWeightInDesiredUnit(record: TeaRecord, desiredUnit: WeightUnit): num
 	if (record.weightUnit === desiredUnit) {
 		return record.weight;
 	} else if (record.weightUnit === WeightUnit.METRIC_GRAM && desiredUnit === WeightUnit.IMPERIAL_OUNCE) {
-		return record.weight * OZ_IN_G;
-	} else if (record.weightUnit === WeightUnit.IMPERIAL_OUNCE && desiredUnit === WeightUnit.METRIC_GRAM) {
 		return record.weight / OZ_IN_G;
+	} else if (record.weightUnit === WeightUnit.IMPERIAL_OUNCE && desiredUnit === WeightUnit.METRIC_GRAM) {
+		return record.weight * OZ_IN_G;
 	}
 	return 0.0;
 }

@@ -6,6 +6,7 @@ import { getCumulativeStats } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import PieChart from '../components/PieChart.vue';
 import Histogram from '../components/Histogram.vue';
+import AromaStats from '../components/AromaStats.vue';
 import { Record as TeaRecord } from '../models/record';
 
 const electron = (window as any).require('electron');
@@ -19,7 +20,7 @@ const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
 const currencySymbols = getCurrencySymbols();
 const weightUnitNames = getWeightUnitNames();
-const activeTab = ref<'summary' | 'histograms'>('summary');
+const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
 
 
 const loadStats = async () => {
@@ -69,6 +70,13 @@ onActivated(loadStats);
 					@click="activeTab = 'histograms'"
 				>
 					Histograms
+				</button>
+				<button
+					class="px-4 py-2 rounded-lg border"
+					:class="activeTab === 'aromas' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
+					@click="activeTab = 'aromas'"
+				>
+					Aromas
 				</button>
 			</div>
 
@@ -131,13 +139,20 @@ onActivated(loadStats);
 			</div>
 			</div>
 
-			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div v-else-if="activeTab === 'histograms'" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<Histogram
 					:records="records"
 					:preferredCurrency="preferredCurrency"
 					:preferredWeightUnit="preferredWeightUnit"
 					:exchangeRates="exchangeRates"
 					:bins="20"
+				/>
+			</div>
+
+			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<AromaStats
+					:records="records"
+					:labelMap="getTeaTypeNames()"
 				/>
 			</div>
 		</div>

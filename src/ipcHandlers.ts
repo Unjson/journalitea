@@ -40,6 +40,15 @@ export const setupIpcHandlers = (): void => {
     }
   });
 
+  ipcMain.handle('db:deleteRecord', async (event, id: number) => {
+    try {
+      return db.deleteRecord(id);
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      throw error;
+    }
+  });
+
   ipcMain.handle('db:getSetting', async (event, key: string) => {
     try {
       return db.getSettingsValue(key);

@@ -142,6 +142,13 @@ class DatabaseService {
     );
   }
 
+  deleteRecord(id: number): void {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const stmt = this.db.prepare('DELETE FROM records WHERE id = ?');
+    stmt.run(id);
+  }
+
   private rowToRecord(row: any): Record {
     const record = new Record();
     record.id = row.id;

@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
 import RadarPlot from '../components/RadarPlot.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -18,6 +19,7 @@ const currencyString = ref<string | null>(null);
 
 const teaType = ref<string | null>(null);
 const preparationMethod = ref<string | null>(null);
+const showDeleteConfirm = ref(false);
 
 const loadRecord = async () => {
   loading.value = true;
@@ -49,6 +51,18 @@ const loadRecord = async () => {
 
 const goBack = () => {
   router.back();
+};
+
+const deleteRecord = async () => {
+  if (!record.value) return;
+
+  try {
+    await ipcRenderer.invoke('db:deleteRecord', record.value.id);
+    router.replace('/');
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to delete record';
+    console.error('Error deleting record:', err);
+  }
 };
 
 onMounted(() => {
@@ -152,20 +166,36 @@ onMounted(() => {
         </div>
       </section>
       <!-- Edit Button -->
-      <div class="gap-4 mt-6 pt-6 border-t flex justify-end">
-		<button 
-      		@click="$router.replace('/')" 
-      		class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-    	>
-      ← Back to Records List
-	    </button>
+      <div class="mt-6 pt-6 gap-4 border-t flex items-center justify-between">
         <button
-        	@click="$router.push({ name: 'record-edit', params: { id: record.id } })"
-        	class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+          @click="showDeleteConfirm = true"
+          class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
         >
-          Edit Record
+          Delete Record
         </button>
+      <span class="flex-1"></span>
+			<button 
+		      	@click="$router.replace('/')" 
+		      	class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+	    	>
+      		← Back to Records List
+	    	</button>
+          <button
+	          	@click="$router.push({ name: 'record-edit', params: { id: record.id } })"
+	          	class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+	          >
+            Edit Record
+          </button>
 	  </div>
     </div>
   </div>
+
+  <ConfirmDialog
+    v-model="showDeleteConfirm"
+    title="Delete record?"
+    message="This action cannot be undone."
+    confirm-text="Delete"
+    cancel-text="Cancel"
+    @confirm="deleteRecord"
+  />
 </template>

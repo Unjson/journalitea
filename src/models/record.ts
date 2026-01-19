@@ -149,7 +149,7 @@ export class Record {
 			case CurrencyType.INR:
 				return "₹";
 			case CurrencyType.HKD:
-				return "NT$";
+				return "HK$";
 			default:
 				return "";
 		}
