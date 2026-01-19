@@ -1,66 +1,64 @@
 import { Record as TeaRecord } from './record';
 import { TeaType, CurrencyType, WeightUnit } from './enums';
+import { get } from 'node:http';
 
 export const OZ_IN_G = 0.03527396;
 const exchangeRateApi = 'https://api.frankfurter.dev/v1/latest'
 
-export function getCumulativeStats(records: TeaRecord[]): {
-    totalMoneySpent: { [currency: string]: number };
-    totalWeight: { [unit: string]: number };
-    pricePerWeight: { [key: string]: number };
+export function getCumulativeStats(
+	records: TeaRecord[], 
+	mainCurrency: CurrencyType, 
+	preferredWeightUnit: WeightUnit,
+	exchangeRates: object
+): {
+    totalMoneySpent: number;
+    totalWeight: number;
+    pricePerWeight: number;
     mostExpensiveTea: TeaRecord | null;
-    teaCountByType: { [type: string]: number };
+    teaCountByType:  Record<TeaType, number>;
   } {
-    
-    // Initialize stats
-    const totalMoneySpent: { [currency: string]: number } = {};
-    const totalWeight: { [unit: string]: number } = {};
-    const teaCountByType: { [type: string]: number } = {};
-    let mostExpensiveTea: TeaRecord | null = null;
-    let maxPrice = 0;
 
-    // Calculate stats
-    for (const record of records) {
-      // Total money spent by currency
-      if (record.price && record.price > 0) {
-        const currency = record.price_currency?.toString() || 'unknown';
-        totalMoneySpent[currency] = (totalMoneySpent[currency] || 0) + record.price;
-        
-        // Track most expensive tea
-        if (record.price > maxPrice) {
-          maxPrice = record.price;
-          mostExpensiveTea = record;
-        }
-      }
+	let totalMoneySpent = 0.0;
+	let totalWeight = 0.0;
+	let mostExpensiveTea: TeaRecord | null = null;
+	let mostexpensivePrice = 0.0;
+	const teaCountByType: Record<TeaType, number> = {
+		[TeaType.GREEN]: 0,
+		[TeaType.BLACK]: 0,
+		[TeaType.OOLONG]: 0,
+		[TeaType.WHITE]: 0,
+		[TeaType.DARK]: 0,
+		[TeaType.YELLOW]: 0,
+		[TeaType.HERBAL]: 0,
+		[TeaType.OTHER]: 0
+	};
+	for (const record of records) {
+		const priceInMainCurrency = getPriceInMainCurrency(
+			record.price, 
+			record.priceCurrency, 
+			mainCurrency, 
+			exchangeRates
+		);
+		totalMoneySpent += priceInMainCurrency;
+		if(priceInMainCurrency > mostexpensivePrice){
+			mostexpensivePrice = priceInMainCurrency;
+			mostExpensiveTea = record;
+		}
+		const weightInDesiredUnit = getWeightInDesiredUnit(record, preferredWeightUnit);
+		totalWeight += weightInDesiredUnit;
+		teaCountByType[record.type] += 1;
+	}
+		
+	return {
+			totalMoneySpent: totalMoneySpent,
+			totalWeight: totalWeight,
+			pricePerWeight: totalWeight > 0 ? totalMoneySpent / totalWeight : 0.0,
+			mostExpensiveTea: mostExpensiveTea,
+			teaCountByType: teaCountByType
+		};
+	}
+  
 
-      // Total weight by unit
-      if (record.weight && record.weight > 0) {
-        const unit = record.weightUnit?.toString() || 'unknown';
-        totalWeight[unit] = (totalWeight[unit] || 0) + record.weight;
-      }
-
-      // Count by tea type
-      const type = record.type?.toString() || 'unknown';
-      teaCountByType[type] = (teaCountByType[type] || 0) + 1;
-    }
-
-    // Calculate price per weight for each currency/unit combination
-    const pricePerWeight: { [key: string]: number } = {};
-    for (const currency in totalMoneySpent) {
-      for (const unit in totalWeight) {
-        const key = `${currency}_per_${unit}`;
-        pricePerWeight[key] = totalMoneySpent[currency] / totalWeight[unit];
-      }
-    }
-
-    return {
-      totalMoneySpent,
-      totalWeight,
-      pricePerWeight,
-      mostExpensiveTea,
-      teaCountByType
-    };
-  }
   export async function lookUpExchangeRates(mainCurrency: CurrencyType) : Promise<Record<CurrencyType, number>> {
 	const keys = Object.keys(CurrencyType).filter(k => k !== 'OTHER' && isNaN(Number(k)));
 	const requestUrl = `${exchangeRateApi}?base=${keys[mainCurrency]}&symbols=${keys.join(',')}`;
@@ -123,3 +121,14 @@ export function getCumulativeStats(records: TeaRecord[]): {
 	}
 	return 0.0;
   }
+
+function getWeightInDesiredUnit(record: TeaRecord, desiredUnit: WeightUnit): number {
+	if (record.weightUnit === desiredUnit) {
+		return record.weight;
+	} else if (record.weightUnit === WeightUnit.METRIC_GRAM && desiredUnit === WeightUnit.IMPERIAL_OUNCE) {
+		return record.weight * OZ_IN_G;
+	} else if (record.weightUnit === WeightUnit.IMPERIAL_OUNCE && desiredUnit === WeightUnit.METRIC_GRAM) {
+		return record.weight / OZ_IN_G;
+	}
+	return 0.0;
+}

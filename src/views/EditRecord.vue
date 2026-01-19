@@ -49,7 +49,7 @@ const setDefaults = () => {
   //poll settings db for preferred currency and weight unit
   ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY).then((currency: any) => {
     if(currency.intVal != -1){
-      record.value.price_currency = currency.intVal; 
+      record.value.priceCurrency = currency.intVal; 
     }});
   ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT).then((weightUnit: any) => {
     if(weightUnit.intVal != -1){
@@ -193,7 +193,7 @@ onMounted(() => {
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <select
-              v-model.number="record.price_currency"
+              v-model.number="record.priceCurrency"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option :value="CurrencyType.USD">USD</option>

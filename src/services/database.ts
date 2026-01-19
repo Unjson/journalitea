@@ -65,7 +65,7 @@ class DatabaseService {
       record.origin,
       record.year,
       record.price,
-      record.price_currency,
+      record.priceCurrency,
       record.weight,
       record.weightUnit,
       record.preparationMethod,
@@ -116,7 +116,7 @@ class DatabaseService {
       record.origin,
       record.year,
       record.price,
-      record.price_currency,
+      record.priceCurrency,
       record.weight,
       record.weightUnit,
       record.preparationMethod,
@@ -153,7 +153,7 @@ class DatabaseService {
     record.origin = row.origin;
     record.year = row.year;
     record.price = row.price;
-    record.price_currency = row.price_currency;
+    record.priceCurrency = row.price_currency;
     record.weight = row.weight;
     record.weightUnit = row.weight_unit;
     record.preparationMethod = row.preparation_method;

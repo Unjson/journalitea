@@ -11,7 +11,7 @@ export class Record {
 	origin: string
 	year: number;
 	price: number;
-	price_currency: CurrencyType;
+	priceCurrency: CurrencyType;
 	weight: number;
 	weightUnit: WeightUnit
 	preparationMethod: PreparationMethod;
@@ -50,7 +50,7 @@ export class Record {
 		this.origin = "";
 		this.year = new Date().getFullYear();
 		this.price = 0;
-		this.price_currency = CurrencyType.OTHER;
+		this.priceCurrency = CurrencyType.OTHER;
 		this.weight = 0;
 		this.weightUnit = WeightUnit.METRIC_GRAM;
 		this.preparationMethod = PreparationMethod.GAIWAN;
@@ -85,7 +85,7 @@ export class Record {
 	}
 
 	getCurrencyName(): string {
-		return CurrencyType[this.price_currency];
+		return CurrencyType[this.priceCurrency];
 	}
 
 	convertToPlainObject(): any {
@@ -99,7 +99,7 @@ export class Record {
 			origin: this.origin,
 			year: this.year,
 			price: this.price,
-			price_currency: this.price_currency,
+			price_currency: this.priceCurrency,
 			weight: this.weight,
 			weightUnit: this.weightUnit,
 			preparationMethod: this.preparationMethod,
@@ -126,7 +126,7 @@ export class Record {
 
 	getPriceStringWithCurrency(): string {
 		const currencySymbol = this.getCurrencySymbol();
-		if(this.price_currency=== CurrencyType.EUR){
+		if(this.priceCurrency=== CurrencyType.EUR){
 			return `${this.price.toFixed(2)}${currencySymbol}`;
 		}
 		else{
@@ -135,7 +135,7 @@ export class Record {
 	}
 	
 	getCurrencySymbol(): string {	
-		switch (this.price_currency) {
+		switch (this.priceCurrency) {
 			case CurrencyType.USD:
 				return "$";
 			case CurrencyType.EUR:
