@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { TeaColors } from '../models/colors';
 
 interface PieItem {
 	label: string;
@@ -15,8 +16,6 @@ const props = defineProps<{
 	colors?: string[];
 	title?: string;
 }>();
-
-const palette = computed(() => props.colors ?? ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#06b6d4', '#6b7280']);
 
 const sortedTeaTypes = computed(() => {
 	if (!props.teaCountByType) return [] as Array<{ type: number; label: string; count: number }>; 
@@ -54,7 +53,7 @@ const pieChartData = computed<PieItem[]>(() => {
 			label: item.label,
 			count: item.count,
 			path,
-			color: palette.value[index % palette.value.length],
+			color: TeaColors[item.type] || '#D3D3D3',
 			percentage: percentage.toFixed(1)
 		};
 	});
@@ -64,7 +63,7 @@ const pieChartData = computed<PieItem[]>(() => {
 <template>
 	<div>
 		<h2 v-if="title" class="text-2xl font-semibold mb-4">{{ title }}</h2>
-		<div v-if="pieChartData.length > 0" class="flex flex-col md:flex-row items-center justify-center gap-8">
+		<div v-if="pieChartData.length > 0" class="flex flex-col md:flex-row items-center justify-left gap-8">
 			<div>
 				<svg width="300" height="300" viewBox="0 0 300 300">
 					<g v-for="slice in pieChartData" :key="slice.label">
