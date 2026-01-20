@@ -2,10 +2,11 @@
 import { ref, onMounted } from 'vue';
 import { Record } from '../models/record';
 import RecordCard from '../components/RecordCard.vue';
+import { useI18n } from 'vue-i18n';
 
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
-
+const { t } = useI18n();
 const records = ref<Record[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
@@ -36,17 +37,17 @@ onMounted(() => {
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">Records List</h1>
+      <h1 class="text-3xl font-bold">{{ t('list.title') }}</h1>
       <button 
         @click="$router.push({ name: 'record-new' })" 
         class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
       >
-        {{ "New" }}
+        {{ t('list.create_button') }}
       </button>
     </div>
 
     <div v-if="loading" class="text-center py-8 text-gray-500">
-      Loading records...
+      {{ t('list.loading') }}
     </div>
 
     <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -54,7 +55,7 @@ onMounted(() => {
     </div>
 
     <div v-else-if="records.length === 0" class="text-center py-8 text-gray-500">
-      No records found. Add your first tea record!
+      {{ t('list.no_records') }}
     </div>
 
     <RecordCard class="my-3" 

@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { TeaColors } from '../models/colors';
 import { useI18n } from 'vue-i18n';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 interface PieItem {
 	label: string;

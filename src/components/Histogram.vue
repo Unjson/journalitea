@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Record as TeaRecord } from '../models/record';
 import { CurrencyType, WeightUnit } from '../models/enums';
 import { getPriceInMainCurrency, convertToPricePerDesiredUnit } from '../models/teaStats';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
 	records: TeaRecord[];
@@ -12,6 +13,7 @@ const props = defineProps<{
 	bins?: number;
 }>();
 
+const { t } = useI18n();
 const binsCount = computed(() => props.bins ?? 10);
 
 const totalPriceValues = computed(() => {
@@ -34,7 +36,6 @@ const pricePerUnitValues = computed(() => {
 			props.preferredCurrency,
 			rates
 		);
-		console.log('Price per unit for record', record.name, ':', val);
 		if (typeof val === 'number' && !isNaN(val) && val > 0) {
 			values.push(val);
 		}
@@ -72,7 +73,7 @@ const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.v
 <template>
 	<div class="space-y-8">
 		<div>
-			<h3 class="text-xl font-semibold mb-3">Total Prices</h3>
+			<h3 class="text-xl font-semibold mb-3">{{ t('stats.histogram_total_price') }}</h3>
 			<div v-if="totalPriceHistogram.bins.length > 0" class="w-full">
 				<svg class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
 					<g v-for="(bin, index) in totalPriceHistogram.bins" :key="index">
@@ -90,11 +91,11 @@ const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.v
 					Range: {{ totalPriceHistogram.min.toFixed(2) }} - {{ totalPriceHistogram.max.toFixed(2) }}
 				</div>
 			</div>
-			<div v-else class="text-gray-500">No price data</div>
+			<div v-else class="text-gray-500">{{ t('stats.no_price_data') }}</div>
 		</div>
 
 		<div>
-			<h3 class="text-xl font-semibold mb-3">Price per Unit</h3>
+			<h3 class="text-xl font-semibold mb-3">{{ (props.preferredWeightUnit === WeightUnit.METRIC_GRAM) ? t('stats.histogram_price_per_weight_g') : t('stats.histogram_price_per_weight_oz') }}</h3>
 			<div v-if="pricePerUnitHistogram.bins.length > 0" class="w-full">
 				<svg class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
 					<g v-for="(bin, index) in pricePerUnitHistogram.bins" :key="index">
@@ -112,7 +113,7 @@ const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.v
 					Range: {{ pricePerUnitHistogram.min.toFixed(4) }} - {{ pricePerUnitHistogram.max.toFixed(4) }}
 				</div>
 			</div>
-			<div v-else class="text-gray-500">No price-per-unit data</div>
+			<div v-else class="text-gray-500">{{ t('stats.no_price_data') }}</div>
 		</div>
 	</div>
 </template>

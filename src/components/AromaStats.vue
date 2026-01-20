@@ -100,7 +100,7 @@ const byTeaType = computed(() => {
 <template>
 	<div class="space-y-8">
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-			<h2 class="text-2xl font-semibold mb-4">Overall Aroma Profile</h2>
+			<h2 class="text-2xl font-semibold mb-4">{{ t('stats.aromas_overall_title') }}</h2>
 			<RadarPlot
 				:sweet="overallAromas.sweet"
 				:floral="overallAromas.floral"
@@ -117,7 +117,7 @@ const byTeaType = computed(() => {
 		</div>
 
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-			<h2 class="text-2xl font-semibold mb-4">Aroma Profile by Tea Type</h2>
+			<h2 class="text-2xl font-semibold mb-4">{{ t('stats.aromas_type_title') }}</h2>
 			<div v-if="byTeaType.length > 0" class="space-y-3">
 				<details
 					v-for="group in byTeaType"

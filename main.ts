@@ -60,16 +60,16 @@ const createMenu = (): void => {
       label: 'Menu',
       submenu: [
         {
-          label: 'About',
-          click() {
-            mainWindow?.webContents.send('goToAbout');
-          },
-        },
-        {
           label: 'Records List',
           click() {
             mainWindow?.webContents.send('goToRecordsList');
-          },
+          }
+        },
+        {
+          label: 'Stats for Nerds',
+          click() {
+            mainWindow?.webContents.send('goToStats');
+          }
         },
         {
           label: 'Settings',
@@ -78,9 +78,9 @@ const createMenu = (): void => {
           }
         },
         {
-          label: 'Stats',
+          label: 'About',
           click() {
-            mainWindow?.webContents.send('goToStats');
+            mainWindow?.webContents.send('goToAbout');
           }
         },
         {

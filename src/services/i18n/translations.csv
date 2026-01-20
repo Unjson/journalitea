@@ -1,29 +1,23 @@
 key;en;de
 app.title;Journalitea;Journalitea
-app.title_full;Journalitea - Personal Tea Journal;Journalitea - Persönliches Tee-Tagebuch
-popup.db_not_found_title;Hi There!;Hallo!
-popup.db_not_found_body;It seems like you're using Journalitea for the first time.\nWould you like to create a new Database now?;Es scheint, als ob Sie Journalitea zum ersten Mal verwenden.\nMöchten Sie jetzt eine neue Datenbank erstellen?
-popup.db_not_found_create_new;Create DB;Neue Datenbank\nErstellen
-popup.db_not_found_load_external;Load External;Extern laden
-splash.loading_title;getting things ready...;bereite alles vor...
-header.title_main_menu;Journalitea;Journalitea
 header.title_my_teas;My Teas;Meine Tees
 header.title_create_record;New Record;Neuer Eintrag
 header.title_edit_record;Edit Record;Eintrag bearbeiten
 header.title_view_record;View Record;Eintrag ansehen
-header.title_timer;Timer;Timer
 header.title_stats;Stats for Nerds;Statistiken für Nerds
 header.title_settings;Settings;Einstellungen
 header.title_about;About;Über
 menu.item_my_teas;My Teas;Meine Tees
-menu.item_timer;Timer;Timer
 menu.item_stats;Stats for Nerds;Statistiken für Nerds
 menu.item_settings;Settings;Einstellungen
 menu.item_about;About;Über diese App
 create.title;Create new Record;Neuen Eintrag erstellen
+list.title;My Tea Records;Meine Tee-Einträge
+list.create_button;Create;Erstellen
+list.loading;Loading records...;Lade Einträge...
+list.no_records;No records found. Click the "Create" button to add your first tea
 edit.title;Edit Record;Eintrag bearbeiten
 edit.name_label;Name;Name
-edit.name_placeholder;Enter a name;Namen eingeben
 edit.type_label;Type;Typ
 edit.subtype_label;Subtype;Untertyp
 edit.seller_label;Seller;Verkäufer
@@ -45,36 +39,14 @@ edit.rating_label;Rating;Bewertung
 edit.cancel_button;Cancel;Abbrechen
 edit.create_button;Create;Erstellen
 edit.update_button;Update;Aktualisieren
-edit.quit_popup_title;Quit Editing;Bearbeitung beenden
-edit.quit_popup_message;Are you sure you want to quit without saving?;Sind Sie sicher, dass Sie die Bearbeitung ohne zu speichern beenden möchten?
-edit.quit_popup_cancel;Back;Zurück
-edit.quit_popup_confirm;Quit;Beenden
-view.edit_button;Edit;Bearbeiten
-view.back_button;Back;Zurück
-view.stats_title;Stats;Statistiken
-view.aromas_title;Aromas;Aromen
-view.observations_title;Observations;Beobachtungen
-popup.delete_record_title;Delete Record;Eintrag löschen
-popup.delete_record_body;Are you sure you want to delete this record?;Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?
-popup.delete_record_confirm;Delete;Bestätigen
-popup.delete_record_cancel;Cancel;Abbrechen
-record.button_created;created;erstellt am
 enum.type_green;Green;Grün
 enum.type_black;Black;Schwarz
 enum.type_oolong;Oolong;Oolong
 enum.type_white;White;Weiß
 enum.type_dark;Dark;Dunkel
 enum.type_yellow;Yellow;Gelb
-enum.type_purple;Purple;Purpur
 enum.type_herbal;Herbal;Kräuter
 enum.type_other;Other;Andere
-enum.type_unknown;Unknown;Unbekannt
-enum.method_western;Western;Westlich
-enum.method_gaiwan;Gaiwan;Gaiwan
-enum.method_teapot;Clay;Tonkanne
-enum.method_tea_bag;Tea Bag;Teebeutel
-enum.method_cold_brew;Cold Brew;Kalt
-enum.method_other;Other;Andere
 enum.aromas_sweet;Sweet;Süß
 enum.aromas_floral;Floral;Blumig
 enum.aromas_nutty;Nutty;Nussig
@@ -85,57 +57,63 @@ enum.aromas_vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
 enum.aromas_earthy;Earthy;Erdig
 enum.aromas_minerals;Mineral;Mineralisch
 enum.aromas_marine;Marine;Maritim
-enum.aromas_simple_spicy;Nutty /\nSpicy;Nussig-Würzig
-enum.aromas_simple_earthy;Earth and Stone;Erde und Gestein
-enum.aromas_simple_fire;Gamey;Tierisch
-stats.cumulative_tab;Cumulative;Kumulativ
-stats.aromas_tab;Aromas;Aromen
-stats.origins_tab;Origins;Herkünfte
-stats.histograms_tab;Histograms;Histogramme
-stats.cumulative_title;Cumulative Stats;Kumulative Statistiken
-stats.cumulative_total_price;Total Price;Gesamtpreis
-stats.cumulative_total_weight;Total amount of tea bought;Gesamtmenge an gekauftem Tee
-stats.cumulative_avg_price_100g;Average Price per 100g;Durchschnittspreis pro 100g
-stats.cumulative_avg_price_oz;Average Price per oz;Durchschnittspreis pro Unze
-stats.cumulative_most_popular_type;Most popular type of tea;Beliebteste Teesorte
-stats.cumulative_most_expensive;Most expensive;Teuerster Tee
-stats.histograms_title;Histograms;Histogramme
-stats.histograms_absolute_title;Absolute Prices;Absolute Preise
-stats.histograms_100g_title;Prices per 100g;Preise pro 100g
-stats.histograms_oz_title;Prices per oz;Preise pro Unze
-type.pie_chart_title;Separated by tea type:;Aufteilung nach Sorten:
-type.pie_chart_legend;Types;Sorten
 settings.language_title;Language;Sprache
-settings.language_body;Select your preferred language;Wählen Sie Ihre bevorzugte Sprache
-settings.viewmode_title;View Mode;Ansichtsmodus
-settings.viewmode_body;Simple mode hides some text input fields and reduces the number of Aromas from 10 to 6.;Der einfache Modus blendet einige Texteingabefelder aus und reduziert die Anzahl der Aromen von 10 auf 6.
-settings.viewmode_tooltip_full;Full;Vollständig
-settings.viewmode_tooltip_simple;Simple;Vereinfacht
-settings.timermode_title;Timer Mode;Timer-Modus
-settings.timermode_body;Toggle between Western and Gongfu Mode for the tea timer. Will adjust presets and steps accordingly.;Wechseln Sie zwischen dem westlichen und dem Gongfu-Modus für den Teetimer. Die Voreinstellungen und Schritte werden entsprechend angepasst.
-settings.timermode_tooltip_gongfu;Gongfu;Gongfu
-settings.timermode_tooltip_western;Western;Westlich
 settings.currency_title;Preferred Currency;Hauptwährung
-settings.currency_body;Will automatically convert prices in your records to that currency for comparisons.;Wird die Preise in Ihren Einträgen automatisch in diese Währung umrechnen.
-settings.currency_refresh_button;Refresh Rates;Wechselkurse\naktualisieren
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
-settings.weightunit_body;Will automatically convert weights in your records to that unit for comparisons.;Wird die Gewichte in Ihren Einträgen automatisch in diese Einheit umrechnen.
-settings.weightunit_grams;Grams (g);Gramm (g)
-settings.weightunit_ounces;Ounces (oz);Unzen (oz)
-settings.database_title;Database Settings;Datenbank-Einstellungen
-settings.database_import;Import from external file;Aus externer Datei importieren
-settings.database_export;Export database;Datenbank exportieren
-settings.database_import_btn;Import;Importieren
-settings.database_export_btn;Export;Exportieren
-settings.database_import_popup_title;Import Database;Datenbank importieren
-settings.database_import_popup_body;Would you like to append the records to your existing database, or overwrite it completely?;Möchten Sie die Einträge zu Ihrer bestehenden Datenbank hinzufügen oder sie vollständig überschreiben?
-settings.database_import_popup_append;Append;Hinzufügen
-settings.database_import_popup_overwrite;Overwrite;Überschreiben
-settings.database_import_overwrite_confirm_title;Overwrite Database;Datenbank überschreiben
-settings.database_import_overwrite_confirm_body;Are you sure you want to overwrite your existing database? All records and Settings will be lost!;Sind Sie sicher, dass Sie Ihre bestehende Datenbank überschreiben möchten? Ihre alten Einträge und Einstellungen werden dadurch gelöscht!
-settings.database_import_overwrite_confirm_yes;Yes, overwrite;Ja, überschreiben
-settings.database_import_overwrite_confirm_no;No, go back;Nein, zurück
-quit.app_popup_title;Quit App;App beenden
-quit.app_popup_message;Are you sure you want to quit?;Sind Sie sicher, dass Sie die App beenden möchten?
-quit.app_popup_cancel;Cancel;Abbrechen
-quit.app_popup_confirm;Quit;Beenden
+detail.loading;Loading record...;Lade Eintrag...
+detail.error_prefix;Error:;Fehler:
+detail.details_title;Details;Details
+detail.type_label;Type:;Typ:
+detail.subtype_label;Subtype:;Untertyp:
+detail.origin_label;Origin:;Herkunft:
+detail.year_label;Year:;Jahr:
+detail.seller_label;Seller:;Verkäufer:
+detail.date_added_label;Date Added:;Hinzugefügt am:
+detail.price_label;Price:;Preis:
+detail.weight_label;Weight:;Menge:
+detail.preparation_title;Preparation;Zubereitung
+detail.method_label;Method:;Methode:
+detail.notes_label;Notes:;Notizen:
+detail.tasting_notes_title;Tasting Notes;Verkostungsnotizen
+detail.dry_leaves_label;Dry Leaves:;Trockene Blätter:
+detail.wet_leaves_label;Wet Leaves:;Nasse Blätter:
+detail.liquor_label;Liquor:;Aufguss:
+detail.color_label;Color:;Farbe:
+detail.color_aria;Tea color;Teefarbe
+detail.plot_show;Show Plot;Diagramm anzeigen
+detail.plot_hide;Hide Plot;Diagramm ausblenden
+detail.notes_rating_title;Notes & Rating;Notizen & Bewertung
+detail.overall_rating_label;Overall Rating:;Gesamtbewertung:
+detail.delete_button;Delete Record;Eintrag löschen
+detail.back_button;Back to Records List;Zurück zur Eintragsliste
+detail.edit_button;Edit Record;Eintrag bearbeiten
+detail.delete_confirm_title;Delete record?;Eintrag löschen?
+detail.delete_confirm_message;This action cannot be undone.;Diese Aktion kann nicht rückgängig gemacht werden.
+detail.delete_confirm_confirm;Delete;Löschen
+detail.delete_confirm_cancel;Cancel;Abbrechen
+record.type_label;Type:;Typ:
+record.subtype_label;Subtype:;Untertyp:
+record.origin_label;Origin:;Herkunft:
+record.year_label;Year:;Jahr:
+record.seller_label;Seller:;Verkäufer:
+record.rating_label;Rating:;Bewertung:
+record.notes_label;Notes:;Notizen:
+stats.title;Stats for Nerds;Statistiken für Nerds
+stats.tab_summary;Summary;Übersicht
+stats.tab_histograms;Histograms;Histogramme
+stats.tab_aromas;Aromas;Aromen
+stats.cumulative_title;Cumulative Statistics;Kumulative Statistiken
+stats.total_money_spent_label;Total Money Spent:;Insgesamt ausgegeben:
+stats.total_weight_label;Total Weight of Tea:;Gesamtmenge Tee:
+stats.avg_price_per_weight_label;Average price per Weight:;Durchschnittspreis pro Menge:
+stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
+stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
+stats.no_data;No data;Keine Daten
+stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.loading;Loading statistics...;Statistiken werden geladen...
+stats.histogram_total_price;Total Prices;Gesamtpreise
+stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm
+stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
+stats.no_price_data;No price data available;Keine Preisdaten verfügbar
+stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
+stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte

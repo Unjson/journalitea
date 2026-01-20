@@ -87,12 +87,10 @@ const saveRecord = async () => {
     if (isNewRecord.value || record.value.id === -1) {
       // Create new record
       const newId = await ipcRenderer.invoke('db:saveRecord', plainRecord);
-      console.log('Created new record with ID:', newId);
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
       // Update existing record
       await ipcRenderer.invoke('db:updateRecord', plainRecord);
-      console.log('Updated record:', record.value.id);
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
   } catch (err) {

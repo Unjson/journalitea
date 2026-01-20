@@ -11,7 +11,7 @@ import { Record as TeaRecord } from '../models/record';
 
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
@@ -26,7 +26,6 @@ const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
 const loadStats = async () => {
 	const currency = await ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY);
 	if (currency.intVal != -1) {
-		console.log('Setting preferred currency to', currency.intVal);
 		preferredCurrency.value = currency.intVal;
 	}
 	const weightUnit = await ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
@@ -53,7 +52,7 @@ onActivated(loadStats);
 
 <template>
 	<div class="p-6">
-		<h1 class="text-3xl font-bold mb-6">Stats for Nerds</h1>
+		<h1 class="text-3xl font-bold mb-6">{{ t('stats.title') }}</h1>
 
 		<div v-if="cumulativeStats" class="space-y-8">
 			<div class="flex gap-2">
@@ -62,51 +61,51 @@ onActivated(loadStats);
 					:class="activeTab === 'summary' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
 					@click="activeTab = 'summary'"
 				>
-					Summary
+					{{ t('stats.tab_summary') }}
 				</button>
 				<button
 					class="px-4 py-2 rounded-lg border"
 					:class="activeTab === 'histograms' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
 					@click="activeTab = 'histograms'"
 				>
-					Histograms
+					{{ t('stats.tab_histograms') }}
 				</button>
 				<button
 					class="px-4 py-2 rounded-lg border"
 					:class="activeTab === 'aromas' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
 					@click="activeTab = 'aromas'"
 				>
-					Aromas
+					{{ t('stats.tab_aromas') }}
 				</button>
 			</div>
 
 			<div v-if="activeTab === 'summary'" class="space-y-8">
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-				<h2 class="text-2xl font-semibold mb-4">Cumulative Statistics</h2>
+				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.cumulative_title') }}</h2>
 				<div class="space-y-3">
 					<div class="border-b pb-2">
-						<span class="font-medium">Total Money Spent:</span>
+						<span class="font-medium">{{ t('stats.total_money_spent_label') }}</span>
 						<div class="ml-4 mt-1 text-lg">
 							{{ currencySymbols[preferredCurrency] }}{{ cumulativeStats.totalMoneySpent?.toFixed(2) ?? '0.00' }}
 						</div>
 					</div>
 
 					<div class="border-b pb-2">
-						<span class="font-medium">Total Weight of Tea:</span>
+						<span class="font-medium">{{ t('stats.total_weight_label') }}</span>
 						<div class="ml-4 mt-1 text-lg">
 							{{ cumulativeStats.totalWeight?.toFixed(2) ?? '0.00' }} {{ weightUnitNames[preferredWeightUnit] }}
 						</div>
 					</div>
 
 					<div class="border-b pb-2">
-						<span class="font-medium">Average price per Weight:</span>
+						<span class="font-medium">{{ t('stats.avg_price_per_weight_label') }}</span>
 						<div class="ml-4 mt-1 text-lg">
 							{{ currencySymbols[preferredCurrency] }}{{ cumulativeStats.pricePerWeight?.toFixed(4) ?? '0.0000' }} / {{ weightUnitNames[preferredWeightUnit] }}
 						</div>
 					</div>
 
 					<div class="border-b pb-2">
-						<span class="font-medium">Most Expensive Tea:</span>
+						<span class="font-medium">{{ t('stats.most_expensive_label') }}</span>
 						<div class="ml-4 mt-1">
 							<div v-if="cumulativeStats.mostExpensiveTea" class="text-lg">
 								{{ cumulativeStats.mostExpensiveTea.name }}
@@ -114,9 +113,9 @@ onActivated(loadStats);
 									- {{ currencySymbols[cumulativeStats.mostExpensiveTea.priceCurrency] || '' }}{{ cumulativeStats.mostExpensiveTea.price?.toFixed(2) }}
 								</span>
 							</div>
-							<div v-else class="text-gray-500">No data</div>
+							<div v-else class="text-gray-500">{{ t('stats.no_data') }}</div>
 						</div>
-						<span class="font-medium">Most Expensive Tea by weight:</span>
+						<span class="font-medium">{{ t('stats.most_expensive_by_weight_label') }}</span>
 						<div class="ml-4 mt-1">
 							<div v-if="cumulativeStats.mostExpensivePerWeightTea" class="text-lg">
 								{{ cumulativeStats.mostExpensivePerWeightTea.name }}
@@ -124,7 +123,7 @@ onActivated(loadStats);
 									- {{ currencySymbols[cumulativeStats.mostExpensivePerWeightTea.priceCurrency] || '' }}{{ (cumulativeStats.mostExpensivePerWeightTea.price / cumulativeStats.mostExpensivePerWeightTea.weight * (preferredWeightUnit === 0 ? 1 : preferredWeightUnit === 1 ? 1000 : 28.3495)).toFixed(2) }} / {{ weightUnitNames[preferredWeightUnit] }}
 								</span>
 							</div>
-							<div v-else class="text-gray-500">No data</div>
+							<div v-else class="text-gray-500">{{ t('stats.no_data') }}</div>
 						</div>
 					</div>
 				</div>
@@ -134,7 +133,7 @@ onActivated(loadStats);
 				<PieChart
 					:teaCountByType="cumulativeStats.teaCountByType"
 					:labelMap="getTeaTypeNames()"
-					title="Tea Collection by Type"
+					:title="t('stats.tea_collection_by_type_title')"
 				/>
 			</div>
 			</div>
@@ -158,7 +157,7 @@ onActivated(loadStats);
 		</div>
 
 		<div v-else class="text-center py-12 text-gray-500">
-			Loading statistics...
+			{{ t('stats.loading') }}
 		</div>
 	</div>
 </template>

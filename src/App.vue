@@ -107,8 +107,9 @@ onMounted(async() => {
 
 .main-content {
 	width: 100%;
-	height: calc(100% - 72px);
+	/* 2 px extra to account for shadow (72+2) */
+	height: calc(100% - 74px); 
 	overflow: auto;
-	margin-top: 72px;
+	margin-top: 74px;
 }
 </style>
