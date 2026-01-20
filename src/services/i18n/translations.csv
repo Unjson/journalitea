@@ -1,0 +1,121 @@
+key;en;de
+app.title;Journalitea;Journalitea
+header.title_my_teas;My Teas;Meine Tees
+header.title_create_record;New Record;Neuer Eintrag
+header.title_edit_record;Edit Record;Eintrag bearbeiten
+header.title_view_record;View Record;Eintrag ansehen
+header.title_stats;Stats for Nerds;Statistiken für Nerds
+header.title_settings;Settings;Einstellungen
+header.title_about;About;Über
+menu.item_my_teas;My Teas;Meine Tees
+menu.item_stats;Stats for Nerds;Statistiken für Nerds
+menu.item_settings;Settings;Einstellungen
+menu.item_about;About;Über diese App
+create.title;Create new Record;Neuen Eintrag erstellen
+list.title;My Tea Records;Meine Tee-Einträge
+list.create_button;Create;Erstellen
+list.loading;Loading records...;Lade Einträge...
+list.no_records;No records found. Click the "Create" button to add your first tea
+edit.title;Edit Record;Eintrag bearbeiten
+edit.name_label;Name;Name
+edit.type_label;Type;Typ
+edit.subtype_label;Subtype;Untertyp
+edit.seller_label;Seller;Verkäufer
+edit.origin_label;Origin;Herkunft
+edit.year_label;Year;Jahr
+edit.price_label;Price;Preis
+edit.weight_label;Net Weight;Menge
+edit.preparation_label;Preparation;Zubereitung
+edit.preparation_method_label;Method;Methode
+edit.preparation_notes_label;Preparation Notes;Zubereitungsnotizen
+edit.dry_leaves_label;Dry Leaves;Trockene Blätter
+edit.wet_leaves_label;Wet Leaves;Nasse Blätter
+edit.liquor_label;Liquor;Aufguss
+edit.color_label;Color;Farbe
+edit.aromas_label;Aromas;Aromen
+edit.notes_rating_title;Notes & Rating;Notizen & Bewertung
+edit.notes_label;Notes;Notizen
+edit.rating_label;Rating;Bewertung
+edit.cancel_button;Cancel;Abbrechen
+edit.create_button;Create;Erstellen
+edit.update_button;Update;Aktualisieren
+enum.type_green;Green;Grün
+enum.type_black;Black;Schwarz
+enum.type_oolong;Oolong;Oolong
+enum.type_white;White;Weiß
+enum.type_dark;Dark;Dunkel
+enum.type_yellow;Yellow;Gelb
+enum.type_herbal;Herbal;Kräuter
+enum.type_other;Other;Andere
+enum.aromas_sweet;Sweet;Süß
+enum.aromas_floral;Floral;Blumig
+enum.aromas_nutty;Nutty;Nussig
+enum.aromas_spicy;Spicy;Würzig
+enum.aromas_fruity;Fruity;Fruchtig
+enum.aromas_fire;Fire /\nAnimal;Feuer /\nTierisch
+enum.aromas_vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
+enum.aromas_earthy;Earthy;Erdig
+enum.aromas_minerals;Mineral;Mineralisch
+enum.aromas_marine;Marine;Maritim
+enum.language_english;English;Englisch
+enum.language_german;German;Deutsch
+settings.language_title;Language;Sprache
+settings.currency_title;Preferred Currency;Hauptwährung
+settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+detail.loading;Loading record...;Lade Eintrag...
+detail.error_prefix;Error:;Fehler:
+detail.details_title;Details;Details
+detail.type_label;Type:;Typ:
+detail.subtype_label;Subtype:;Untertyp:
+detail.origin_label;Origin:;Herkunft:
+detail.year_label;Year:;Jahr:
+detail.seller_label;Seller:;Verkäufer:
+detail.date_added_label;Date Added:;Hinzugefügt am:
+detail.price_label;Price:;Preis:
+detail.weight_label;Weight:;Menge:
+detail.preparation_title;Preparation;Zubereitung
+detail.method_label;Method:;Methode:
+detail.notes_label;Notes:;Notizen:
+detail.tasting_notes_title;Tasting Notes;Verkostungsnotizen
+detail.dry_leaves_label;Dry Leaves:;Trockene Blätter:
+detail.wet_leaves_label;Wet Leaves:;Nasse Blätter:
+detail.liquor_label;Liquor:;Aufguss:
+detail.color_label;Color:;Farbe:
+detail.color_aria;Tea color;Teefarbe
+detail.plot_show;Show Plot;Diagramm anzeigen
+detail.plot_hide;Hide Plot;Diagramm ausblenden
+detail.notes_rating_title;Notes & Rating;Notizen & Bewertung
+detail.overall_rating_label;Overall Rating:;Gesamtbewertung:
+detail.delete_button;Delete Record;Eintrag löschen
+detail.back_button;Back to Records List;Zurück zur Eintragsliste
+detail.edit_button;Edit Record;Eintrag bearbeiten
+detail.delete_confirm_title;Delete record?;Eintrag löschen?
+detail.delete_confirm_message;This action cannot be undone.;Diese Aktion kann nicht rückgängig gemacht werden.
+detail.delete_confirm_confirm;Delete;Löschen
+detail.delete_confirm_cancel;Cancel;Abbrechen
+record.type_label;Type:;Typ:
+record.subtype_label;Subtype:;Untertyp:
+record.origin_label;Origin:;Herkunft:
+record.year_label;Year:;Jahr:
+record.seller_label;Seller:;Verkäufer:
+record.rating_label;Rating:;Bewertung:
+record.notes_label;Notes:;Notizen:
+stats.title;Stats for Nerds;Statistiken für Nerds
+stats.tab_summary;Summary;Übersicht
+stats.tab_histograms;Histograms;Histogramme
+stats.tab_aromas;Aromas;Aromen
+stats.cumulative_title;Cumulative Statistics;Kumulative Statistiken
+stats.total_money_spent_label;Total Money Spent:;Insgesamt ausgegeben:
+stats.total_weight_label;Total Weight of Tea:;Gesamtmenge Tee:
+stats.avg_price_per_weight_label;Average price per Weight:;Durchschnittspreis pro Menge:
+stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
+stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
+stats.no_data;No data;Keine Daten
+stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.loading;Loading statistics...;Statistiken werden geladen...
+stats.histogram_total_price;Total Prices;Gesamtpreise
+stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm
+stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
+stats.no_price_data;No price data available;Keine Preisdaten verfügbar
+stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
+stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte

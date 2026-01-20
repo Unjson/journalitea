@@ -1,5 +1,9 @@
 {
     "compilerOptions": {
+        "target": "es2017",
         "module": "preserve"
-    }
+    },
+    "exclude": [
+        "src/views/Home.vue"
+    ]
 }

@@ -1,4 +1,4 @@
-# Minimal Electron + Vue (Vite)
+# Minimal  (Vite)
 
 A tiny, no-frills starter to run Vue 3 inside Electron using Vite. It compiles Vue SFCs with Vite and launches Electron to load the built files. No packager, no builder — just the essentials.
 

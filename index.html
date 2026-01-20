@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Electron + Vue</title>
+	<title>Journalitea - Personal Tea Journal</title>
 	<link href="/src/style.css" rel="stylesheet">
 </head>
 
@@ -12,9 +12,13 @@
 	<script type="module">
 		import { createApp } from 'vue';
 		import App from './src/App.vue';
-		import router from './src/router.js';
+		import i18n from "./src/services/i18n";
+		import router from './src/router.ts';
 
-		createApp(App).use(router).mount('#app');
+		createApp(App)
+		.use(i18n)
+		.use(router)
+		.mount('#app');
 	</script>
 </body>
 
