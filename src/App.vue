@@ -107,7 +107,8 @@ onMounted(async() => {
 
 .main-content {
 	width: 100%;
-	height: 100%;
+	height: calc(100% - 72px);
 	overflow: auto;
+	margin-top: 72px;
 }
 </style>

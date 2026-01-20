@@ -5,6 +5,7 @@ import { Record } from '../models/record';
 import { getColorForRating } from '../models/colors';
 import RadarPlot from '../components/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
+import StarRating from '../components/StarRating.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -185,7 +186,7 @@ onMounted(() => {
         </div>
         <div v-if="record.rating">
           <span class="font-medium text-gray-700">Overall Rating:</span>
-          <span class="text-2xl font-bold text-blue-600 ml-2">{{ record.rating }}/5</span>
+          <StarRating v-model="record.rating" :max="5" :disabled="true" aria-label="Overall Rating" />
         </div>
       </section>
       <!-- Edit Button -->

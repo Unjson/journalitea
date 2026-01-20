@@ -3,12 +3,15 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
 import { CurrencyType, WeightUnit, TeaType } from '../models/enums';
+import { useI18n } from 'vue-i18n';
 import ColorSlider from '../components/ColorSlider.vue';
+import VerticalSlider from '../components/VerticalSlider.vue';
+import StarRating from '../components/StarRating.vue';
 import { PREFS } from '../appSettings.js';
 
 const route = useRoute();
 const router = useRouter();
-
+const { t } = useI18n();
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
 
@@ -16,6 +19,19 @@ const record = ref<Record>(new Record());
 const loading = ref(false);
 const error = ref<string | null>(null);
 const isNewRecord = ref(true);
+
+const aromaFields = [
+  { key: 'aroma_sweet', label: t('enum.aromas_sweet') },
+  { key: 'aroma_floral', label: t('enum.aromas_floral') },
+  { key: 'aroma_nutty', label: t('enum.aromas_nutty') },
+  { key: 'aroma_spicy', label: t('enum.aromas_spicy') },
+  { key: 'aroma_fire', label: t('enum.aromas_fire') },
+  { key: 'aroma_fruity', label: t('enum.aromas_fruity') },
+  { key: 'aroma_plants', label: t('enum.aromas_vegetal') },
+  { key: 'aroma_earthy', label: t('enum.aromas_earthy') },
+  { key: 'aroma_minerals', label: t('enum.aromas_minerals') },
+  { key: 'aroma_marine', label: t('enum.aromas_marine') },
+] as const;
 
 const loadRecord = async () => {
   const id = Number(route.params.id);
@@ -103,7 +119,7 @@ onMounted(() => {
 <template>
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-6">
-      {{ isNewRecord ? 'New Record' : 'Edit Record' }}
+      {{ isNewRecord ? t('create.title') : t('edit.title') }}
     </h1>
 
     <div v-if="loading && !isNewRecord" class="text-center py-8 text-gray-500">
@@ -120,7 +136,7 @@ onMounted(() => {
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Basic Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.name_label') }} *</label>
             <input
               v-model="record.name"
               type="text"
@@ -130,7 +146,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.type_label') }}</label>
             <select
               v-model.number="record.type"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -147,7 +163,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Subtype</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.subtype_label') }}</label>
             <input
               v-model="record.subtype"
               type="text"
@@ -156,7 +172,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Origin</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.origin_label') }}</label>
             <input
               v-model="record.origin"
               type="text"
@@ -165,7 +181,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.year_label') }}</label>
             <input
               v-model.number="record.year"
               type="number"
@@ -174,7 +190,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Seller</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.seller_label') }}</label>
             <input
               v-model="record.seller"
               type="text"
@@ -185,7 +201,7 @@ onMounted(() => {
           <div></div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.price_label') }}</label>
             <div class="flex flex-row items-center gap-4">
             <input
               v-model.number="record.price"
@@ -209,7 +225,7 @@ onMounted(() => {
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Weight</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.weight_label') }}</label>
             <div class="flex flex-row items-center gap-4">
             <input
               v-model.number="record.weight"
@@ -234,10 +250,10 @@ onMounted(() => {
 
       <!-- Preparation -->
       <section>
-        <h2 class="text-xl font-semibold mb-4 border-b pb-2">Preparation</h2>
+        <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.preparation_label') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Method</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.preparation_method_label') }}</label>
             <select
               v-model.number="record.preparationMethod"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -252,7 +268,7 @@ onMounted(() => {
           </div>
           
           <div class="col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Preparation Notes</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.preparation_notes_label') }}</label>
             <textarea
               v-model="record.preparationNotes"
               rows="3"
@@ -267,7 +283,7 @@ onMounted(() => {
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Tasting Notes</h2>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Dry Leaves</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.dry_leaves_label') }}</label>
             <textarea
               v-model="record.dryLeaves"
               rows="2"
@@ -276,7 +292,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Wet Leaves</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.wet_leaves_label') }}</label>
             <textarea
               v-model="record.wetLeaves"
               rows="2"
@@ -285,7 +301,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Liquor</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.liquor_label') }}</label>
             <textarea
               v-model="record.liquor"
               rows="2"
@@ -294,7 +310,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.color_label') }}</label>
             <ColorSlider v-model="record.color" />
           </div>
         </div>
@@ -302,125 +318,19 @@ onMounted(() => {
 
       <!-- Aroma Profile (ITMC Scale) -->
       <section>
-        <h2 class="text-xl font-semibold mb-4 border-b pb-2">Aroma Profile (0-5)</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Sweet</label>
-            <input
-              v-model.number="record.aroma_sweet"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Floral</label>
-            <input
-              v-model.number="record.aroma_floral"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nutty</label>
-            <input
-              v-model.number="record.aroma_nutty"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Spicy</label>
-            <input
-              v-model.number="record.aroma_spicy"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Fire / Animal</label>
-            <input
-              v-model.number="record.aroma_fire"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Fruity</label>
-            <input
-              v-model.number="record.aroma_fruity"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Plants</label>
-            <input
-              v-model.number="record.aroma_plants"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Earthy</label>
-            <input
-              v-model.number="record.aroma_earthy"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Minerals</label>
-            <input
-              v-model.number="record.aroma_minerals"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Marine</label>
-            <input
-              v-model.number="record.aroma_marine"
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.aromas_label') }}</h2>
+        <div class="grid grid-cols-5 gap-8 p-4">
+          <div
+            v-for="field in aromaFields"
+            :key="field.key"
+          >
+            <VerticalSlider
+              :label="field.label"
+              :model-value="record[field.key]"
+              :min="0"
+              :max="5"
+              :step="1"
+              @update:model-value="(value) => (record[field.key] = value)"
             />
           </div>
         </div>
@@ -428,10 +338,10 @@ onMounted(() => {
 
       <!-- Notes & Rating -->
       <section>
-        <h2 class="text-xl font-semibold mb-4 border-b pb-2">Notes & Rating</h2>
+        <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.notes_rating_title')}}</h2>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.notes_label') }}</label>
             <textarea
               v-model="record.notes"
               rows="4"
@@ -440,15 +350,7 @@ onMounted(() => {
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Overall Rating (0-5)</label>
-            <input
-              v-model.number="record.rating"
-              type="number"
-              min="0"
-              max="5"
-              step="1"
-              class="w-full p-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.rating_label') }}</label><StarRating v-model="record.rating" :max="5" />
           </div>
         </div>
       </section>
@@ -460,14 +362,14 @@ onMounted(() => {
           @click="cancel"
           class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          Cancel
+          {{ t('edit.cancel_button') }}
         </button>
         <button
           type="submit"
           :disabled="loading"
           class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ loading ? 'Saving...' : 'Save Record' }}
+          {{ loading ? 'Saving...' : (isNewRecord ? t('edit.create_button') : t('edit.update_button')) }}
         </button>
       </div>
     </form>

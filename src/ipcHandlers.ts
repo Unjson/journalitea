@@ -69,7 +69,7 @@ export const setupIpcHandlers = (): void => {
 
   ipcMain.handle('i18n:loadTranslations', async () => {
     try {
-      const translations = parseTranslationsFromCSV('translations.csv');
+      const translations = parseTranslationsFromCSV('src/services/i18n/translations.csv');
       return translations;
     } catch (error) {
       console.error('Error loading translations:', error);

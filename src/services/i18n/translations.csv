@@ -20,38 +20,40 @@ menu.item_timer;Timer;Timer
 menu.item_stats;Stats for Nerds;Statistiken für Nerds
 menu.item_settings;Settings;Einstellungen
 menu.item_about;About;Über diese App
-create.record_title;Create new Record;Neuen Eintrag erstellen
-edit.record_title;Edit Record;Eintrag bearbeiten
-edit.record_name_label;Name;Name
-edit.record_name_placeholder;Enter a name;Namen eingeben
-edit.record_type_label;Type;Typ
-edit.record_subtype_label;Subtype;Untertyp
-edit.record_seller_label;Seller;Verkäufer
-edit.record_origin_label;Origin;Herkunft
-edit.record_year_label;Year;Jahr
-edit.record_price_label;Price;Preis
-edit.record_weight_label;Net Weight;Menge
-edit.record_preparation_label;Preparation;Zubereitung
-edit.record_preparation_notes_label;Preparation Notes;Zubereitungsnotizen
-edit.record_dry_leaves_label;Dry Leaves;Trockene Blätter
-edit.record_wet_leaves_label;Wet Leaves;Nasse Blätter
-edit.record_liquor_label;Liquor;Aufguss
-edit.record_color_label;Color;Farbe
-edit.record_aromas_label;Aromas;Aromen
-edit.record_notes_label;Notes;Notizen
-edit.record_rating_label;Rating;Bewertung
-edit.record_cancel_button;Cancel;Abbrechen
-edit.record_create_button;Create;Erstellen
-edit.record_update_button;Update;Aktualisieren
-edit.record_quit_popup_title;Quit Editing;Bearbeitung beenden
-edit.record_quit_popup_message;Are you sure you want to quit without saving?;Sind Sie sicher, dass Sie die Bearbeitung ohne zu speichern beenden möchten?
-edit.record_quit_popup_cancel;Back;Zurück
-edit.record_quit_popup_confirm;Quit;Beenden
-view.record_edit_button;Edit;Bearbeiten
-view.record_back_button;Back;Zurück
-view.record_stats_title;Stats;Statistiken
-view.record_aromas_title;Aromas;Aromen
-view.record_observations_title;Observations;Beobachtungen
+create.title;Create new Record;Neuen Eintrag erstellen
+edit.title;Edit Record;Eintrag bearbeiten
+edit.name_label;Name;Name
+edit.name_placeholder;Enter a name;Namen eingeben
+edit.type_label;Type;Typ
+edit.subtype_label;Subtype;Untertyp
+edit.seller_label;Seller;Verkäufer
+edit.origin_label;Origin;Herkunft
+edit.year_label;Year;Jahr
+edit.price_label;Price;Preis
+edit.weight_label;Net Weight;Menge
+edit.preparation_label;Preparation;Zubereitung
+edit.preparation_method_label;Method;Methode
+edit.preparation_notes_label;Preparation Notes;Zubereitungsnotizen
+edit.dry_leaves_label;Dry Leaves;Trockene Blätter
+edit.wet_leaves_label;Wet Leaves;Nasse Blätter
+edit.liquor_label;Liquor;Aufguss
+edit.color_label;Color;Farbe
+edit.aromas_label;Aromas;Aromen
+edit.notes_rating_title;Notes & Rating;Notizen & Bewertung
+edit.notes_label;Notes;Notizen
+edit.rating_label;Rating;Bewertung
+edit.cancel_button;Cancel;Abbrechen
+edit.create_button;Create;Erstellen
+edit.update_button;Update;Aktualisieren
+edit.quit_popup_title;Quit Editing;Bearbeitung beenden
+edit.quit_popup_message;Are you sure you want to quit without saving?;Sind Sie sicher, dass Sie die Bearbeitung ohne zu speichern beenden möchten?
+edit.quit_popup_cancel;Back;Zurück
+edit.quit_popup_confirm;Quit;Beenden
+view.edit_button;Edit;Bearbeiten
+view.back_button;Back;Zurück
+view.stats_title;Stats;Statistiken
+view.aromas_title;Aromas;Aromen
+view.observations_title;Observations;Beobachtungen
 popup.delete_record_title;Delete Record;Eintrag löschen
 popup.delete_record_body;Are you sure you want to delete this record?;Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?
 popup.delete_record_confirm;Delete;Bestätigen
@@ -81,7 +83,7 @@ enum.aromas_fruity;Fruity;Fruchtig
 enum.aromas_fire;Fire /\nAnimal;Feuer /\nTierisch
 enum.aromas_vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
 enum.aromas_earthy;Earthy;Erdig
-enum.aromas_mineral;Mineral;Mineralisch
+enum.aromas_minerals;Mineral;Mineralisch
 enum.aromas_marine;Marine;Maritim
 enum.aromas_simple_spicy;Nutty /\nSpicy;Nussig-Würzig
 enum.aromas_simple_earthy;Earth and Stone;Erde und Gestein
