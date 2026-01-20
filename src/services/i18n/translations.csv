@@ -57,6 +57,8 @@ enum.aromas_vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
 enum.aromas_earthy;Earthy;Erdig
 enum.aromas_minerals;Mineral;Mineralisch
 enum.aromas_marine;Marine;Maritim
+enum.language_english;English;Englisch
+enum.language_german;German;Deutsch
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit

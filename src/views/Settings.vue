@@ -4,6 +4,7 @@ import { Language, CurrencyType, WeightUnit, getLocaleFromLanguage } from '../mo
 import { lookUpExchangeRates } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import { PREFS } from '../appSettings.js';
+import SelectDropdown from '../components/SelectDropdown.vue';
 
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
@@ -11,6 +12,26 @@ const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
+const languageOptions = [
+	{ value: Language.ENGLISH, label: t('enum.language_english'), flagUrl: new URL('../img/flag-uk.svg', import.meta.url).toString() },
+	{ value: Language.GERMAN, label: t('enum.language_german'), flagUrl: new URL('../img/flag-de.svg', import.meta.url).toString() },
+];
+
+const currencyOptions = [
+	{ value: CurrencyType.USD, label: 'USD' },
+	{ value: CurrencyType.EUR, label: 'EUR' },
+	{ value: CurrencyType.GBP, label: 'GBP' },
+	{ value: CurrencyType.JPY, label: 'JPY' },
+	{ value: CurrencyType.CNY, label: 'CNY' },
+	{ value: CurrencyType.INR, label: 'INR' },
+	{ value: CurrencyType.HKD, label: 'HKD' },
+	{ value: CurrencyType.OTHER, label: 'OTHER' },
+];
+
+const weightUnitOptions = [
+	{ value: WeightUnit.METRIC_GRAM, label: 'Grams (g)' },
+	{ value: WeightUnit.IMPERIAL_OUNCE, label: 'Ounces (oz)' },
+];
 
 const onCurrencyChanged = async () => {
   try {
@@ -27,9 +48,15 @@ const onLanguageChanged = async () => {
   try {
 	await ipcRenderer.invoke('db:setSetting', PREFS.LANGUAGE, languageSetting.value);
 	locale.value = getLocaleFromLanguage(languageSetting.value);
+	setOptionLabelsOnLanguageChanged();
   } catch (err) {
 	console.error('Error saving language setting:', err);
   }
+};
+
+const setOptionLabelsOnLanguageChanged = () => {
+  languageOptions[0].label = t('enum.language_english');
+  languageOptions[1].label = t('enum.language_german');
 };
 
 const onWeightUnitChanged = async () => {
@@ -68,36 +95,36 @@ onMounted(async() => {
 			<label class="block text-gray-700 font-bold mb-2" for="language">
 				{{ t('settings.language_title') }}
 			</label>
-			<select v-model="languageSetting" @change="onLanguageChanged" id="language" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-				<option :value="Language.ENGLISH">English</option>
-				<option :value="Language.GERMAN">German</option>
-			</select>
+			<SelectDropdown
+				v-model="languageSetting"
+				:options="languageOptions"
+				:aria-label="t('settings.language_title')"
+				@update:model-value="onLanguageChanged"
+			/>
 		</div>
 
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
 				{{ t('settings.currency_title') }}
 			</label>
-			<select v-model="preferredCurrency" @change="onCurrencyChanged" id="currency" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-				<option :value="CurrencyType.USD">USD</option>
-				<option :value="CurrencyType.EUR">EUR</option>
-				<option :value="CurrencyType.GBP">GBP</option>
-				<option :value="CurrencyType.JPY">JPY</option>
-				<option :value="CurrencyType.CNY">CNY</option>
-				<option :value="CurrencyType.INR">INR</option>
-				<option :value="CurrencyType.HKD">HKD</option>
-				<option :value="CurrencyType.OTHER">OTHER</option>
-			</select>
+			<SelectDropdown
+				v-model="preferredCurrency"
+				:options="currencyOptions"
+				:aria-label="t('settings.currency_title')"
+				@update:model-value="onCurrencyChanged"
+			/>
 		</div>
 
 		<div class="mb-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
 				{{ t('settings.weightunit_title') }}
 			</label>
-			<select v-model="preferredWeightUnit" @change="onWeightUnitChanged" id="weight" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-				<option :value="WeightUnit.METRIC_GRAM">Grams (g)</option>
-				<option :value="WeightUnit.IMPERIAL_OUNCE">Ounces (oz)</option>
-			</select>
+			<SelectDropdown
+				v-model="preferredWeightUnit"
+				:options="weightUnitOptions"
+				:aria-label="t('settings.weightunit_title')"
+				@update:model-value="onWeightUnitChanged"
+			/>
 		</div>
 
 	</div>
