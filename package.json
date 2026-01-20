@@ -1,14 +1,23 @@
 {
   "name": "journalitea",
-  "version": "1.0.0",
+  "description": "Personal Tea Journal",
+  "version": "0.1.0",
   "type": "module",
   "main": "dist-electron/main.js",
+  "author": {
+    "name": "Jonas Hundertmark",
+    "email": "hundertmark@medialesson.de"
+  },
   "scripts": {
     "compile:electron": "tsc --project tsconfig.node.json",
     "watch:electron": "tsc --project tsconfig.node.json --watch",
     "dev": "concurrently \"npm run watch:electron\" \"wait-on dist-electron/main.js && NODE_ENV=development vite\" \"wait-on dist-electron/main.js && wait-on http://localhost:5173 && NODE_ENV=development nodemon --watch dist-electron --exec electron .\"",
     "build": "npm run compile:electron && vite build",
-    "start": "npm run build && electron ."
+    "start": "npm run build && electron .",
+    "app:dir": "npm run build && electron-builder --dir",
+    "app:dist": "npm run build && electron-builder",
+    "app:dist:win": "npm run build && electron-builder --win --x64",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -24,11 +33,39 @@
     "@vitejs/plugin-vue": "latest",
     "concurrently": "^9.2.1",
     "electron": "latest",
+    "electron-builder": "^26.4.0",
     "electron-rebuild": "^3.2.9",
     "eslint": "^9.39.2",
     "nodemon": "^3.1.11",
     "typescript": "^5.9.3",
     "vite": "latest",
     "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "de.medialesson.journalitea",
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "src/services/i18n/translations.csv",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/better-sqlite3/**",
+      "**/*.node"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "linux": {
+      "category": "Productivity",
+      "target": ["deb", "snap"]
+    }
+    
   }
 }

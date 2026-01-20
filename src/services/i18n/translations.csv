@@ -59,6 +59,8 @@ enum.aromas_minerals;Mineral;Mineralisch
 enum.aromas_marine;Marine;Maritim
 enum.language_english;English;Englisch
 enum.language_german;German;Deutsch
+enum.weightunit_g;Grams;Gramm
+enum.weightunit_oz;Ounces;Unzen
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit

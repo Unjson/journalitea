@@ -1,4 +1,5 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
+import path from 'node:path';
 import db from './services/database.js';
 import { parseTranslationsFromCSV } from './services/i18n/csvParser.js';
 
@@ -69,7 +70,8 @@ export const setupIpcHandlers = (): void => {
 
   ipcMain.handle('i18n:loadTranslations', async () => {
     try {
-      const translations = parseTranslationsFromCSV('src/services/i18n/translations.csv');
+      const csvPath = path.join(app.getAppPath(), 'src', 'services', 'i18n', 'translations.csv');
+      const translations = parseTranslationsFromCSV(csvPath);
       return translations;
     } catch (error) {
       console.error('Error loading translations:', error);

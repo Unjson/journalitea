@@ -29,8 +29,8 @@ const currencyOptions = [
 ];
 
 const weightUnitOptions = [
-	{ value: WeightUnit.METRIC_GRAM, label: 'Grams (g)' },
-	{ value: WeightUnit.IMPERIAL_OUNCE, label: 'Ounces (oz)' },
+	{ value: WeightUnit.METRIC_GRAM, label: t('enum.weightunit_g') },
+	{ value: WeightUnit.IMPERIAL_OUNCE, label: t('enum.weightunit_oz') },
 ];
 
 const onCurrencyChanged = async () => {
@@ -57,6 +57,8 @@ const onLanguageChanged = async () => {
 const setOptionLabelsOnLanguageChanged = () => {
   languageOptions[0].label = t('enum.language_english');
   languageOptions[1].label = t('enum.language_german');
+  weightUnitOptions[0].label = t('enum.weightunit_g');
+  weightUnitOptions[1].label = t('enum.weightunit_oz');
 };
 
 const onWeightUnitChanged = async () => {

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu } from 'electron';
+import path from 'node:path';
 import db from './src/services/database.js';
 import { setupIpcHandlers } from './src/ipcHandlers.js';
 
@@ -49,7 +50,7 @@ const createWindow = (): void => {
     mainWindow.webContents.openDevTools();
   } else {
     // Load from built files in production
-    mainWindow.loadFile('dist/index.html');
+    mainWindow.loadFile(path.join(app.getAppPath(), 'dist', 'index.html'));
   }
 };
 
