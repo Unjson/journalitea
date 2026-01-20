@@ -82,7 +82,7 @@ export function getCumulativeStats(
 	const response = await fetch(requestUrl)
 	const data = await response.json();
 	
-	return getExchangeRateRecordFromJSONResponse(data);
+	return getExchangeRateRecordFromJSONResponse(data as object);
   }
   
 
