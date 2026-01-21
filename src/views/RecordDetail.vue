@@ -44,7 +44,7 @@ const loadRecord = async () => {
     record.value = recordInstance;
     
     teaType.value = recordInstance.getTypeName();
-    preparationMethod.value = recordInstance.getPreparationMethodName();
+    preparationMethod.value = t(recordInstance.getPreparationMethodName());
     currencyString.value = recordInstance.getPriceStringWithCurrency();
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load record';

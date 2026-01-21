@@ -46,28 +46,28 @@ const teaTypeOptions = [
 ];
 
 const currencyOptions = [
-  { value: CurrencyType.USD, label: 'USD' },
-  { value: CurrencyType.EUR, label: 'EUR' },
-  { value: CurrencyType.GBP, label: 'GBP' },
-  { value: CurrencyType.CNY, label: 'CNY' },
-  { value: CurrencyType.JPY, label: 'JPY' },
-  { value: CurrencyType.INR, label: 'INR' },
-  { value: CurrencyType.HKD, label: 'HKD' },
-  { value: CurrencyType.OTHER, label: 'Other' },
+  { value: CurrencyType.USD, label: t('enum.currency_usd') },
+  { value: CurrencyType.EUR, label: t('enum.currency_eur') },
+  { value: CurrencyType.GBP, label: t('enum.currency_gbp') },
+  { value: CurrencyType.CNY, label: t('enum.currency_cny') },
+  { value: CurrencyType.JPY, label: t('enum.currency_jpy') },
+  { value: CurrencyType.INR, label: t('enum.currency_inr') },
+  { value: CurrencyType.HKD, label: t('enum.currency_hkd') },
+  { value: CurrencyType.OTHER, label: t('enum.currency_other') },
 ];
 
 const weightUnitOptions = [
-  { value: WeightUnit.METRIC_GRAM, label: 'Grams (g)' },
-  { value: WeightUnit.IMPERIAL_OUNCE, label: 'Ounces (oz)' },
+  { value: WeightUnit.METRIC_GRAM, label: t('enum.weightunit_g') },
+  { value: WeightUnit.IMPERIAL_OUNCE, label: t('enum.weightunit_oz') },
 ];
 
 const preparationMethodOptions = [
-  { value: PreparationMethod.WESTERN, label: 'Western' },
-  { value: PreparationMethod.GAIWAN, label: 'Gaiwan' },
-  { value: PreparationMethod.TEAPOT, label: 'Teapot' },
-  { value: PreparationMethod.TEABAG, label: 'Teabag' },
-  { value: PreparationMethod.COLDBREW, label: 'Cold Brew' },
-  { value: PreparationMethod.OTHER, label: 'Other' },
+  { value: PreparationMethod.WESTERN, label: t('enum.preparation_western') },
+  { value: PreparationMethod.GAIWAN, label: t('enum.preparation_gaiwan') },
+  { value: PreparationMethod.TEAPOT, label: t('enum.preparation_teapot') },
+  { value: PreparationMethod.TEABAG, label: t('enum.preparation_teabag') },
+  { value: PreparationMethod.COLDBREW, label: t('enum.preparation_coldbrew') },
+  { value: PreparationMethod.OTHER, label: t('enum.preparation_other') },
 ];
 
 const loadRecord = async () => {

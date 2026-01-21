@@ -81,7 +81,22 @@ export class Record {
 	}
 
 	getPreparationMethodName(): string {
-		return PreparationMethod[Number(this.preparationMethod)];
+		switch(this.preparationMethod){
+			case PreparationMethod.WESTERN:
+				return "enum.preparation_western";
+			case PreparationMethod.GAIWAN:
+				return "enum.preparation_gaiwan";
+			case PreparationMethod.TEAPOT:
+				return "enum.preparation_teapot";
+			case PreparationMethod.TEABAG:
+				return "enum.preparation_teabag";
+			case PreparationMethod.COLDBREW:
+				return "enum.preparation_coldbrew";
+			case PreparationMethod.OTHER:
+				return "enum.preparation_other";
+			default:
+				return "enum.preparation_other";
+		}
 	}
 
 	getCurrencyName(): string {
