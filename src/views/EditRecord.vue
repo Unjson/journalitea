@@ -50,7 +50,6 @@ const loadRecord = async () => {
     const data = await ipcRenderer.invoke('db:getRecordById', Number(id));
     if (data) {
       record.value = Object.assign(new Record(), data);
-      console.log('Preparation Method:', record.value.preparationMethod);
       isNewRecord.value = false;
     } else {
       error.value = 'Record not found';
