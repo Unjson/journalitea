@@ -41,6 +41,10 @@ edit.rating_label;Rating;Bewertung
 edit.cancel_button;Cancel;Abbrechen
 edit.create_button;Create;Erstellen
 edit.update_button;Update;Aktualisieren
+edit.cancel_confirm_title;Discard changes?;Änderungen verwerfen?
+edit.cancel_confirm_message;You have unsaved changes. Do you want to leave without saving?;Sie haben ungespeicherte Änderungen. Möchten Sie die Seite ohne Speichern verlassen?
+edit.cancel_confirm_confirm;Leave;Verlassen
+edit.cancel_confirm_cancel;Stay;Bleiben
 enum.type_green;Green;Grün
 enum.type_black;Black;Schwarz
 enum.type_oolong;Oolong;Oolong

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { Record } from '../models/record';
 import { CurrencyType, WeightUnit, TeaType, PreparationMethod } from '../models/enums';
 import { useI18n } from 'vue-i18n';
@@ -8,6 +8,7 @@ import ColorSlider from '../components/ColorSlider.vue';
 import VerticalSlider from '../components/VerticalSlider.vue';
 import StarRating from '../components/StarRating.vue';
 import SelectDropdown from '../components/SelectDropdown.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { PREFS } from '../appSettings.js';
 
 const route = useRoute();
@@ -20,6 +21,9 @@ const record = ref<Record>(new Record());
 const loading = ref(false);
 const error = ref<string | null>(null);
 const isNewRecord = ref(true);
+const showCancelConfirm = ref(false);
+const pendingNavigation = ref<null | ReturnType<typeof router.resolve>>(null);
+const allowNavigation = ref(false);
 
 const aromaFields = [
   { key: 'aroma_sweet', label: t('enum.aromas_sweet') },
@@ -124,10 +128,12 @@ const saveRecord = async () => {
     if (isNewRecord.value || record.value.id === -1) {
       // Create new record
       const newId = await ipcRenderer.invoke('db:saveRecord', plainRecord);
+      allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
       // Update existing record
       await ipcRenderer.invoke('db:updateRecord', plainRecord);
+      allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
   } catch (err) {
@@ -139,12 +145,44 @@ const saveRecord = async () => {
 };
 
 const cancel = () => {
+  pendingNavigation.value = null;
+  showCancelConfirm.value = true;
+};
+
+const confirmCancel = () => {
+  showCancelConfirm.value = false;
+  allowNavigation.value = true;
+
+  if (pendingNavigation.value) {
+    const target = pendingNavigation.value;
+    pendingNavigation.value = null;
+    router.push(target);
+    return;
+  }
+
   if (isNewRecord.value) {
     router.replace({ name: 'records-list' });
   } else {
     router.push({ name: 'record-detail', params: { id: record.value.id } });
   }
 };
+
+const cancelCancel = () => {
+  showCancelConfirm.value = false;
+  pendingNavigation.value = null;
+};
+
+onBeforeRouteLeave((to, from, next) => {
+  if (allowNavigation.value) {
+    allowNavigation.value = false;
+    next();
+    return;
+  }
+
+  pendingNavigation.value = to;
+  showCancelConfirm.value = true;
+  next(false);
+});
 
 onMounted(() => {
   loadRecord();
@@ -400,4 +438,14 @@ onMounted(() => {
       </div>
     </form>
   </div>
+
+  <ConfirmDialog
+    v-model="showCancelConfirm"
+    :title="t('edit.cancel_confirm_title')"
+    :message="t('edit.cancel_confirm_message')"
+    :confirm-text="t('edit.cancel_confirm_confirm')"
+    :cancel-text="t('edit.cancel_confirm_cancel')"
+    @confirm="confirmCancel"
+    @cancel="cancelCancel"
+  />
 </template>
