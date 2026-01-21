@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
 import { Record } from '../models/record.js';
-import { APP_USER_FOLDER, DATABASE_NAME } from '../appSettings.js';
+import { APP_USER_FOLDER, DATABASE_NAME, PREFS, DEFAULT_PREFS} from '../appSettings.js';
 
 class DatabaseService {
   private db: Database.Database | null = null;
@@ -19,6 +19,7 @@ class DatabaseService {
     
     this.createRecordsTable();
     this.createSettingsTable();
+    this.fillSettingsWithDefaultValues();
     return this.db;
   }
 
@@ -263,6 +264,32 @@ class DatabaseService {
         key TEXT NOT NULL,
         int_val INTEGER,
         str_val TEXT)`);
+  }
+
+  private fillSettingsWithDefaultValues(): void {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const defaultSettings: { key: string; intVal: number | null; strVal: string | null }[] = [
+      { key: PREFS.CURRENCY, intVal: DEFAULT_PREFS.CURRENCY, strVal: null },
+      { key: PREFS.WEIGHT_UNIT, intVal: DEFAULT_PREFS.WEIGHT_UNIT, strVal: null },
+      { key: PREFS.LANGUAGE, intVal: DEFAULT_PREFS.LANGUAGE, strVal: null },
+      { key: PREFS.EXCHANGE_RATES, intVal: null, strVal: JSON.stringify(DEFAULT_PREFS.EXCHANGE_RATES) }
+    ];
+
+    const insertStmt = this.db.prepare('INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)');
+    for (const setting of defaultSettings) {
+      if (!this.settingsValueExists(setting.key)) {
+        insertStmt.run(setting.key, setting.intVal, setting.strVal);
+      }
+    }
+  }
+
+  private settingsValueExists(key: string): boolean {
+    if (!this.db) throw new Error('Database not initialized');
+
+    const stmt = this.db.prepare('SELECT 1 FROM settings WHERE key = ?');
+    const row = stmt.get(key);
+    return !!row;
   }
 
   close(): void {

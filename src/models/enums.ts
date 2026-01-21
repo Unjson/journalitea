@@ -126,7 +126,7 @@ export function getExchangeRateRecordFromJSONResponse(json: object): Record<Curr
 		[CurrencyType.JPY]: 0,
 		[CurrencyType.INR]: 0,
 		[CurrencyType.HKD]: 0,
-		[CurrencyType.OTHER]: 0
+		[CurrencyType.OTHER]: 1
 	};
 	
 	const jsonObj = json as any;
