@@ -2,11 +2,12 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
-import { CurrencyType, WeightUnit, TeaType } from '../models/enums';
+import { CurrencyType, WeightUnit, TeaType, PreparationMethod } from '../models/enums';
 import { useI18n } from 'vue-i18n';
 import ColorSlider from '../components/ColorSlider.vue';
 import VerticalSlider from '../components/VerticalSlider.vue';
 import StarRating from '../components/StarRating.vue';
+import SelectDropdown from '../components/SelectDropdown.vue';
 import { PREFS } from '../appSettings.js';
 
 const route = useRoute();
@@ -33,6 +34,42 @@ const aromaFields = [
   { key: 'aroma_marine', label: t('enum.aromas_marine') },
 ] as const;
 
+const teaTypeOptions = [
+  { value: TeaType.GREEN, label: t('enum.type_green') },
+  { value: TeaType.BLACK, label: t('enum.type_black') },
+  { value: TeaType.OOLONG, label: t('enum.type_oolong') },
+  { value: TeaType.WHITE, label: t('enum.type_white') },
+  { value: TeaType.DARK, label: t('enum.type_dark') },
+  { value: TeaType.YELLOW, label: t('enum.type_yellow') },
+  { value: TeaType.HERBAL, label: t('enum.type_herbal') },
+  { value: TeaType.OTHER, label: t('enum.type_other') },
+];
+
+const currencyOptions = [
+  { value: CurrencyType.USD, label: 'USD' },
+  { value: CurrencyType.EUR, label: 'EUR' },
+  { value: CurrencyType.GBP, label: 'GBP' },
+  { value: CurrencyType.CNY, label: 'CNY' },
+  { value: CurrencyType.JPY, label: 'JPY' },
+  { value: CurrencyType.INR, label: 'INR' },
+  { value: CurrencyType.HKD, label: 'HKD' },
+  { value: CurrencyType.OTHER, label: 'Other' },
+];
+
+const weightUnitOptions = [
+  { value: WeightUnit.METRIC_GRAM, label: 'Grams (g)' },
+  { value: WeightUnit.IMPERIAL_OUNCE, label: 'Ounces (oz)' },
+];
+
+const preparationMethodOptions = [
+  { value: PreparationMethod.WESTERN, label: 'Western' },
+  { value: PreparationMethod.GAIWAN, label: 'Gaiwan' },
+  { value: PreparationMethod.TEAPOT, label: 'Teapot' },
+  { value: PreparationMethod.TEABAG, label: 'Teabag' },
+  { value: PreparationMethod.COLDBREW, label: 'Cold Brew' },
+  { value: PreparationMethod.OTHER, label: 'Other' },
+];
+
 const loadRecord = async () => {
   const id = Number(route.params.id);
 
@@ -50,7 +87,6 @@ const loadRecord = async () => {
     const data = await ipcRenderer.invoke('db:getRecordById', Number(id));
     if (data) {
       record.value = Object.assign(new Record(), data);
-      console.log('Preparation Method:', record.value.preparationMethod);
       isNewRecord.value = false;
     } else {
       error.value = 'Record not found';
@@ -146,19 +182,11 @@ onMounted(() => {
           
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.type_label') }}</label>
-            <select
-              v-model.number="record.type"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option :value="TeaType.GREEN">Green</option>
-              <option :value="TeaType.BLACK">Black</option>
-              <option :value="TeaType.OOLONG">Oolong</option>
-              <option :value="TeaType.WHITE">White</option>
-              <option :value="TeaType.DARK">Dark</option>
-              <option :value="TeaType.YELLOW">Yellow</option>
-              <option :value="TeaType.HERBAL">Herbal</option>
-              <option :value="TeaType.OTHER">Other</option>
-            </select>
+            <SelectDropdown
+              v-model="record.type"
+              :options="teaTypeOptions"
+              :aria-label="t('edit.type_label')"
+            />
           </div>
           
           <div>
@@ -208,19 +236,11 @@ onMounted(() => {
               step="0.01"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <select
-              v-model.number="record.priceCurrency"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option :value="CurrencyType.USD">USD</option>
-              <option :value="CurrencyType.EUR">EUR</option>
-              <option :value="CurrencyType.GBP">GBP</option>
-              <option :value="CurrencyType.CNY">CNY</option>
-              <option :value="CurrencyType.JPY">JPY</option>
-              <option :value="CurrencyType.INR">INR</option>
-              <option :value="CurrencyType.HKD">HKD</option>
-              <option :value="CurrencyType.OTHER">Other</option>
-            </select>
+            <SelectDropdown
+              v-model="record.priceCurrency"
+              :options="currencyOptions"
+              :aria-label="t('edit.price_label')"
+            />
             </div>
           </div>
           <div>
@@ -232,13 +252,11 @@ onMounted(() => {
               step="0.01"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <select
-              v-model.number="record.weightUnit"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option :value="WeightUnit.METRIC_GRAM">Grams (g)</option>
-              <option :value="WeightUnit.IMPERIAL_OUNCE">Ounces (oz)</option>
-            </select>
+            <SelectDropdown
+              v-model="record.weightUnit"
+              :options="weightUnitOptions"
+              :aria-label="t('edit.weight_label')"
+            />
             </div>
         </div>
           <div>
@@ -253,17 +271,26 @@ onMounted(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.preparation_method_label') }}</label>
-            <select
-              v-model.number="record.preparationMethod"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <div
+              class="inline-flex flex-nowrap gap-2 overflow-x-auto"
+              role="group"
+              :aria-label="t('edit.preparation_method_label')"
             >
-              <option :value="0">Western</option>
-              <option :value="1">Gaiwan</option>
-              <option :value="2">Teapot</option>
-              <option :value="3">Teabag</option>
-              <option :value="4">Cold Brew</option>
-              <option :value="5">Other</option>
-            </select>
+              <button
+                v-for="option in preparationMethodOptions"
+                :key="option.value"
+                type="button"
+                class="px-3 flex items-center py-2 rounded-lg border text-sm transition-colors whitespace-nowrap"
+                :class="
+                  record.preparationMethod === option.value
+                    ? 'bg-blue-500 text-white border-blue-500'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                "
+                @click="record.preparationMethod = option.value"
+              >
+                {{ option.label }}
+              </button>
+            </div>
           </div>
           
           <div class="col-span-2">
