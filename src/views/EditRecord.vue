@@ -50,6 +50,7 @@ const loadRecord = async () => {
     const data = await ipcRenderer.invoke('db:getRecordById', Number(id));
     if (data) {
       record.value = Object.assign(new Record(), data);
+      console.log('Preparation Method:', record.value.preparationMethod);
       isNewRecord.value = false;
     } else {
       error.value = 'Record not found';
@@ -258,7 +259,7 @@ onMounted(() => {
             >
               <option :value="0">Western</option>
               <option :value="1">Gaiwan</option>
-              <option :value="2">Clay</option>
+              <option :value="2">Teapot</option>
               <option :value="3">Teabag</option>
               <option :value="4">Cold Brew</option>
               <option :value="5">Other</option>

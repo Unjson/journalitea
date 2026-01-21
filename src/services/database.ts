@@ -163,7 +163,7 @@ class DatabaseService {
     record.priceCurrency = row.price_currency;
     record.weight = row.weight;
     record.weightUnit = row.weight_unit;
-    record.preparationMethod = row.preparation_method;
+    record.preparationMethod = Number(row.preparation_method);
     record.preparationNotes = row.preparation_notes;
     record.dryLeaves = row.dry_leaves;
     record.wetLeaves = row.wet_leaves;
@@ -231,7 +231,7 @@ class DatabaseService {
         price_currency INTEGER,
         weight REAL,
         weight_unit INTEGER,
-        preparation_method TEXT,
+        preparation_method INTEGER,
         preparation_notes TEXT,
         dry_leaves TEXT,
         wet_leaves TEXT,
@@ -249,7 +249,7 @@ class DatabaseService {
         aroma_marine INTEGER,
         notes TEXT,
         rating INTEGER,
-        photo BLOB
+        photo STRING
       )
     `);
   }

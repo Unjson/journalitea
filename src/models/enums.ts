@@ -25,7 +25,7 @@ export enum TeaType
 export enum PreparationMethod{
 	WESTERN = 0,
 	GAIWAN = 1,
-	CLAY = 2,
+	TEAPOT = 2,
 	TEABAG = 3,
 	COLDBREW = 4,
 	OTHER = 5
@@ -63,7 +63,7 @@ export function getLocaleFromLanguage(lang: Language): string {
 		return "en";
 	}
 }
-export function getCurrencySymbols(): Record<CurrencyType, string> {
+export function getCurrencySymbolList(): Record<CurrencyType, string> {
 	return {
 		[CurrencyType.USD]: "$",
 		[CurrencyType.EUR]: "€",
@@ -75,6 +75,27 @@ export function getCurrencySymbols(): Record<CurrencyType, string> {
 		[CurrencyType.OTHER]: ""
 	}
 }
+
+export function getCurrencySymbol(priceCurrency: CurrencyType): string {	
+		switch (priceCurrency) {
+			case CurrencyType.USD:
+				return "$";
+			case CurrencyType.EUR:
+				return "€";
+			case CurrencyType.GBP:
+				return "£";
+			case CurrencyType.CNY:
+				return "¥";
+			case CurrencyType.JPY:
+				return "¥";
+			case CurrencyType.INR:
+				return "₹";
+			case CurrencyType.HKD:
+				return "HK$";
+			default:
+				return "";
+		}
+	}
 
 export function getTeaTypeNames(): Record<TeaType, string> {
 	return {

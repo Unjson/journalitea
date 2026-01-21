@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted, onActivated } from 'vue';
-import { CurrencyType, WeightUnit, getTeaTypeNames, getWeightUnitNames, getCurrencySymbols } from '../models/enums';
+import { CurrencyType, WeightUnit, getTeaTypeNames, getWeightUnitNames, getCurrencySymbolList } from '../models/enums';
 import { PREFS } from '../appSettings.js';
 import { getCumulativeStats } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
@@ -18,7 +18,7 @@ const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const exchangeRates = ref<Record<CurrencyType, number> | null >(null);
 const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
-const currencySymbols = getCurrencySymbols();
+const currencySymbols = getCurrencySymbolList();
 const weightUnitNames = getWeightUnitNames();
 const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
 

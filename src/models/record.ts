@@ -1,4 +1,4 @@
-import { TeaType, PreparationMethod, CurrencyType, WeightUnit } from './enums.js';
+import { TeaType, PreparationMethod, CurrencyType, WeightUnit, getCurrencySymbol } from './enums.js';
 
 export class Record {
 	//Data Block
@@ -38,7 +38,7 @@ export class Record {
 	//Various/Notes
 	notes: string;
 	rating: number;
-	photo: Blob | null;
+	photo: string;
 
 	constructor() {
 		this.id = -1;
@@ -73,7 +73,7 @@ export class Record {
 		this.aroma_marine = 0;
 		this.notes = "";
 		this.rating = 0;
-		this.photo = null;
+		this.photo = "";
 	}
 
 	getTypeName(): string {
@@ -125,33 +125,12 @@ export class Record {
 	}
 
 	getPriceStringWithCurrency(): string {
-		const currencySymbol = this.getCurrencySymbol();
+		const currencySymbol = getCurrencySymbol(this.priceCurrency);
 		if(this.priceCurrency=== CurrencyType.EUR){
 			return `${this.price.toFixed(2)}${currencySymbol}`;
 		}
 		else{
 			return `${currencySymbol}${this.price.toFixed(2)}`;
-		}
-	}
-	
-	getCurrencySymbol(): string {	
-		switch (this.priceCurrency) {
-			case CurrencyType.USD:
-				return "$";
-			case CurrencyType.EUR:
-				return "€";
-			case CurrencyType.GBP:
-				return "£";
-			case CurrencyType.CNY:
-				return "¥";
-			case CurrencyType.JPY:
-				return "¥";
-			case CurrencyType.INR:
-				return "₹";
-			case CurrencyType.HKD:
-				return "HK$";
-			default:
-				return "";
 		}
 	}
 }
