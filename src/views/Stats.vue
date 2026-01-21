@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref, onMounted, onActivated, computed } from 'vue';
-import { CurrencyType, WeightUnit, getTeaTypeNames, getWeightUnitNames, getCurrencySymbolList } from '../models/enums';
+import { CurrencyType, WeightUnit, teaTypeLabels, weightUnitLabels, currencyLabels, currencySymbols, weightUnitSymbols } from '../models/enums';
 import { PREFS } from '../appSettings.js';
-import { getCumulativeStats } from '../models/teaStats';
+import { getCumulativeStats, formatPriceString, convertToPricePerDesiredUnit} from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import PieChart from '../components/charts/PieChart.vue';
 import BarChart from '../components/charts/BarChart.vue';
@@ -18,8 +18,6 @@ const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const exchangeRates = ref<Record<CurrencyType, number> | null >(null);
 const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
-const currencySymbols = getCurrencySymbolList();
-const weightUnitNames = getWeightUnitNames();
 const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
 
 const ratingCounts = computed(() => {
@@ -35,6 +33,19 @@ const ratingCounts = computed(() => {
 });
 
 const maxRatingCount = computed(() => Math.max(0, ...ratingCounts.value));
+
+const getPricePerWeightForRecord = (record: TeaRecord) => {
+	return convertToPricePerDesiredUnit(
+		record.price,
+		record.weight,
+		record.weightUnit,
+		preferredWeightUnit.value,
+		record.priceCurrency,
+		preferredCurrency.value,
+		exchangeRates.value
+
+	);
+};
 
 
 const loadStats = async () => {
@@ -100,21 +111,21 @@ onActivated(loadStats);
 					<div class="border-b pb-2">
 						<span class="font-medium">{{ t('stats.total_money_spent_label') }}</span>
 						<div class="ml-4 mt-1 text-lg">
-							{{ currencySymbols[preferredCurrency] }}{{ cumulativeStats.totalMoneySpent?.toFixed(2) ?? '0.00' }}
+							{{ formatPriceString(cumulativeStats.totalMoneySpent ?? 0, preferredCurrency) }}
 						</div>
 					</div>
 
 					<div class="border-b pb-2">
 						<span class="font-medium">{{ t('stats.total_weight_label') }}</span>
 						<div class="ml-4 mt-1 text-lg">
-							{{ cumulativeStats.totalWeight?.toFixed(2) ?? '0.00' }} {{ weightUnitNames[preferredWeightUnit] }}
+							{{ cumulativeStats.totalWeight?.toFixed(2) ?? '0.00' }} {{ weightUnitSymbols[preferredWeightUnit].symbol || '' }}
 						</div>
 					</div>
 
 					<div class="border-b pb-2">
 						<span class="font-medium">{{ t('stats.avg_price_per_weight_label') }}</span>
 						<div class="ml-4 mt-1 text-lg">
-							{{ currencySymbols[preferredCurrency] }}{{ cumulativeStats.pricePerWeight?.toFixed(4) ?? '0.0000' }} / {{ weightUnitNames[preferredWeightUnit] }}
+							{{ formatPriceString(cumulativeStats.pricePerWeight ?? 0, preferredCurrency) }} / {{ weightUnitSymbols[preferredWeightUnit].symbol || '' }}
 						</div>
 					</div>
 
@@ -124,7 +135,7 @@ onActivated(loadStats);
 							<div v-if="cumulativeStats.mostExpensiveTea" class="text-lg">
 								{{ cumulativeStats.mostExpensiveTea.name }}
 								<span class="text-sm text-gray-500">
-									- {{ currencySymbols[cumulativeStats.mostExpensiveTea.priceCurrency] || '' }}{{ cumulativeStats.mostExpensiveTea.price?.toFixed(2) }}
+									- {{ formatPriceString(cumulativeStats.mostExpensiveTea.price ?? 0, cumulativeStats.mostExpensiveTea.priceCurrency) }}
 								</span>
 							</div>
 							<div v-else class="text-gray-500">{{ t('stats.no_data') }}</div>
@@ -134,7 +145,7 @@ onActivated(loadStats);
 							<div v-if="cumulativeStats.mostExpensivePerWeightTea" class="text-lg">
 								{{ cumulativeStats.mostExpensivePerWeightTea.name }}
 								<span class="text-sm text-gray-500">
-									- {{ currencySymbols[cumulativeStats.mostExpensivePerWeightTea.priceCurrency] || '' }}{{ (cumulativeStats.mostExpensivePerWeightTea.price / cumulativeStats.mostExpensivePerWeightTea.weight * (preferredWeightUnit === 0 ? 1 : preferredWeightUnit === 1 ? 1000 : 28.3495)).toFixed(2) }} / {{ weightUnitNames[preferredWeightUnit] }}
+									- {{ formatPriceString(getPricePerWeightForRecord(cumulativeStats.mostExpensivePerWeightTea), preferredCurrency) }} / {{ weightUnitSymbols[preferredWeightUnit].symbol || '' }}
 								</span>
 							</div>
 							<div v-else class="text-gray-500">{{ t('stats.no_data') }}</div>
@@ -146,7 +157,7 @@ onActivated(loadStats);
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<PieChart
 					:teaCountByType="cumulativeStats.teaCountByType"
-					:labelMap="getTeaTypeNames()"
+					:labelMap="teaTypeLabels"
 					:title="t('stats.tea_collection_by_type_title')"
 				/>
 			</div>
@@ -202,7 +213,7 @@ onActivated(loadStats);
 			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<AromaStats
 					:records="records"
-					:labelMap="getTeaTypeNames()"
+					:labelMap="teaTypeLabels"
 				/>
 			</div>
 		</div>

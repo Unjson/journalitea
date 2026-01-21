@@ -15,7 +15,7 @@ interface PieItem {
 
 const props = defineProps<{
 	teaCountByType: Record<string, number> | undefined;
-	labelMap: Record<number, string>;
+	labelMap: { value: number; label: string }[];
 	colors?: string[];
 	title?: string;
 }>();
@@ -26,7 +26,7 @@ const sortedTeaTypes = computed(() => {
 	return Object.entries(props.teaCountByType)
 		.map(([type, count]) => ({
 			type: Number(type),
-			label: props.labelMap[Number(type)] || 'Unknown',
+			label: props.labelMap[Number(type)]?.label || 'Unknown',
 			count: count as number
 		}))
 		.filter(entry => entry.count > 0)

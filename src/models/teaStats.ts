@@ -1,5 +1,5 @@
 import { Record as TeaRecord } from './record';
-import { TeaType, CurrencyType, WeightUnit, getExchangeRateRecordFromJSONResponse } from './enums';
+import { TeaType, CurrencyType, WeightUnit, currencySymbols, getExchangeRateRecordFromJSONResponse } from './enums';
 import { get } from 'node:http';
 
 export const OZ_IN_G = 28.34952;
@@ -138,4 +138,14 @@ function getWeightInDesiredUnit(record: TeaRecord, desiredUnit: WeightUnit): num
 		return record.weight * OZ_IN_G;
 	}
 	return 0.0;
+}
+
+export function formatPriceString(price: number, priceCurrency: CurrencyType): string {
+	const currencySymbol = currencySymbols[priceCurrency].symbol;
+	if(priceCurrency=== CurrencyType.EUR){
+		return `${price.toFixed(2)}${currencySymbol}`;
+	}
+	else{
+		return `${currencySymbol}${price.toFixed(2)}`;
+	}
 }

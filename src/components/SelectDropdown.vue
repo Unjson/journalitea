@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref} from 'vue';
+import { useI18n } from 'vue-i18n';
 
 type SelectOption = {
   value: string | number;
   label: string;
-  flagUrl?: string;
+  iconUrl?: string;
 };
 
+const { t } = useI18n();
 const props = withDefaults(
   defineProps<{
     modelValue: string | number;
@@ -68,12 +70,12 @@ onBeforeUnmount(() => {
       :aria-label="ariaLabel"
     >
       <img
-        v-if="selectedOption?.flagUrl"
+        v-if="selectedOption?.iconUrl"
         class="flag-icon"
-        :src="selectedOption.flagUrl"
+        :src="selectedOption.iconUrl"
         alt=""
       />
-      <span class="select-label">{{ selectedOption?.label ?? '' }}</span>
+      <span class="select-label">{{ t(selectedOption?.label) ?? '' }}</span>
       <span class="select-caret">▾</span>
     </button>
 
@@ -81,12 +83,12 @@ onBeforeUnmount(() => {
       <li v-for="option in options" :key="option.value" role="option">
         <button type="button" class="select-option" @click="selectOption(option)">
           <img
-            v-if="option.flagUrl"
+            v-if="option.iconUrl"
             class="flag-icon"
-            :src="option.flagUrl"
+            :src="option.iconUrl"
             alt=""
           />
-          <span>{{ option.label }}</span>
+          <span>{{ t(option.label) }}</span>
         </button>
       </li>
     </ul>

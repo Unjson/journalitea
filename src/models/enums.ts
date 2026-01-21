@@ -22,6 +22,19 @@ export enum TeaType
 	OTHER = 8
 }
 
+export enum TeaAromas{
+	SWEET = 'aroma_sweet',
+	FLORAL = 'aroma_floral',
+	NUTTY = 'aroma_nutty',
+	SPICY = 'aroma_spicy',
+	FIRE = 'aroma_fire',
+	FRUITY = 'aroma_fruity',
+	PLANTS = 'aroma_plants',
+	EARTHY = 'aroma_earthy',
+	MINERALS = 'aroma_minerals',
+	MARINE = 'aroma_marine'
+}
+
 export enum PreparationMethod{
 	WESTERN = 0,
 	GAIWAN = 1,
@@ -61,59 +74,6 @@ export function getLocaleFromLanguage(lang: Language): string {
 			return "de";
 		default:		
 		return "en";
-	}
-}
-export function getCurrencySymbolList(): Record<CurrencyType, string> {
-	return {
-		[CurrencyType.USD]: "$",
-		[CurrencyType.EUR]: "€",
-		[CurrencyType.GBP]: "£",
-		[CurrencyType.CNY]: "¥",
-		[CurrencyType.JPY]: "¥",
-		[CurrencyType.INR]: "₹",
-		[CurrencyType.HKD]: "HK$",
-		[CurrencyType.OTHER]: ""
-	}
-}
-
-export function getCurrencySymbol(priceCurrency: CurrencyType): string {	
-		switch (priceCurrency) {
-			case CurrencyType.USD:
-				return "$";
-			case CurrencyType.EUR:
-				return "€";
-			case CurrencyType.GBP:
-				return "£";
-			case CurrencyType.CNY:
-				return "¥";
-			case CurrencyType.JPY:
-				return "¥";
-			case CurrencyType.INR:
-				return "₹";
-			case CurrencyType.HKD:
-				return "HK$";
-			default:
-				return "";
-		}
-	}
-
-export function getTeaTypeNames(): Record<TeaType, string> {
-	return {
-		[TeaType.GREEN]: "enum.type_green",
-		[TeaType.BLACK]: "enum.type_black",
-		[TeaType.OOLONG]: "enum.type_oolong",
-		[TeaType.WHITE]: "enum.type_white",
-		[TeaType.DARK]: "enum.type_dark",
-		[TeaType.YELLOW]: "enum.type_yellow",
-		[TeaType.HERBAL]: "enum.type_herbal",
-		[TeaType.OTHER]: "enum.type_other"
-	}
-}
-
-export function getWeightUnitNames(): Record<WeightUnit, string> {
-	return {
-		[WeightUnit.METRIC_GRAM]: "g",
-		[WeightUnit.IMPERIAL_OUNCE]: "oz"
 	}
 }
 
@@ -158,3 +118,69 @@ export function getExchangeRateRecordFromJSONResponse(json: object): Record<Curr
 	}
 	return exchangeRates;
 }
+
+export const aromaFieldLabels = [
+  { key: TeaAromas.SWEET, label: 'enum.aromas_sweet' },
+  { key: TeaAromas.FLORAL, label: 'enum.aromas_floral' },
+  { key: TeaAromas.NUTTY, label: 'enum.aromas_nutty' },
+  { key: TeaAromas.SPICY, label: 'enum.aromas_spicy' },
+  { key: TeaAromas.FIRE, label: 'enum.aromas_fire' },
+  { key: TeaAromas.FRUITY, label: 'enum.aromas_fruity' },
+  { key: TeaAromas.PLANTS, label: 'enum.aromas_vegetal' },
+  { key: TeaAromas.EARTHY, label: 'enum.aromas_earthy' },
+  { key: TeaAromas.MINERALS, label: 'enum.aromas_minerals' },
+  { key: TeaAromas.MARINE, label: 'enum.aromas_marine' },
+] as const;
+
+export const teaTypeLabels = [
+  { value: TeaType.GREEN, label: 'enum.type_green' },
+  { value: TeaType.BLACK, label: 'enum.type_black' },
+  { value: TeaType.OOLONG, label: 'enum.type_oolong' },
+  { value: TeaType.WHITE, label: 'enum.type_white' },
+  { value: TeaType.DARK, label: 'enum.type_dark' },
+  { value: TeaType.YELLOW, label: 'enum.type_yellow' },
+  { value: TeaType.HERBAL, label: 'enum.type_herbal' },
+  { value: TeaType.OTHER, label: 'enum.type_other' },
+];
+
+export const weightUnitLabels = [
+  { value: WeightUnit.METRIC_GRAM, label: 'enum.weightunit_g' },
+  { value: WeightUnit.IMPERIAL_OUNCE, label: 'enum.weightunit_oz' },
+];
+
+export const weightUnitSymbols = [	
+	{	value: WeightUnit.METRIC_GRAM, symbol: "g"},
+	{	value: WeightUnit.IMPERIAL_OUNCE, symbol: "oz"}
+]
+
+export const preparationMethodLabels = [
+  { value: PreparationMethod.WESTERN, label: 'enum.preparation_western' },
+  { value: PreparationMethod.GAIWAN, label: 'enum.preparation_gaiwan' },
+  { value: PreparationMethod.TEAPOT, label: 'enum.preparation_teapot' },
+  { value: PreparationMethod.TEABAG, label: 'enum.preparation_teabag' },
+  { value: PreparationMethod.COLDBREW, label: 'enum.preparation_coldbrew' },
+   { value: PreparationMethod.OTHER, label: 'enum.preparation_other' },
+];
+
+
+export const currencyLabels = [
+  { value: CurrencyType.USD, label: 'enum.currency_usd' },
+  { value: CurrencyType.EUR, label: 'enum.currency_eur' },
+  { value: CurrencyType.GBP, label: 'enum.currency_gbp' },
+  { value: CurrencyType.CNY, label: 'enum.currency_cny' },
+  { value: CurrencyType.JPY, label: 'enum.currency_jpy' },
+  { value: CurrencyType.INR, label: 'enum.currency_inr' },
+  { value: CurrencyType.HKD, label: 'enum.currency_hkd' },
+  { value: CurrencyType.OTHER, label: 'enum.currency_other' },
+];
+
+export const currencySymbols = [
+	  { value: CurrencyType.USD, symbol: "$" },
+	  { value: CurrencyType.EUR, symbol: "€" },
+	  { value: CurrencyType.GBP, symbol: "£" },
+	  { value: CurrencyType.CNY, symbol: "¥" },
+	  { value: CurrencyType.JPY, symbol: "¥" },
+	  { value: CurrencyType.INR, symbol: "₹" },
+	  { value: CurrencyType.HKD, symbol: "HK$" },
+	  { value: CurrencyType.OTHER, symbol: "" }
+]

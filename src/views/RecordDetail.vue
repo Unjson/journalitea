@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
 import { getColorForRating } from '../models/colors';
@@ -7,6 +7,8 @@ import RadarPlot from '../components/charts/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import StarRating from '../components/StarRating.vue';
 import { useI18n } from 'vue-i18n';
+import { aromaFieldLabels } from '../models/enums';
+import { formatPriceString } from '../models/teaStats';
 
 const route = useRoute();
 const router = useRouter();
@@ -25,6 +27,14 @@ const preparationMethod = ref<string | null>(null);
 const showDeleteConfirm = ref(false);
 const aromaOpen = ref(false);
 const aromaPlotVersion = ref(0);
+
+const aromaDataPoints = computed(() => {
+  if (!record.value) return [];
+  return aromaFieldLabels.map(field => ({
+    key: field.key,
+    value: Number((record.value as any)[field.key] ?? 0),
+  }));
+});
 
 const loadRecord = async () => {
   loading.value = true;
@@ -45,7 +55,7 @@ const loadRecord = async () => {
     
     teaType.value = recordInstance.getTypeName();
     preparationMethod.value = t(recordInstance.getPreparationMethodName());
-    currencyString.value = recordInstance.getPriceStringWithCurrency();
+    currencyString.value =  formatPriceString(recordInstance.price, recordInstance.priceCurrency);
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load record';
     console.error('Error loading record:', err);
@@ -163,16 +173,7 @@ onMounted(() => {
             <RadarPlot
               v-if="aromaOpen"
               :key="aromaPlotVersion"
-              :sweet="record.aroma_sweet"
-              :floral="record.aroma_floral"
-              :nutty="record.aroma_nutty"
-              :spicy="record.aroma_spicy"
-              :fire="record.aroma_fire"
-              :fruity="record.aroma_fruity"
-              :plants="record.aroma_plants"
-              :earthy="record.aroma_earthy"
-              :minerals="record.aroma_minerals"
-              :marine="record.aroma_marine"
+              :data-points="aromaDataPoints"
               :max-value="5"
             />
           </div>

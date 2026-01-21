@@ -1,23 +1,26 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { aromaFieldLabels } from '../../models/enums';
+
+type AromaKey = typeof aromaFieldLabels[number]['key'];
+
+export interface DataPoint {
+  key: AromaKey;
+  value: number;
+}
 
 interface Props {
-  sweet: number;
-  floral: number;
-  nutty: number;
-  spicy: number;
-  fire: number;
-  fruity: number;
-  plants: number;
-  earthy: number;
-  minerals: number;
-  marine: number;
+  dataPoints?: DataPoint[];
   maxValue?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  dataPoints: () => [],
   maxValue: 5,
 });
+
+const { t } = useI18n();
 
 const size = 300;
 const center = size / 2;
@@ -31,18 +34,21 @@ const sanitizeValue = (value: number): number => {
   return value;
 };
 
-const dataPoints = computed(() => [
-  { label: 'Sweet', value: sanitizeValue(props.sweet) },
-  { label: 'Fruity', value: sanitizeValue(props.fruity) },
-  { label: 'Floral', value: sanitizeValue(props.floral) },
-  { label: 'Plants', value: sanitizeValue(props.plants) },
-  { label: 'Nutty', value: sanitizeValue(props.nutty) },
-  { label: 'Spicy', value: sanitizeValue(props.spicy) },
-  { label: 'Fire / Animal', value: sanitizeValue(props.fire) },
-  { label: 'Marine', value: sanitizeValue(props.marine) },
-  { label: 'Earthy', value: sanitizeValue(props.earthy) },
-  { label: 'Minerals', value: sanitizeValue(props.minerals) },
-]);
+const dataPointMap = computed(() => {
+  const map = new Map<AromaKey, number>();
+  for (const point of props.dataPoints) {
+    map.set(point.key, sanitizeValue(point.value));
+  }
+  return map;
+});
+
+const dataPoints = computed(() =>
+  aromaFieldLabels.map((field) => ({
+    key: field.key,
+    label: t(field.label),
+    value: dataPointMap.value.get(field.key) ?? 0,
+  }))
+);
 
 const angleStep = (2 * Math.PI) / dataPoints.value.length;
 

@@ -1,4 +1,4 @@
-import { TeaType, PreparationMethod, CurrencyType, WeightUnit, getCurrencySymbol } from './enums.js';
+import { TeaType, PreparationMethod, CurrencyType, WeightUnit, currencySymbols } from './enums.js';
 
 export class Record {
 	//Data Block
@@ -137,15 +137,5 @@ export class Record {
 			rating: this.rating,
 			photo: this.photo,
 		};
-	}
-
-	getPriceStringWithCurrency(): string {
-		const currencySymbol = getCurrencySymbol(this.priceCurrency);
-		if(this.priceCurrency=== CurrencyType.EUR){
-			return `${this.price.toFixed(2)}${currencySymbol}`;
-		}
-		else{
-			return `${currencySymbol}${this.price.toFixed(2)}`;
-		}
 	}
 }

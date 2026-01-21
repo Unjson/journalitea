@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { Record } from '../models/record';
-import { CurrencyType, WeightUnit, TeaType, PreparationMethod } from '../models/enums';
+import { aromaFieldLabels, teaTypeLabels, currencyLabels, weightUnitLabels, preparationMethodLabels } from '../models/enums';
 import { useI18n } from 'vue-i18n';
 import ColorSlider from '../components/ColorSlider.vue';
 import VerticalSlider from '../components/VerticalSlider.vue';
@@ -22,57 +22,12 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 const isNewRecord = ref(true);
 const showCancelConfirm = ref(false);
-const pendingNavigation = ref<null | ReturnType<typeof router.resolve>>(null);
+const pendingNavigation = ref<string | null>(null);
 const allowNavigation = ref(false);
+const initialSnapshot = ref('');
 
-const aromaFields = [
-  { key: 'aroma_sweet', label: t('enum.aromas_sweet') },
-  { key: 'aroma_floral', label: t('enum.aromas_floral') },
-  { key: 'aroma_nutty', label: t('enum.aromas_nutty') },
-  { key: 'aroma_spicy', label: t('enum.aromas_spicy') },
-  { key: 'aroma_fire', label: t('enum.aromas_fire') },
-  { key: 'aroma_fruity', label: t('enum.aromas_fruity') },
-  { key: 'aroma_plants', label: t('enum.aromas_vegetal') },
-  { key: 'aroma_earthy', label: t('enum.aromas_earthy') },
-  { key: 'aroma_minerals', label: t('enum.aromas_minerals') },
-  { key: 'aroma_marine', label: t('enum.aromas_marine') },
-] as const;
-
-const teaTypeOptions = [
-  { value: TeaType.GREEN, label: t('enum.type_green') },
-  { value: TeaType.BLACK, label: t('enum.type_black') },
-  { value: TeaType.OOLONG, label: t('enum.type_oolong') },
-  { value: TeaType.WHITE, label: t('enum.type_white') },
-  { value: TeaType.DARK, label: t('enum.type_dark') },
-  { value: TeaType.YELLOW, label: t('enum.type_yellow') },
-  { value: TeaType.HERBAL, label: t('enum.type_herbal') },
-  { value: TeaType.OTHER, label: t('enum.type_other') },
-];
-
-const currencyOptions = [
-  { value: CurrencyType.USD, label: t('enum.currency_usd') },
-  { value: CurrencyType.EUR, label: t('enum.currency_eur') },
-  { value: CurrencyType.GBP, label: t('enum.currency_gbp') },
-  { value: CurrencyType.CNY, label: t('enum.currency_cny') },
-  { value: CurrencyType.JPY, label: t('enum.currency_jpy') },
-  { value: CurrencyType.INR, label: t('enum.currency_inr') },
-  { value: CurrencyType.HKD, label: t('enum.currency_hkd') },
-  { value: CurrencyType.OTHER, label: t('enum.currency_other') },
-];
-
-const weightUnitOptions = [
-  { value: WeightUnit.METRIC_GRAM, label: t('enum.weightunit_g') },
-  { value: WeightUnit.IMPERIAL_OUNCE, label: t('enum.weightunit_oz') },
-];
-
-const preparationMethodOptions = [
-  { value: PreparationMethod.WESTERN, label: t('enum.preparation_western') },
-  { value: PreparationMethod.GAIWAN, label: t('enum.preparation_gaiwan') },
-  { value: PreparationMethod.TEAPOT, label: t('enum.preparation_teapot') },
-  { value: PreparationMethod.TEABAG, label: t('enum.preparation_teabag') },
-  { value: PreparationMethod.COLDBREW, label: t('enum.preparation_coldbrew') },
-  { value: PreparationMethod.OTHER, label: t('enum.preparation_other') },
-];
+const getSnapshot = () => JSON.stringify(record.value.convertToPlainObject());
+const isDirty = computed(() => initialSnapshot.value !== '' && getSnapshot() !== initialSnapshot.value);
 
 const loadRecord = async () => {
   const id = Number(route.params.id);
@@ -81,7 +36,8 @@ const loadRecord = async () => {
   if (isNaN(id) || id === -1) {
     isNewRecord.value = true;
     record.value = new Record();
-    setDefaults();
+    await setDefaults();
+    setInitialSnapshot();
     return;
   }
   
@@ -92,6 +48,7 @@ const loadRecord = async () => {
     if (data) {
       record.value = Object.assign(new Record(), data);
       isNewRecord.value = false;
+      setInitialSnapshot();
     } else {
       error.value = 'Record not found';
     }
@@ -103,18 +60,27 @@ const loadRecord = async () => {
   }
 };
 
-const setDefaults = () => {
+const setDefaults = async () => {
   //poll settings db for preferred currency and weight unit
-  ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY).then((currency: any) => {
-    if(currency.intVal != -1){
-      record.value.priceCurrency = currency.intVal; 
-    }});
-  ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT).then((weightUnit: any) => {
-    if(weightUnit.intVal != -1){
+  try {
+    const [currency, weightUnit] = await Promise.all([
+      ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY),
+      ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT),
+    ]);
+
+    if (currency.intVal != -1) {
+      record.value.priceCurrency = currency.intVal;
+    }
+    if (weightUnit.intVal != -1) {
       record.value.weightUnit = weightUnit.intVal;
-    }})
-  .catch((err: any) => {
-    console.error('Error loading default settings:', err);})
+    }
+  } catch (err: any) {
+    console.error('Error loading default settings:', err);
+  }
+};
+
+const setInitialSnapshot = () => {
+  initialSnapshot.value = getSnapshot();
 };
 
 const saveRecord = async () => {
@@ -145,6 +111,15 @@ const saveRecord = async () => {
 };
 
 const cancel = () => {
+  if (!isDirty.value) {
+    if (isNewRecord.value) {
+      router.replace({ name: 'records-list' });
+    } else {
+      router.push({ name: 'record-detail', params: { id: record.value.id } });
+    }
+    return;
+  }
+
   pendingNavigation.value = null;
   showCancelConfirm.value = true;
 };
@@ -179,7 +154,12 @@ onBeforeRouteLeave((to, from, next) => {
     return;
   }
 
-  pendingNavigation.value = to;
+  if (!isDirty.value) {
+    next();
+    return;
+  }
+
+  pendingNavigation.value = to.fullPath;
   showCancelConfirm.value = true;
   next(false);
 });
@@ -222,7 +202,7 @@ onMounted(() => {
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.type_label') }}</label>
             <SelectDropdown
               v-model="record.type"
-              :options="teaTypeOptions"
+              :options="teaTypeLabels"
               :aria-label="t('edit.type_label')"
             />
           </div>
@@ -276,7 +256,7 @@ onMounted(() => {
             />
             <SelectDropdown
               v-model="record.priceCurrency"
-              :options="currencyOptions"
+              :options="currencyLabels"
               :aria-label="t('edit.price_label')"
             />
             </div>
@@ -292,7 +272,7 @@ onMounted(() => {
             />
             <SelectDropdown
               v-model="record.weightUnit"
-              :options="weightUnitOptions"
+              :options="weightUnitLabels"
               :aria-label="t('edit.weight_label')"
             />
             </div>
@@ -315,7 +295,7 @@ onMounted(() => {
               :aria-label="t('edit.preparation_method_label')"
             >
               <button
-                v-for="option in preparationMethodOptions"
+                v-for="option in preparationMethodLabels"
                 :key="option.value"
                 type="button"
                 class="px-3 flex items-center py-2 rounded-lg border text-sm transition-colors whitespace-nowrap"
@@ -326,7 +306,7 @@ onMounted(() => {
                 "
                 @click="record.preparationMethod = option.value"
               >
-                {{ option.label }}
+                {{ t(option.label) }}
               </button>
             </div>
           </div>
@@ -385,11 +365,11 @@ onMounted(() => {
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.aromas_label') }}</h2>
         <div class="grid grid-cols-5 gap-8 p-4">
           <div
-            v-for="field in aromaFields"
+            v-for="field in aromaFieldLabels"
             :key="field.key"
           >
             <VerticalSlider
-              :label="field.label"
+              :label="t(field.label)"
               :model-value="record[field.key]"
               :min="0"
               :max="5"
