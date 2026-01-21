@@ -4,8 +4,8 @@ import { CurrencyType, WeightUnit, getTeaTypeNames, getWeightUnitNames, getCurre
 import { PREFS } from '../appSettings.js';
 import { getCumulativeStats } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
-import PieChart from '../components/PieChart.vue';
-import BarChart from '../components/BarChart.vue';
+import PieChart from '../components/charts/PieChart.vue';
+import BarChart from '../components/charts/BarChart.vue';
 import AromaStats from '../components/AromaStats.vue';
 import { Record as TeaRecord } from '../models/record';
 

@@ -36,6 +36,11 @@ const routes: RouteRecordRaw[] = [
     name: 'stats',
     component: () => import('./views/Stats.vue'),
   },
+  {
+    path: '/timer',
+    name: 'timer',
+    component: () => import('./views/Timer.vue'),
+  },
 ];
 
 export default createRouter({
