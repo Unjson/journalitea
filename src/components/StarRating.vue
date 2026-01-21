@@ -22,7 +22,7 @@ const stars = computed(() => Array.from({ length: props.max }, (_, i) => i + 1))
 
 const setRating = (value: number) => {
   if (props.disabled) return;
-  emit('update:modelValue', value);
+  emit('update:modelValue', value === props.modelValue ? 0 : value);
 };
 </script>
 

@@ -29,12 +29,20 @@ const emit = defineEmits<{
 					<span v-if="!collapsed">📋 {{t('menu.item_my_teas')}}</span>
 				</router-link>
 				<router-link 
+					to="/timer"
+					@click="emit('toggle')"
+					class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
+				>
+				<span v-if="!collapsed">⏱️ {{t('menu.item_timer')}}</span>
+				</router-link>
+				<router-link 
 					to="/stats"
 					@click="emit('toggle')"
 					class="nav-link flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-700 transition-colors"
 				>
-					<span v-if="!collapsed">📊 {{t('menu.item_stats')}}</span>
+				<span v-if="!collapsed">📊 {{t('menu.item_stats')}}</span>
 				</router-link>
+
 				<div class="flex-1 grow"></div>
 				<router-link 
 					to="/settings"

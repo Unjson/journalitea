@@ -5,10 +5,12 @@ header.title_create_record;New Record;Neuer Eintrag
 header.title_edit_record;Edit Record;Eintrag bearbeiten
 header.title_view_record;View Record;Eintrag ansehen
 header.title_stats;Stats for Nerds;Statistiken für Nerds
+header.title_timer;Tea Timer;Teetimer
 header.title_settings;Settings;Einstellungen
 header.title_about;About;Über
 menu.item_my_teas;My Teas;Meine Tees
 menu.item_stats;Stats for Nerds;Statistiken für Nerds
+menu.item_timer;Tea Timer;Teetimer
 menu.item_settings;Settings;Einstellungen
 menu.item_about;About;Über diese App
 create.title;Create new Record;Neuen Eintrag erstellen
@@ -39,6 +41,10 @@ edit.rating_label;Rating;Bewertung
 edit.cancel_button;Cancel;Abbrechen
 edit.create_button;Create;Erstellen
 edit.update_button;Update;Aktualisieren
+edit.cancel_confirm_title;Discard changes?;Änderungen verwerfen?
+edit.cancel_confirm_message;You have unsaved changes. Do you want to leave without saving?;Sie haben ungespeicherte Änderungen. Möchten Sie die Seite ohne Speichern verlassen?
+edit.cancel_confirm_confirm;Leave;Verlassen
+edit.cancel_confirm_cancel;Stay;Bleiben
 enum.type_green;Green;Grün
 enum.type_black;Black;Schwarz
 enum.type_oolong;Oolong;Oolong
@@ -128,6 +134,8 @@ stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
 stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
 stats.no_data;No data;Keine Daten
 stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung
+stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar
 stats.loading;Loading statistics...;Statistiken werden geladen...
 stats.histogram_total_price;Total Prices;Gesamtpreise
 stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm
@@ -135,3 +143,11 @@ stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
 stats.no_price_data;No price data available;Keine Preisdaten verfügbar
 stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
 stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte
+timer.title;Tea Timer;Teetimer
+timer.presets_title;Steeping presets;Ziehzeiten
+timer.preset_western;Western style;Westlicher Stil
+timer.preset_gongfu;Gongfu style;Gongfu-Stil
+timer.progress_label;Progress: {percent}%;Fortschritt: {percent}%
+timer.start_button;Start;Start
+timer.pause_button;Pause;Pause
+timer.reset_button;Reset;Zurücksetzen

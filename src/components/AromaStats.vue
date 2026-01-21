@@ -1,30 +1,18 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import RadarPlot from './RadarPlot.vue';
+import RadarPlot from './charts/RadarPlot.vue';
 import { Record as TeaRecord } from '../models/record';
+import { aromaFieldLabels } from '../models/enums';
 
 const props = defineProps<{
 	records: TeaRecord[];
-	labelMap: Record<number, string>;
+	labelMap: { value: number; label: string }[];
 }>();
 
 const { t } = useI18n();
 
-const aromaFields = [
-	{ key: 'aroma_sweet', label: 'Sweet' },
-	{ key: 'aroma_floral', label: 'Floral' },
-	{ key: 'aroma_nutty', label: 'Nutty' },
-	{ key: 'aroma_spicy', label: 'Spicy' },
-	{ key: 'aroma_fire', label: 'Fire / Animal' },
-	{ key: 'aroma_fruity', label: 'Fruity' },
-	{ key: 'aroma_plants', label: 'Plants' },
-	{ key: 'aroma_earthy', label: 'Earthy' },
-	{ key: 'aroma_minerals', label: 'Minerals' },
-	{ key: 'aroma_marine', label: 'Marine' }
-] as const;
-
-type AromaKey = typeof aromaFields[number]['key'];
+type AromaKey = typeof aromaFieldLabels[number]['key'];
 
 const calculateAverages = (records: TeaRecord[]) => {
 	const totals: Record<AromaKey, number> = {
@@ -42,24 +30,16 @@ const calculateAverages = (records: TeaRecord[]) => {
 	const count = records.length || 1;
 
 	for (const record of records) {
-		for (const field of aromaFields) {
+		for (const field of aromaFieldLabels) {
 			const value = Number((record as any)[field.key] ?? 0);
 			totals[field.key] += isNaN(value) ? 0 : value;
 		}
 	}
 
-	return {
-		sweet: totals.aroma_sweet / count,
-		floral: totals.aroma_floral / count,
-		nutty: totals.aroma_nutty / count,
-		spicy: totals.aroma_spicy / count,
-		fire: totals.aroma_fire / count,
-		fruity: totals.aroma_fruity / count,
-		plants: totals.aroma_plants / count,
-		earthy: totals.aroma_earthy / count,
-		minerals: totals.aroma_minerals / count,
-		marine: totals.aroma_marine / count
-	};
+	return aromaFieldLabels.map(field => ({
+		key: field.key,
+		value: totals[field.key] / count,
+	}));
 };
 
 const overallAromas = computed(() => calculateAverages(props.records));
@@ -89,7 +69,7 @@ const byTeaType = computed(() => {
 	return Array.from(grouped.entries())
 		.map(([type, records]) => ({
 			type,
-			label: props.labelMap[type] ? t(props.labelMap[type]) : 'Unknown',
+			label: props.labelMap[type] ? t(props.labelMap.find(l => l.value === type)?.label) : 'Unknown',
 			count: records.length,
 			aromas: calculateAverages(records)
 		}))
@@ -102,16 +82,7 @@ const byTeaType = computed(() => {
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 			<h2 class="text-2xl font-semibold mb-4">{{ t('stats.aromas_overall_title') }}</h2>
 			<RadarPlot
-				:sweet="overallAromas.sweet"
-				:floral="overallAromas.floral"
-				:nutty="overallAromas.nutty"
-				:spicy="overallAromas.spicy"
-				:fire="overallAromas.fire"
-				:fruity="overallAromas.fruity"
-				:plants="overallAromas.plants"
-				:earthy="overallAromas.earthy"
-				:minerals="overallAromas.minerals"
-				:marine="overallAromas.marine"
+					:data-points="overallAromas"
 				:max-value="5"
 			/>
 		</div>
@@ -133,16 +104,7 @@ const byTeaType = computed(() => {
 						<RadarPlot
 							v-if="openStates[group.type]"
 							:key="plotVersions[group.type] ?? 0"
-							:sweet="group.aromas.sweet"
-							:floral="group.aromas.floral"
-							:nutty="group.aromas.nutty"
-							:spicy="group.aromas.spicy"
-							:fire="group.aromas.fire"
-							:fruity="group.aromas.fruity"
-							:plants="group.aromas.plants"
-							:earthy="group.aromas.earthy"
-							:minerals="group.aromas.minerals"
-							:marine="group.aromas.marine"
+							:data-points="group.aromas"
 							:max-value="5"
 						/>
 					</div>

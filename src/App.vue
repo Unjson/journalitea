@@ -29,6 +29,9 @@ onMounted(async() => {
 	electron.ipcRenderer.on('goToStats', () => {
 	router.replace('/stats');
 	});
+	electron.ipcRenderer.on('goToTimer', () => {
+	router.replace('/timer');
+	});
 	
 	router.afterEach((to) => {
 		switch(to.name) {
@@ -46,6 +49,9 @@ onMounted(async() => {
 				break;
 			case 'stats':
 				headerTitle.value = t('header.title_stats');
+				break;
+			case 'timer':
+				headerTitle.value = t('header.title_timer');
 				break;
 			case 'about':
 				headerTitle.value = t('header.title_about');

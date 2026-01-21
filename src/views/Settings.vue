@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { Language, CurrencyType, WeightUnit, getLocaleFromLanguage } from '../models/enums';
+import { Language, CurrencyType, WeightUnit, languageLabels, currencyLabels, weightUnitLabels, getLocaleFromLanguage } from '../models/enums';
 import { lookUpExchangeRates } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import { PREFS } from '../appSettings.js';
@@ -12,26 +12,7 @@ const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
-const languageOptions = [
-	{ value: Language.ENGLISH, label: t('enum.language_english'), flagUrl: new URL('../img/flag-uk.svg', import.meta.url).toString() },
-	{ value: Language.GERMAN, label: t('enum.language_german'), flagUrl: new URL('../img/flag-de.svg', import.meta.url).toString() },
-];
 
-const currencyOptions = [
-	{ value: CurrencyType.USD, label: 'USD' },
-	{ value: CurrencyType.EUR, label: 'EUR' },
-	{ value: CurrencyType.GBP, label: 'GBP' },
-	{ value: CurrencyType.JPY, label: 'JPY' },
-	{ value: CurrencyType.CNY, label: 'CNY' },
-	{ value: CurrencyType.INR, label: 'INR' },
-	{ value: CurrencyType.HKD, label: 'HKD' },
-	{ value: CurrencyType.OTHER, label: 'OTHER' },
-];
-
-const weightUnitOptions = [
-	{ value: WeightUnit.METRIC_GRAM, label: t('enum.weightunit_g') },
-	{ value: WeightUnit.IMPERIAL_OUNCE, label: t('enum.weightunit_oz') },
-];
 
 const onCurrencyChanged = async () => {
   try {
@@ -48,17 +29,9 @@ const onLanguageChanged = async () => {
   try {
 	await ipcRenderer.invoke('db:setSetting', PREFS.LANGUAGE, languageSetting.value);
 	locale.value = getLocaleFromLanguage(languageSetting.value);
-	setOptionLabelsOnLanguageChanged();
   } catch (err) {
 	console.error('Error saving language setting:', err);
   }
-};
-
-const setOptionLabelsOnLanguageChanged = () => {
-  languageOptions[0].label = t('enum.language_english');
-  languageOptions[1].label = t('enum.language_german');
-  weightUnitOptions[0].label = t('enum.weightunit_g');
-  weightUnitOptions[1].label = t('enum.weightunit_oz');
 };
 
 const onWeightUnitChanged = async () => {
@@ -99,7 +72,7 @@ onMounted(async() => {
 			</label>
 			<SelectDropdown
 				v-model="languageSetting"
-				:options="languageOptions"
+				:options="languageLabels"
 				:aria-label="t('settings.language_title')"
 				@update:model-value="onLanguageChanged"
 			/>
@@ -111,7 +84,7 @@ onMounted(async() => {
 			</label>
 			<SelectDropdown
 				v-model="preferredCurrency"
-				:options="currencyOptions"
+				:options="currencyLabels"
 				:aria-label="t('settings.currency_title')"
 				@update:model-value="onCurrencyChanged"
 			/>
@@ -123,7 +96,7 @@ onMounted(async() => {
 			</label>
 			<SelectDropdown
 				v-model="preferredWeightUnit"
-				:options="weightUnitOptions"
+				:options="weightUnitLabels"
 				:aria-label="t('settings.weightunit_title')"
 				@update:model-value="onWeightUnitChanged"
 			/>
