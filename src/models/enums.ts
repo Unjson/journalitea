@@ -119,6 +119,11 @@ export function getExchangeRateRecordFromJSONResponse(json: object): Record<Curr
 	return exchangeRates;
 }
 
+export const languageLabels = [
+	{ value: Language.ENGLISH, label: 'enum.language_english', iconUrl: new URL('../img/flag-uk.svg', import.meta.url).toString() },
+	{ value: Language.GERMAN, label: 'enum.language_german', iconUrl: new URL('../img/flag-de.svg', import.meta.url).toString() },
+];
+
 export const aromaFieldLabels = [
   { key: TeaAromas.SWEET, label: 'enum.aromas_sweet' },
   { key: TeaAromas.FLORAL, label: 'enum.aromas_floral' },
