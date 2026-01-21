@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
+import CircularTimer from '../components/CircularTimer.vue';
 
 const { t } = useI18n();
 
@@ -26,11 +27,6 @@ const formattedTime = computed(() => {
 	const minutes = Math.floor(remainingSeconds.value / 60);
 	const seconds = remainingSeconds.value % 60;
 	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-});
-
-const progressPercent = computed(() => {
-	if (totalSeconds.value === 0) return 0;
-	return Math.round(((totalSeconds.value - remainingSeconds.value) / totalSeconds.value) * 100);
 });
 
 const setPreset = (preset: TimerPreset) => {
@@ -113,51 +109,47 @@ onBeforeUnmount(() => {
 			</div>
 
 			<div class="flex flex-col items-center gap-4">
-				<div class="flex w-full max-w-2xl items-center justify-center gap-4">
-					<div class="flex flex-row gap-2 mx-4">
-						<button
-							type="button"
-							class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-							@click="adjustTime(activePresetId === 'gongfu' ? -5 : -60)"
-						>
-							{{ activePresetId === 'gongfu' ? '-5s' : '-1m' }}
-						</button>
-						<button
-							type="button"
-							class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-							@click="adjustTime(activePresetId === 'gongfu' ? -1 : -15)"
-						>
-							{{ activePresetId === 'gongfu' ? '-1s' : '-15s' }}
-						</button>
-					</div>
+				<CircularTimer
+					:total-seconds="totalSeconds"
+					:remaining-seconds="remainingSeconds"
+					:display-text="formattedTime"
+					:size="240"
+					:paused="!isRunning && remainingSeconds < totalSeconds"
+					@toggle="toggleTimer"
+					@reset="stopTimer"
+				/>
+			</div>
 
-					<div class="text-6xl font-semibold">{{ formattedTime }}</div>
 
-					<div class="flex flex-row gap-2 mx-4">
-						<button
-							type="button"
-							class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-							@click="adjustTime(activePresetId === 'gongfu' ? 1 : 15)"
-						>
-							{{ activePresetId === 'gongfu' ? '+1s' : '+15s' }}
-						</button>
-						<button
-							type="button"
-							class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-							@click="adjustTime(activePresetId === 'gongfu' ? 5 : 60)"
-						>
-							{{ activePresetId === 'gongfu' ? '+5s' : '+1m' }}
-						</button>
-					</div>
-				</div>
-
-				<div class="w-full max-w-xl bg-gray-200 rounded-full h-3 overflow-hidden">
-					<div
-						class="bg-blue-500 h-full transition-all"
-						:style="{ width: `${progressPercent}%` }"
-					></div>
-				</div>
-				<div class="text-sm text-gray-500">{{ t('timer.progress_label', { percent: progressPercent }) }}</div>
+			<div class="flex flex-wrap items-center justify-center gap-2">
+				<button
+					type="button"
+					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					@click="adjustTime(activePresetId === 'gongfu' ? -5 : -60)"
+				>
+					{{ activePresetId === 'gongfu' ? '-5s' : '-1m' }}
+				</button>
+				<button
+					type="button"
+					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					@click="adjustTime(activePresetId === 'gongfu' ? -1 : -15)"
+				>
+					{{ activePresetId === 'gongfu' ? '-1s' : '-15s' }}
+				</button>
+				<button
+					type="button"
+					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					@click="adjustTime(activePresetId === 'gongfu' ? 1 : 15)"
+				>
+					{{ activePresetId === 'gongfu' ? '+1s' : '+15s' }}
+				</button>
+				<button
+					type="button"
+					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					@click="adjustTime(activePresetId === 'gongfu' ? 5 : 60)"
+				>
+					{{ activePresetId === 'gongfu' ? '+5s' : '+1m' }}
+				</button>
 			</div>
 
 			<div class="flex flex-wrap items-center gap-3">
