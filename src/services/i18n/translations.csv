@@ -47,6 +47,12 @@ enum.type_dark;Dark;Dunkel
 enum.type_yellow;Yellow;Gelb
 enum.type_herbal;Herbal;Kräuter
 enum.type_other;Other;Andere
+enum.preparation_western;Western;Westlich
+enum.preparation_gaiwan;Gaiwan;Gaiwan
+enum.preparation_teapot;Teapot;Teekännchen
+enum.preparation_teabag;Teabag;Teebeutel
+enum.preparation_coldbrew;Cold Brew;Cold Brew
+enum.preparation_other;Other;Andere Zubereitung
 enum.aromas_sweet;Sweet;Süß
 enum.aromas_floral;Floral;Blumig
 enum.aromas_nutty;Nutty;Nussig
@@ -61,6 +67,14 @@ enum.language_english;English;Englisch
 enum.language_german;German;Deutsch
 enum.weightunit_g;Grams;Gramm
 enum.weightunit_oz;Ounces;Unzen
+enum.currency_eur;Euro (€);Euro (€)
+enum.currency_usd;US Dollar ($);US Dollar ($)
+enum.currency_gbp;British Pound (£);Britisches Pfund (£)
+enum.currency_cny;Chinese Yuan (¥);Chinesischer Yuan (¥)
+enum.currency_jpy;Japanese Yen (¥);Japanischer Yen (¥)
+enum.currency_inr;Indian Rupee (₹);Indische Rupie (₹)
+enum.currency_hkd;Hong Kong Dollar (HK$);Hongkong-Dollar (HK$)
+enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
