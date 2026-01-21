@@ -52,8 +52,8 @@ enum.aromas_floral;Floral;Blumig
 enum.aromas_nutty;Nutty;Nussig
 enum.aromas_spicy;Spicy;Würzig
 enum.aromas_fruity;Fruity;Fruchtig
-enum.aromas_fire;Fire /\nAnimal;Feuer /\nTierisch
-enum.aromas_vegetal;Vegetables / Plants;Gemüse /\nPflanzlich
+enum.aromas_fire;Fire / Animal;Feuer / Tierisch
+enum.aromas_vegetal;Vegetables / Plants;Gemüse / Pflanzlich
 enum.aromas_earthy;Earthy;Erdig
 enum.aromas_minerals;Mineral;Mineralisch
 enum.aromas_marine;Marine;Maritim
