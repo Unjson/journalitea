@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { ref, onMounted, onActivated } from 'vue';
+import { ref, onMounted, onActivated, computed } from 'vue';
 import { CurrencyType, WeightUnit, getTeaTypeNames, getWeightUnitNames, getCurrencySymbolList } from '../models/enums';
 import { PREFS } from '../appSettings.js';
 import { getCumulativeStats } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import PieChart from '../components/PieChart.vue';
-import Histogram from '../components/Histogram.vue';
+import BarChart from '../components/BarChart.vue';
 import AromaStats from '../components/AromaStats.vue';
 import { Record as TeaRecord } from '../models/record';
 
@@ -21,6 +21,20 @@ const cumulativeStats = ref<any>(null);
 const currencySymbols = getCurrencySymbolList();
 const weightUnitNames = getWeightUnitNames();
 const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
+
+const ratingCounts = computed(() => {
+	const counts = Array.from({ length: 6 }, () => 0);
+	for (const record of records.value) {
+		const rating = Number(record.rating);
+		if (!Number.isNaN(rating)) {
+			const normalized = Math.max(0, Math.min(5, Math.round(rating)));
+			counts[normalized] += 1;
+		}
+	}
+	return counts;
+});
+
+const maxRatingCount = computed(() => Math.max(0, ...ratingCounts.value));
 
 
 const loadStats = async () => {
@@ -136,10 +150,47 @@ onActivated(loadStats);
 					:title="t('stats.tea_collection_by_type_title')"
 				/>
 			</div>
+
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.rating_distribution_title') }}</h2>
+				<div v-if="maxRatingCount > 0" class="w-full">
+					<svg class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
+						<g v-for="(count, index) in ratingCounts" :key="index">
+							<rect
+								:x="index * (600 / ratingCounts.length)"
+								:y="220 - (count / (maxRatingCount || 1)) * 200"
+								:width="(600 / ratingCounts.length) - 6"
+								:height="(count / (maxRatingCount || 1)) * 200"
+								fill="#6366f1"
+								opacity="0.85"
+							/>
+						</g>
+					</svg>
+					<div class="mt-2 grid grid-cols-6 text-xs text-gray-500">
+						<span
+							v-for="(count, index) in ratingCounts"
+							:key="`rating-label-${index}`"
+							class="text-center"
+						>
+							{{ index }}
+						</span>
+					</div>
+					<div class="mt-1 grid grid-cols-6 text-xs text-gray-700">
+						<span
+							v-for="(count, index) in ratingCounts"
+							:key="`rating-count-${index}`"
+							class="text-center"
+						>
+							{{ count }}
+						</span>
+					</div>
+				</div>
+				<div v-else class="text-gray-500">{{ t('stats.rating_distribution_no_data') }}</div>
+			</div>
 			</div>
 
 			<div v-else-if="activeTab === 'histograms'" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-				<Histogram
+				<BarChart
 					:records="records"
 					:preferredCurrency="preferredCurrency"
 					:preferredWeightUnit="preferredWeightUnit"

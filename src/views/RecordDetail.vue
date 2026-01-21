@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Record } from '../models/record';
 import { getColorForRating } from '../models/colors';
-import RadarPlot from '../components/RadarPlot.vue';
+import RadarPlot from '../components/charts/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import StarRating from '../components/StarRating.vue';
 import { useI18n } from 'vue-i18n';

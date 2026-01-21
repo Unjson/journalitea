@@ -128,6 +128,8 @@ stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
 stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
 stats.no_data;No data;Keine Daten
 stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung
+stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar
 stats.loading;Loading statistics...;Statistiken werden geladen...
 stats.histogram_total_price;Total Prices;Gesamtpreise
 stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import RadarPlot from './RadarPlot.vue';
+import RadarPlot from './charts/RadarPlot.vue';
 import { Record as TeaRecord } from '../models/record';
 
 const props = defineProps<{
