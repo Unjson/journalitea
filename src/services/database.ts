@@ -342,6 +342,96 @@ class DatabaseService {
   getPath(): string | null {
     return this.db ? (this.db as any).name : null;
   }
+
+  exportDatabase(destinationPath: string): void {
+    if (!this.db) throw new Error("Database not initialized");
+    const dbPath = this.getPath();
+    if (!dbPath) throw new Error("Database path not available");
+    fs.copyFileSync(dbPath, destinationPath);
+  }
+
+  importDatabase(sourcePath: string): void {
+    const dbPath = this.getPath();
+    if (!dbPath) throw new Error("Database path not available");
+    this.close();
+    fs.copyFileSync(sourcePath, dbPath);
+    this.initialize();
+  }
+
+  appendDatabaseRecords(sourcePath: string): void {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const sourceDb = new Database(sourcePath, { readonly: true });
+    try {
+      const rows = sourceDb
+        .prepare(
+          `SELECT
+            name, type, sub_type, date_added, seller, origin, year, price, price_currency,
+            weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
+            wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
+            aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
+            aroma_minerals, aroma_marine, notes, rating, photo
+          FROM records`,
+        )
+        .all();
+
+      if (rows.length === 0) return;
+
+      const insertStmt = this.db.prepare(`
+        INSERT INTO records (
+          name, type, sub_type, date_added, seller, origin, year, price, price_currency,
+          weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
+          wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
+          aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
+          aroma_minerals, aroma_marine, notes, rating, photo
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+      `);
+
+      const insertMany = this.db.transaction((records: any[]) => {
+        for (const record of records) {
+          insertStmt.run(
+            record.name,
+            record.type,
+            record.sub_type,
+            record.date_added,
+            record.seller,
+            record.origin,
+            record.year,
+            record.price,
+            record.price_currency,
+            record.weight,
+            record.weight_unit,
+            record.preparation_method,
+            record.preparation_notes,
+            record.dry_leaves,
+            record.wet_leaves,
+            record.liquor,
+            record.color,
+            record.aroma_sweet,
+            record.aroma_floral,
+            record.aroma_nutty,
+            record.aroma_spicy,
+            record.aroma_fire,
+            record.aroma_fruity,
+            record.aroma_plants,
+            record.aroma_earthy,
+            record.aroma_minerals,
+            record.aroma_marine,
+            record.notes,
+            record.rating,
+            record.photo,
+          );
+        }
+      });
+
+      insertMany(rows);
+    } finally {
+      sourceDb.close();
+    }
+  }
 }
 
 export default new DatabaseService();

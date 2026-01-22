@@ -64,10 +64,9 @@
     "linux": {
       "category": "Productivity",
       "target": [
-        "deb", 
+        "deb",
         "snap"
       ]
     }
-    
   }
 }

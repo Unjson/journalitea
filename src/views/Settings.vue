@@ -5,6 +5,7 @@ import { lookUpExchangeRates } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import { PREFS } from '../appSettings.js';
 import SelectDropdown from '../components/SelectDropdown.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 
 const electron = (window as any).require('electron');
 const { ipcRenderer } = electron;
@@ -13,6 +14,8 @@ const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate: 1.0 });
+const showImportConfirm = ref(false);
+const pendingImportPath = ref<string | null>(null);
 
 const onCurrencyChanged = async () => {
   try {
@@ -52,6 +55,67 @@ const onWeightUnitChanged = async () => {
   }
 };
 
+const onExportDatabase = async () => {
+	try {
+		const result = await ipcRenderer.invoke('db:exportDatabase');
+		if (result?.success) {
+			window.alert(t('settings.database_export_success'));
+		}
+	} catch (err) {
+	console.error('Error exporting database:', err);
+	}
+};
+
+const onImportDatabase = async () => {
+	try {
+		const result = await ipcRenderer.invoke('db:pickDatabaseFile');
+		if (result?.path) {
+			pendingImportPath.value = result.path;
+			showImportConfirm.value = true;
+		}
+	} catch (err) {
+	console.error('Error importing database:', err);
+	}
+};
+
+const appendImport = async () => {
+	try {
+		if (!pendingImportPath.value) return;
+		const result = await ipcRenderer.invoke('db:importDatabase', {
+			mode: 'append',
+			sourcePath: pendingImportPath.value,
+		});
+		if (result?.success) {
+			window.alert(t('settings.database_import_success_append'));
+		}
+	} catch (err) {
+		console.error('Error appending database:', err);
+	} finally {
+		pendingImportPath.value = null;
+	}
+};
+
+const replaceImport = async () => {
+	try {
+		if (!pendingImportPath.value) return;
+		const result = await ipcRenderer.invoke('db:importDatabase', {
+			mode: 'replace',
+			sourcePath: pendingImportPath.value,
+		});
+		if (result?.success) {
+			window.alert(t('settings.database_import_success_replace'));
+		}
+	} catch (err) {
+		console.error('Error replacing database:', err);
+	} finally {
+		pendingImportPath.value = null;
+	}
+};
+
+const cancelImport = () => {
+	pendingImportPath.value = null;
+};
+
 onMounted(async() => {
   try{
 	const language = await ipcRenderer.invoke('db:getSetting', PREFS.LANGUAGE);
@@ -66,10 +130,10 @@ onMounted(async() => {
 	if(weightUnit.intVal != -1){
 		preferredWeightUnit.value = weightUnit.intVal;
 	}
-	const customCurrency = await ipcRenderer.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
-	if(customCurrency.strVal){
+	const customCurrencySetting = await ipcRenderer.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
+	if(customCurrencySetting.strVal){
 		try{
-			const parsed = JSON.parse(customCurrency.strVal);
+			const parsed = JSON.parse(customCurrencySetting.strVal);
 			if(parsed?.symbol !== undefined){
 				customCurrency.value.symbol = parsed.symbol;
 			}
@@ -158,5 +222,35 @@ onMounted(async() => {
 			/>
 		</div>
 
+		<div class="mt-6">
+			<h2 class="text-xl font-bold mb-3">{{ t('settings.database_title') }}</h2>
+			<div class="flex flex-col gap-3 sm:flex-row">
+				<button
+					class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+					@click="onExportDatabase"
+				>
+					{{ t('settings.database_export') }}
+				</button>
+				<button
+					class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+					@click="onImportDatabase"
+				>
+					{{ t('settings.database_import') }}
+				</button>
+			</div>
+		</div>
+
 	</div>
+
+	<ConfirmDialog
+		v-model="showImportConfirm"
+		:title="t('settings.database_import_prompt_title')"
+		:message="t('settings.database_import_prompt_message')"
+		:confirm-text="t('settings.database_import_replace')"
+		:secondary-text="t('settings.database_import_append')"
+		@cancel="cancelImport"
+		@confirm="replaceImport"
+		@secondary="appendImport"
+
+	/>
 </template>
