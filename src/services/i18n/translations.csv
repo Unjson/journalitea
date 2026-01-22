@@ -84,6 +84,8 @@ enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
+settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
 detail.loading;Loading record...;Lade Eintrag...
 detail.error_prefix;Error:;Fehler:
 detail.details_title;Details;Details

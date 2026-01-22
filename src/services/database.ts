@@ -1,22 +1,28 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
-import { app } from 'electron';
-import { Record } from '../models/record.js';
-import { APP_USER_FOLDER, DATABASE_NAME, PREFS, DEFAULT_PREFS} from '../appSettings.js';
+import Database from "better-sqlite3";
+import path from "path";
+import fs from "fs";
+import { app } from "electron";
+import { Record } from "../models/record.js";
+import {
+  APP_USER_FOLDER,
+  DATABASE_NAME,
+  PREFS,
+  DEFAULT_PREFS,
+} from "../appSettings.js";
 
 class DatabaseService {
   private db: Database.Database | null = null;
 
   initialize(dbName: string = DATABASE_NAME): Database.Database {
     if (this.db) return this.db;
-    fs.mkdirSync(path.join(app.getPath('userData'), APP_USER_FOLDER), { recursive: true });
-    
+    fs.mkdirSync(path.join(app.getPath("userData"), APP_USER_FOLDER), {
+      recursive: true,
+    });
 
-    const dbPath = path.join(app.getPath('userData'), APP_USER_FOLDER, dbName);
+    const dbPath = path.join(app.getPath("userData"), APP_USER_FOLDER, dbName);
     this.db = new Database(dbPath);
     console.log(`Database initialized: ${dbPath}`);
-    
+
     this.createRecordsTable();
     this.createSettingsTable();
     this.fillSettingsWithDefaultValues();
@@ -24,26 +30,28 @@ class DatabaseService {
   }
 
   listRecords(): Record[] {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const stmt = this.db.prepare('SELECT * FROM records ORDER BY date_added DESC');
+    if (!this.db) throw new Error("Database not initialized");
+
+    const stmt = this.db.prepare(
+      "SELECT * FROM records ORDER BY date_added DESC",
+    );
     const rows = stmt.all();
-    
-    return rows.map(row => this.rowToRecord(row));
+
+    return rows.map((row) => this.rowToRecord(row));
   }
 
   getRecordById(id: number): Record | null {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const stmt = this.db.prepare('SELECT * FROM records WHERE id = ?');
+    if (!this.db) throw new Error("Database not initialized");
+
+    const stmt = this.db.prepare("SELECT * FROM records WHERE id = ?");
     const row = stmt.get(id);
-    
+
     return row ? this.rowToRecord(row) : null;
   }
 
   saveRecord(record: Record): number {
-    if (!this.db) throw new Error('Database not initialized');
-    
+    if (!this.db) throw new Error("Database not initialized");
+
     const stmt = this.db.prepare(`
       INSERT INTO records (
         name, type, sub_type, date_added, seller, origin, year, price, price_currency,
@@ -56,7 +64,7 @@ class DatabaseService {
         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       )
     `);
-    
+
     const result = stmt.run(
       record.name,
       record.type,
@@ -87,15 +95,15 @@ class DatabaseService {
       record.aroma_marine,
       record.notes,
       record.rating,
-      record.photo
+      record.photo,
     );
-    
+
     return result.lastInsertRowid as number;
   }
 
   updateRecord(record: Record): void {
-    if (!this.db) throw new Error('Database not initialized');
-    
+    if (!this.db) throw new Error("Database not initialized");
+
     const stmt = this.db.prepare(`
       UPDATE records SET
         name = ?, type = ?, sub_type = ?, date_added = ?, seller = ?, origin = ?,
@@ -107,7 +115,7 @@ class DatabaseService {
         rating = ?, photo = ?
       WHERE id = ?
     `);
-    
+
     stmt.run(
       record.name,
       record.type,
@@ -139,14 +147,14 @@ class DatabaseService {
       record.notes,
       record.rating,
       record.photo,
-      record.id
+      record.id,
     );
   }
 
   deleteRecord(id: number): void {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
-    const stmt = this.db.prepare('DELETE FROM records WHERE id = ?');
+    const stmt = this.db.prepare("DELETE FROM records WHERE id = ?");
     stmt.run(id);
   }
 
@@ -186,38 +194,51 @@ class DatabaseService {
     return record;
   }
 
-  setSetingsValue(key: string, intVal: number | null, strVal: string | null): void {
-    if (!this.db) throw new Error('Database not initialized');
-    
+  setSetingsValue(
+    key: string,
+    intVal: number | null,
+    strVal: string | null,
+  ): void {
+    if (!this.db) throw new Error("Database not initialized");
+
     //Check is key already exists in DB
-    const selectStmt = this.db.prepare('SELECT id FROM settings WHERE key = ?');
+    const selectStmt = this.db.prepare("SELECT id FROM settings WHERE key = ?");
     const row = selectStmt.get(key) as { id: number } | undefined;
     const id = row ? row.id : null;
 
     if (id) {
-      const updateStmt = this.db.prepare('UPDATE settings SET int_val = ?, str_val = ? WHERE key = ?');
+      const updateStmt = this.db.prepare(
+        "UPDATE settings SET int_val = ?, str_val = ? WHERE key = ?",
+      );
       updateStmt.run(intVal, strVal, key);
       return;
-    }
-    else{
-      const insertStmt = this.db.prepare('INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)');
+    } else {
+      const insertStmt = this.db.prepare(
+        "INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)",
+      );
       insertStmt.run(key, intVal, strVal);
     }
   }
 
-  getSettingsValue(key: string): { intVal: number | null; strVal: string } | null {
-    if (!this.db) throw new Error('Database not initialized');
-    
-    const stmt = this.db.prepare('SELECT int_val, str_val FROM settings WHERE key = ?');
-    const row = stmt.get(key) as { int_val: number | null; str_val: string | null } | undefined;
+  getSettingsValue(
+    key: string,
+  ): { intVal: number | null; strVal: string } | null {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const stmt = this.db.prepare(
+      "SELECT int_val, str_val FROM settings WHERE key = ?",
+    );
+    const row = stmt.get(key) as
+      | { int_val: number | null; str_val: string | null }
+      | undefined;
 
     if (!row) return { intVal: -1, strVal: "" };
-    else  return { intVal: row.int_val ?? -1, strVal: row.str_val ?? "" };
+    else return { intVal: row.int_val ?? -1, strVal: row.str_val ?? "" };
   }
 
   private createRecordsTable(): void {
-    if (!this.db) throw new Error('Database not initialized');
-    
+    if (!this.db) throw new Error("Database not initialized");
+
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS records (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -256,7 +277,7 @@ class DatabaseService {
   }
 
   private createSettingsTable(): void {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS settings (
@@ -267,16 +288,35 @@ class DatabaseService {
   }
 
   private fillSettingsWithDefaultValues(): void {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
-    const defaultSettings: { key: string; intVal: number | null; strVal: string | null }[] = [
+    const defaultSettings: {
+      key: string;
+      intVal: number | null;
+      strVal: string | null;
+    }[] = [
       { key: PREFS.CURRENCY, intVal: DEFAULT_PREFS.CURRENCY, strVal: null },
-      { key: PREFS.WEIGHT_UNIT, intVal: DEFAULT_PREFS.WEIGHT_UNIT, strVal: null },
+      {
+        key: PREFS.WEIGHT_UNIT,
+        intVal: DEFAULT_PREFS.WEIGHT_UNIT,
+        strVal: null,
+      },
       { key: PREFS.LANGUAGE, intVal: DEFAULT_PREFS.LANGUAGE, strVal: null },
-      { key: PREFS.EXCHANGE_RATES, intVal: null, strVal: JSON.stringify(DEFAULT_PREFS.EXCHANGE_RATES) }
+      {
+        key: PREFS.CUSTOM_CURRENCY,
+        intVal: null,
+        strVal: JSON.stringify(DEFAULT_PREFS.CUSTOM_CURRENCY),
+      },
+      {
+        key: PREFS.EXCHANGE_RATES,
+        intVal: null,
+        strVal: JSON.stringify(DEFAULT_PREFS.EXCHANGE_RATES),
+      },
     ];
 
-    const insertStmt = this.db.prepare('INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)');
+    const insertStmt = this.db.prepare(
+      "INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)",
+    );
     for (const setting of defaultSettings) {
       if (!this.settingsValueExists(setting.key)) {
         insertStmt.run(setting.key, setting.intVal, setting.strVal);
@@ -285,9 +325,9 @@ class DatabaseService {
   }
 
   private settingsValueExists(key: string): boolean {
-    if (!this.db) throw new Error('Database not initialized');
+    if (!this.db) throw new Error("Database not initialized");
 
-    const stmt = this.db.prepare('SELECT 1 FROM settings WHERE key = ?');
+    const stmt = this.db.prepare("SELECT 1 FROM settings WHERE key = ?");
     const row = stmt.get(key);
     return !!row;
   }
