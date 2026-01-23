@@ -1,60 +1,24 @@
-# Minimal  (Vite)
+# Journalitea
+Personal tea journal app 
 
-A tiny, no-frills starter to run Vue 3 inside Electron using Vite. It compiles Vue SFCs with Vite and launches Electron to load the built files. No packager, no builder — just the essentials.
 
 ## Features
-- Vue 3 SFCs compiled by Vite
-- Electron main process (CommonJS)
-- One command to develop: Vite build (watch) + Electron
-- Works without extra tooling or complex configs
+- Catalogue and rate teas from your collection with ease
+- Uses SQLite under the hood 
+- Stats for your tea collection (e.g. average price per gram, price histograms, cumulative aroma statistics etc.)
+- Convenient Tea timer function
+- Works on all platforms (because it's an electron app, duh)
+- 100% Free and Open Source Software, licensed under GPLv3
 
-## Getting Started
+## Installing
+- Head to [releases](https://github.com/Unjson/journalitea/releases) and grab the latest version for your operating system of choice.
+-  You can import your collection from an existing database via the settings menu
 
-Install dependencies:
-```bash
-npm install
-```
+## Roadmap
+- Android/iOS support
 
-Start development (build in watch mode + launch Electron):
-```bash
-npm start
-```
-
-What happens under the hood:
-- Vite builds to `dist/` and keeps watching for changes
-- Electron loads the built `dist/index.html` (no dev server/HMR)
-
-## Project Structure
-```
-.
-├─ index.js            # Electron main process (loads dist/index.html)
-├─ index.html          # Vite entry HTML (references /src/main.{js,ts})
-├─ src/
-│  ├─ App.vue
-│  └─ main.{js,ts}
-├─ vite.config.{js,ts} # Vite config with @vitejs/plugin-vue
-├─ package.json
-└─ README.md
-```
-
-## How It Works
-- Vite compiles Vue files into `dist/`
-- Electron starts and loads `dist/index.html` via `loadFile(...)`
-- The npm script:
-  - `vite build` once to ensure `dist/` exists
-  - `vite build -w` to watch for changes
-  - `electron .` to run the app
-
-## Using Node.js APIs in the Renderer
-
-You have two common options:
-
-1) Easiest (insecure, for quick experiments)
-- Enable `nodeIntegration: true` and `contextIsolation: false` in `BrowserWindow` webPreferences.
-- Then you can directly `import fs from 'fs'` or `require('fs')` in Vue components.
-
-2) Recommended (secure)
-- Keep `contextIsolation: true`, `nodeIntegration: false`
-- Use a `preload.js` with `contextBridge.exposeInMainWorld(...)` to safely expose limited APIs.
-
-Note: If you switch to loading a Vite dev server with `win.loadURL('http://localhost:5173')`, the browser environment cannot import Node built-ins (like `fs`). In that case, use a preload script or `window.require` (only works when Node integration is enabled).
+## Contributing / Bugs
+- If you find a bug, please use the [Issues](https://github.com/Unjson/journalitea/issues) page.
+- If you want to contribute a translation, please contect me at [hundertmark@medialesson.de](mailto:hundertmark@medialesson.de)
+- If you have a specific feature ur UX request, get in contact I'll try my best to accomodate you.
+  - Please be mindful I am working on this app for free in my spare time, so not all requests might get answered.
