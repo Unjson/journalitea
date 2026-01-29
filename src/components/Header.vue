@@ -14,7 +14,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-	<header class="bg-white shadow p-4 flex items-center gap-4 fixed top-0 inset-x-0 z-50">
+	<header class="app-header bg-white shadow p-4 flex items-center gap-4 fixed top-0 inset-x-0 z-50">
 		<button 
 			@click="emit('toggleSidebar')"
 			class="p-2 hover:bg-gray-100 rounded transition-colors"
@@ -27,6 +27,11 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
+.app-header {
+	padding-top: calc(1rem + env(safe-area-inset-top));
+	min-height: calc(4rem + env(safe-area-inset-top));
+}
+
 button {
 	cursor: pointer;
 	border: none;
