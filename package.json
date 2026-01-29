@@ -1,7 +1,7 @@
 {
   "name": "journalitea",
   "description": "Personal Tea Journal",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "main": "dist-electron/main.js",
   "author": {
@@ -17,17 +17,25 @@
     "app:dir": "npm run build && electron-builder --dir",
     "app:dist": "npm run build && electron-builder",
     "app:dist:win": "npm run build && electron-builder --win --x64",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps && patch-package"
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^8.0.0",
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
+    "@capacitor/filesystem": "^8.1.0",
+    "@capacitor/ios": "^8.0.2",
+    "@capacitor/share": "^8.0.0",
+    "@capawesome/capacitor-file-picker": "^8.0.1",
     "@tailwindcss/vite": "^4.1.18",
-    "better-sqlite3": "^12.6.0",
+    "better-sqlite3": "^12.6.2",
     "tailwindcss": "^4.1.18",
     "vue": "latest",
     "vue-i18n": "^11.2.8",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.0.6",
     "@vitejs/plugin-vue": "latest",
@@ -37,6 +45,7 @@
     "electron-rebuild": "^3.2.9",
     "eslint": "^9.39.2",
     "nodemon": "^3.1.11",
+    "patch-package": "^8.0.0",
     "typescript": "^5.9.3",
     "vite": "latest",
     "wait-on": "^9.0.3"
@@ -64,10 +73,9 @@
     "linux": {
       "category": "Productivity",
       "target": [
-        "deb", 
+        "deb",
         "snap"
       ]
     }
-    
   }
 }

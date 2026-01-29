@@ -10,13 +10,11 @@ import StarRating from '../components/StarRating.vue';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { PREFS } from '../appSettings.js';
+import { platformBridge } from '../services/platformBridge';
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
-
 const record = ref<Record>(new Record());
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -44,7 +42,7 @@ const loadRecord = async () => {
   // Load existing record
   loading.value = true;
   try {
-    const data = await ipcRenderer.invoke('db:getRecordById', Number(id));
+    const data = await platformBridge.invoke('db:getRecordById', Number(id));
     if (data) {
       record.value = Object.assign(new Record(), data);
       isNewRecord.value = false;
@@ -64,8 +62,8 @@ const setDefaults = async () => {
   //poll settings db for preferred currency and weight unit
   try {
     const [currency, weightUnit] = await Promise.all([
-      ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY),
-      ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT),
+      platformBridge.invoke('db:getSetting', PREFS.CURRENCY),
+      platformBridge.invoke('db:getSetting', PREFS.WEIGHT_UNIT),
     ]);
 
     if (currency.intVal != -1) {
@@ -93,12 +91,12 @@ const saveRecord = async () => {
     
     if (isNewRecord.value || record.value.id === -1) {
       // Create new record
-      const newId = await ipcRenderer.invoke('db:saveRecord', plainRecord);
+      const newId = await platformBridge.invoke('db:saveRecord', plainRecord);
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
       // Update existing record
-      await ipcRenderer.invoke('db:updateRecord', plainRecord);
+      await platformBridge.invoke('db:updateRecord', plainRecord);
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
@@ -198,7 +196,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.type_label') }}</label>
             <SelectDropdown
               v-model="record.type"
@@ -207,7 +205,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.subtype_label') }}</label>
             <input
               v-model="record.subtype"
@@ -216,7 +214,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.origin_label') }}</label>
             <input
               v-model="record.origin"
@@ -225,7 +223,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.year_label') }}</label>
             <input
               v-model.number="record.year"
@@ -234,7 +232,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.seller_label') }}</label>
             <input
               v-model="record.seller"
@@ -242,10 +240,8 @@ onMounted(() => {
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          <div></div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.price_label') }}</label>
             <div class="flex flex-row items-center gap-4">
             <input
@@ -261,7 +257,7 @@ onMounted(() => {
             />
             </div>
           </div>
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.weight_label') }}</label>
             <div class="flex flex-row items-center gap-4">
             <input
@@ -290,7 +286,7 @@ onMounted(() => {
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.preparation_method_label') }}</label>
             <div
-              class="inline-flex flex-nowrap gap-2 overflow-x-auto"
+              class="inline-flex flex-wrap md:flex-nowrap gap-2 overflow-x-auto"
               role="group"
               :aria-label="t('edit.preparation_method_label')"
             >
@@ -363,7 +359,7 @@ onMounted(() => {
       <!-- Aroma Profile (ITMC Scale) -->
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.aromas_label') }}</h2>
-        <div class="grid grid-cols-5 gap-8 p-4">
+        <div class="grid grid-cols-4 md:grid-cols-5 gap-8 p-4">
           <div
             v-for="field in aromaFieldLabels"
             :key="field.key"
@@ -400,7 +396,7 @@ onMounted(() => {
       </section>
 
       <!-- Form Actions -->
-      <div class="flex justify-end gap-4 pt-6 border-t">
+      <div class="flex flex-wrap justify-between gap-4 pt-6 border-t">
         <button
           type="button"
           @click="cancel"

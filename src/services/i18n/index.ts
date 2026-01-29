@@ -1,17 +1,13 @@
-import { createI18n } from 'vue-i18n';
-import { parseTranslationsFromCSV } from './csvParser';
-import * as path from 'path';
+import { createI18n } from "vue-i18n";
+import { platformBridge } from "../platformBridge";
 
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
-
-// Load translations from CSV via IPC
-const messages = await ipcRenderer.invoke('i18n:loadTranslations');
+// Load translations via platform bridge
+const messages = await platformBridge.invoke("i18n:loadTranslations");
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'en', // default locale
-  fallbackLocale: 'en',
+  locale: "en", // default locale
+  fallbackLocale: "en",
   messages,
 });
 

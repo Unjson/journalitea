@@ -84,6 +84,19 @@ enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
+settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
+settings.database_title;Database;Datenbank
+settings.database_export;Export database;Datenbank exportieren
+settings.database_import;Import database;Datenbank importieren
+settings.database_export_success;Database export completed.;Datenbank-Export abgeschlossen.
+settings.database_import_prompt_title;Import database;Datenbank importieren
+settings.database_import_prompt_message;Append the records from the selected database to your current data, or replace your database entirely?;Möchten Sie die Einträge aus der ausgewählten Datenbank anfügen oder die Datenbank vollständig ersetzen?
+settings.database_import_append;Append records;Einträge anfügen
+settings.database_import_replace;Replace database;Datenbank ersetzen
+settings.database_import_cancel;Cancel;Abbrechen
+settings.database_import_success_append;Database import completed (records appended).;Datenbankimport abgeschlossen (Einträge angefügt).
+settings.database_import_success_replace;Database import completed (database replaced).;Datenbankimport abgeschlossen (Datenbank ersetzt).
 detail.loading;Loading record...;Lade Eintrag...
 detail.error_prefix;Error:;Fehler:
 detail.details_title;Details;Details

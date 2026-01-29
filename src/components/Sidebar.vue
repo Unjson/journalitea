@@ -75,6 +75,13 @@ const emit = defineEmits<{
 	transform: translateX(0);
 }
 
+.sidebar-content {
+	padding-top: calc(1rem + env(safe-area-inset-top));
+	padding-left: calc(1rem + env(safe-area-inset-left));
+	padding-right: calc(1rem + env(safe-area-inset-right));
+	padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
 .sidebar.collapsed {
 	transform: translateX(-100%);
 }
@@ -87,5 +94,12 @@ const emit = defineEmits<{
 .nav-link.router-link-active {
 	background-color: #374151;
 	font-weight: 600;
+}
+
+@media (max-width: 640px) {
+	.nav-link {
+		padding: 0.875rem 1rem;
+		font-size: 1.1rem;
+	}
 }
 </style>

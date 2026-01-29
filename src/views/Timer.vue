@@ -94,7 +94,7 @@ onBeforeUnmount(() => {
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
 			<div>
 				<h2 class="text-lg font-semibold mb-3">{{ t('timer.presets_title') }}</h2>
-				<div class="flex flex-wrap gap-2">
+				<div class="flex flex-wrap justify-center md:justify-start gap-2">
 					<button
 						v-for="preset in presets"
 						:key="preset.id"
@@ -108,7 +108,7 @@ onBeforeUnmount(() => {
 				</div>
 			</div>
 
-			<div class="flex flex-col items-center gap-4">
+			<div class="flex flex-col items-center md:items-start gap-4">
 				<CircularTimer
 					:total-seconds="totalSeconds"
 					:remaining-seconds="remainingSeconds"
@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
 			</div>
 
 
-			<div class="flex flex-wrap items-center justify-center gap-2">
+			<div class="flex flex-wrap items-center md:items-start justify-center md:justify-start gap-2">
 				<button
 					type="button"
 					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
@@ -152,7 +152,7 @@ onBeforeUnmount(() => {
 				</button>
 			</div>
 
-			<div class="flex flex-wrap items-center gap-3">
+			<div class="flex flex-wrap justify-center md:justify-start items-center gap-3">
 				<button
 					type="button"
 					class="px-4 py-2 rounded-lg border bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
