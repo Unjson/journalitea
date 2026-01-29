@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
 import { useI18n } from 'vue-i18n';
+import { Capacitor } from '@capacitor/core';
 import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
 import { platformBridge } from './services/platformBridge';
@@ -17,6 +18,12 @@ const toggleSidebar = () => {
 };
 
 onMounted(async() => {
+	if (platformBridge.isCapacitor) {
+		const platform = Capacitor.getPlatform();
+		if (platform === 'android' || platform === 'ios') {
+			document.documentElement.classList.add('mobile-ui-scale');
+		}
+	}
 	platformBridge.on('goToRecordsList', () => {
 		router.replace('/');
 	});

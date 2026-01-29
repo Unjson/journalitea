@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html.mobile-ui-scale {
+  font-size: 0.8rem;
+}
+
 :root {
   color-scheme: light;
 }
