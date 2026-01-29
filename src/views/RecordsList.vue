@@ -3,9 +3,7 @@ import { ref, onMounted } from 'vue';
 import { Record } from '../models/record';
 import RecordCard from '../components/RecordCard.vue';
 import { useI18n } from 'vue-i18n';
-
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
+import { platformBridge } from '../services/platformBridge';
 const { t } = useI18n();
 const records = ref<Record[]>([]);
 const loading = ref(true);
@@ -16,7 +14,7 @@ const loadRecords = async () => {
   error.value = null;
   
   try {
-    records.value = await ipcRenderer.invoke('db:listRecords');
+    records.value = await platformBridge.invoke('db:listRecords');
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load records';
     console.error('Error loading records:', err);
