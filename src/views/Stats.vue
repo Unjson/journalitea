@@ -8,9 +8,7 @@ import PieChart from '../components/charts/PieChart.vue';
 import BarChart from '../components/charts/BarChart.vue';
 import AromaStats from '../components/AromaStats.vue';
 import { Record as TeaRecord } from '../models/record';
-
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
+import { platformBridge } from '../services/platformBridge';
 const { t } = useI18n();
 
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
@@ -49,19 +47,19 @@ const getPricePerWeightForRecord = (record: TeaRecord) => {
 
 
 const loadStats = async () => {
-	const currency = await ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY);
+	const currency = await platformBridge.invoke('db:getSetting', PREFS.CURRENCY);
 	if (currency.intVal != -1) {
 		preferredCurrency.value = currency.intVal;
 	}
-	const weightUnit = await ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
+	const weightUnit = await platformBridge.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
 	if (weightUnit.intVal != -1) {
 		preferredWeightUnit.value = weightUnit.intVal;
 	}
-	const resResult = await ipcRenderer	.invoke('db:getSetting', PREFS.EXCHANGE_RATES).strVal;
-	exchangeRates.value = await ipcRenderer
+	const resResult = await platformBridge	.invoke('db:getSetting', PREFS.EXCHANGE_RATES).strVal;
+	exchangeRates.value = await platformBridge
 		.invoke('db:getSetting', PREFS.EXCHANGE_RATES)
 		.then((res: any) => (res.strVal ? JSON.parse(res.strVal) : {}));
-	records.value = await ipcRenderer.invoke('db:listRecords');
+	records.value = await platformBridge.invoke('db:listRecords');
 	cumulativeStats.value = getCumulativeStats(
 		records.value,
 		preferredCurrency.value,

@@ -9,13 +9,11 @@ import StarRating from '../components/StarRating.vue';
 import { useI18n } from 'vue-i18n';
 import { aromaFieldLabels } from '../models/enums';
 import { formatPriceString } from '../models/teaStats';
+import { platformBridge } from '../services/platformBridge';
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
-
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
 
 const record = ref<Record | null>(null);
 const loading = ref(true);
@@ -42,7 +40,7 @@ const loadRecord = async () => {
   
   try {
     const id = Number(route.params.id);
-    const data = await ipcRenderer.invoke('db:getRecordById', id);
+    const data = await platformBridge.invoke('db:getRecordById', id);
     
     if (!data) {
       error.value = 'Record not found';
@@ -72,7 +70,7 @@ const deleteRecord = async () => {
   if (!record.value) return;
 
   try {
-    await ipcRenderer.invoke('db:deleteRecord', record.value.id);
+    await platformBridge.invoke('db:deleteRecord', record.value.id);
     router.replace('/');
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to delete record';

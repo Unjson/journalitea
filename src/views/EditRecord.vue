@@ -10,13 +10,11 @@ import StarRating from '../components/StarRating.vue';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { PREFS } from '../appSettings.js';
+import { platformBridge } from '../services/platformBridge';
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
-
 const record = ref<Record>(new Record());
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -44,7 +42,7 @@ const loadRecord = async () => {
   // Load existing record
   loading.value = true;
   try {
-    const data = await ipcRenderer.invoke('db:getRecordById', Number(id));
+    const data = await platformBridge.invoke('db:getRecordById', Number(id));
     if (data) {
       record.value = Object.assign(new Record(), data);
       isNewRecord.value = false;
@@ -64,8 +62,8 @@ const setDefaults = async () => {
   //poll settings db for preferred currency and weight unit
   try {
     const [currency, weightUnit] = await Promise.all([
-      ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY),
-      ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT),
+      platformBridge.invoke('db:getSetting', PREFS.CURRENCY),
+      platformBridge.invoke('db:getSetting', PREFS.WEIGHT_UNIT),
     ]);
 
     if (currency.intVal != -1) {
@@ -93,12 +91,12 @@ const saveRecord = async () => {
     
     if (isNewRecord.value || record.value.id === -1) {
       // Create new record
-      const newId = await ipcRenderer.invoke('db:saveRecord', plainRecord);
+      const newId = await platformBridge.invoke('db:saveRecord', plainRecord);
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
       // Update existing record
-      await ipcRenderer.invoke('db:updateRecord', plainRecord);
+      await platformBridge.invoke('db:updateRecord', plainRecord);
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }

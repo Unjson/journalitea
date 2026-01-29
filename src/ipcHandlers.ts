@@ -2,7 +2,7 @@ import { app, ipcMain } from "electron";
 import path from "node:path";
 import db from "./services/database.js";
 import { pickOpenFilePath, pickSaveFilePath } from "./services/fileDialog.js";
-import { parseTranslationsFromCSV } from "./services/i18n/csvParser.js";
+import { parseTranslationsFromCSVFile } from "./services/i18n/csvParser.node.js";
 
 // Setup IPC handlers for database operations
 export const setupIpcHandlers = (): void => {
@@ -130,7 +130,7 @@ export const setupIpcHandlers = (): void => {
         "i18n",
         "translations.csv",
       );
-      const translations = parseTranslationsFromCSV(csvPath);
+      const translations = parseTranslationsFromCSVFile(csvPath);
       return translations;
     } catch (error) {
       console.error("Error loading translations:", error);

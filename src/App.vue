@@ -5,9 +5,9 @@ import { getLocaleFromLanguage } from './models/enums';
 import { useI18n } from 'vue-i18n';
 import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
+import { platformBridge } from './services/platformBridge';
 
 const { t, locale } = useI18n();
-const electron = window.require("electron");
 const router = useRouter();
 const sidebarCollapsed = ref(true);
 const headerTitle = ref(t('app.title'));
@@ -17,20 +17,20 @@ const toggleSidebar = () => {
 };
 
 onMounted(async() => {
-	electron.ipcRenderer.on('goToRecordsList', () => {
-	router.replace('/');
+	platformBridge.on('goToRecordsList', () => {
+		router.replace('/');
 	});
-	electron.ipcRenderer.on('goToAbout', () => {
+	platformBridge.on('goToAbout', () => {
     router.replace('/about');
 	});
-	electron.ipcRenderer.on('goToSettings', () => {
-	router.replace('/settings');
+	platformBridge.on('goToSettings', () => {
+		router.replace('/settings');
 	});
-	electron.ipcRenderer.on('goToStats', () => {
-	router.replace('/stats');
+	platformBridge.on('goToStats', () => {
+		router.replace('/stats');
 	});
-	electron.ipcRenderer.on('goToTimer', () => {
-	router.replace('/timer');
+	platformBridge.on('goToTimer', () => {
+		router.replace('/timer');
 	});
 	
 	router.afterEach((to) => {
@@ -64,7 +64,7 @@ onMounted(async() => {
 		}
 	});
 
-	const language = await electron.ipcRenderer.invoke('db:getSetting', 'language');
+	const language = await platformBridge.invoke('db:getSetting', 'language');
 	if(language.intVal != -1){
 		const newLocale = getLocaleFromLanguage(language.intVal);
 		locale.value = newLocale;

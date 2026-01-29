@@ -6,9 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { PREFS } from '../appSettings.js';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
-
-const electron = (window as any).require('electron');
-const { ipcRenderer } = electron;
+import { platformBridge } from '../services/platformBridge';
 const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
@@ -16,13 +14,14 @@ const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate: 1.0 });
 const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
+const pendingImportData = ref<string | null>(null);
 
 const onCurrencyChanged = async () => {
   try {
-	await ipcRenderer.invoke('db:setSetting', PREFS.CURRENCY, preferredCurrency.value);
+	await platformBridge.invoke('db:setSetting', PREFS.CURRENCY, preferredCurrency.value);
 	const exchangeRates = await lookUpExchangeRates(preferredCurrency.value);
 
-	await ipcRenderer.invoke('db:setSetting', PREFS.EXCHANGE_RATES, -1, JSON.stringify(exchangeRates));
+	await platformBridge.invoke('db:setSetting', PREFS.EXCHANGE_RATES, -1, JSON.stringify(exchangeRates));
   } catch (err) {
 	console.error('Error saving preferred currency:', err);
   }
@@ -32,7 +31,7 @@ const onCustomCurrencyChanged = async () => {
   try {
 	const sanitizedRate = Number.isFinite(customCurrency.value.rate) ? customCurrency.value.rate : 1;
 	const customCurrencyValue = setCustomCurrency(customCurrency.value.symbol.trim(), sanitizedRate);
-	await ipcRenderer.invoke('db:setSetting', PREFS.CUSTOM_CURRENCY, -1, JSON.stringify(customCurrencyValue));
+	await platformBridge.invoke('db:setSetting', PREFS.CUSTOM_CURRENCY, -1, JSON.stringify(customCurrencyValue));
   } catch (err) {
 	console.error('Error saving custom currency:', err);
   }
@@ -40,7 +39,7 @@ const onCustomCurrencyChanged = async () => {
 
 const onLanguageChanged = async () => {
   try {
-	await ipcRenderer.invoke('db:setSetting', PREFS.LANGUAGE, languageSetting.value);
+	await platformBridge.invoke('db:setSetting', PREFS.LANGUAGE, languageSetting.value);
 	locale.value = getLocaleFromLanguage(languageSetting.value);
   } catch (err) {
 	console.error('Error saving language setting:', err);
@@ -49,7 +48,7 @@ const onLanguageChanged = async () => {
 
 const onWeightUnitChanged = async () => {
   try {
-	await ipcRenderer.invoke('db:setSetting', PREFS.WEIGHT_UNIT, preferredWeightUnit.value);
+	await platformBridge.invoke('db:setSetting', PREFS.WEIGHT_UNIT, preferredWeightUnit.value);
   } catch (err) {
 	console.error('Error saving preferred weight unit:', err);
   }
@@ -57,7 +56,7 @@ const onWeightUnitChanged = async () => {
 
 const onExportDatabase = async () => {
 	try {
-		const result = await ipcRenderer.invoke('db:exportDatabase');
+		const result = await platformBridge.invoke('db:exportDatabase');
 		if (result?.success) {
 			window.alert(t('settings.database_export_success'));
 		}
@@ -68,9 +67,10 @@ const onExportDatabase = async () => {
 
 const onImportDatabase = async () => {
 	try {
-		const result = await ipcRenderer.invoke('db:pickDatabaseFile');
-		if (result?.path) {
-			pendingImportPath.value = result.path;
+		const result = await platformBridge.invoke('db:pickDatabaseFile');
+		if (result?.path || result?.data) {
+			pendingImportPath.value = result?.path ?? null;
+			pendingImportData.value = result?.data ?? null;
 			showImportConfirm.value = true;
 		}
 	} catch (err) {
@@ -81,9 +81,10 @@ const onImportDatabase = async () => {
 const appendImport = async () => {
 	try {
 		if (!pendingImportPath.value) return;
-		const result = await ipcRenderer.invoke('db:importDatabase', {
+		const result = await platformBridge.invoke('db:importDatabase', {
 			mode: 'append',
 			sourcePath: pendingImportPath.value,
+			sourceData: pendingImportData.value,
 		});
 		if (result?.success) {
 			window.alert(t('settings.database_import_success_append'));
@@ -92,15 +93,17 @@ const appendImport = async () => {
 		console.error('Error appending database:', err);
 	} finally {
 		pendingImportPath.value = null;
+		pendingImportData.value = null;
 	}
 };
 
 const replaceImport = async () => {
 	try {
 		if (!pendingImportPath.value) return;
-		const result = await ipcRenderer.invoke('db:importDatabase', {
+		const result = await platformBridge.invoke('db:importDatabase', {
 			mode: 'replace',
 			sourcePath: pendingImportPath.value,
+			sourceData: pendingImportData.value,
 		});
 		if (result?.success) {
 			window.alert(t('settings.database_import_success_replace'));
@@ -109,28 +112,30 @@ const replaceImport = async () => {
 		console.error('Error replacing database:', err);
 	} finally {
 		pendingImportPath.value = null;
+		pendingImportData.value = null;
 	}
 };
 
 const cancelImport = () => {
 	pendingImportPath.value = null;
+	pendingImportData.value = null;
 };
 
 onMounted(async() => {
   try{
-	const language = await ipcRenderer.invoke('db:getSetting', PREFS.LANGUAGE);
+	const language = await platformBridge.invoke('db:getSetting', PREFS.LANGUAGE);
 	if(language.intVal != -1){
 		languageSetting.value = language.intVal;
 	}
-	const currency = await ipcRenderer.invoke('db:getSetting', PREFS.CURRENCY);
+	const currency = await platformBridge.invoke('db:getSetting', PREFS.CURRENCY);
 	if(currency.intVal != -1){
 		preferredCurrency.value = currency.intVal;
 	}
-	const weightUnit = await ipcRenderer.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
+	const weightUnit = await platformBridge.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
 	if(weightUnit.intVal != -1){
 		preferredWeightUnit.value = weightUnit.intVal;
 	}
-	const customCurrencySetting = await ipcRenderer.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
+	const customCurrencySetting = await platformBridge.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
 	if(customCurrencySetting.strVal){
 		try{
 			const parsed = JSON.parse(customCurrencySetting.strVal);

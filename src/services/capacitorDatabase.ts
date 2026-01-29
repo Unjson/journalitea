@@ -1,0 +1,414 @@
+import { Capacitor } from "@capacitor/core";
+import {
+  CapacitorSQLite,
+  SQLiteConnection,
+  SQLiteDBConnection,
+} from "@capacitor-community/sqlite";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { DEFAULT_PREFS, DATABASE_NAME, PREFS } from "../appSettings";
+import { Record } from "../models/record";
+
+const DATABASE_VERSION = 1;
+
+const toIsoString = (value: unknown): string => {
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
+  }
+  return new Date().toISOString();
+};
+
+class CapacitorDatabaseService {
+  private sqlite: SQLiteConnection | null = null;
+  private db: SQLiteDBConnection | null = null;
+  private initializing: Promise<void> | null = null;
+
+  private async ensureReady(): Promise<void> {
+    if (this.db) return;
+    if (!this.initializing) {
+      this.initializing = this.initialize();
+    }
+    await this.initializing;
+  }
+
+  private async initialize(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      throw new Error("SQLite is only available on native platforms.");
+    }
+    this.sqlite = new SQLiteConnection(CapacitorSQLite);
+    this.db = await this.sqlite.createConnection(
+      DATABASE_NAME,
+      false,
+      "no-encryption",
+      DATABASE_VERSION,
+      false,
+    );
+    await this.db.open();
+    await this.createRecordsTable();
+    await this.createSettingsTable();
+    await this.fillSettingsWithDefaultValues();
+  }
+
+  private async createRecordsTable(): Promise<void> {
+    if (!this.db) return;
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type INTEGER NOT NULL,
+        sub_type TEXT,
+        date_added TEXT NOT NULL,
+        seller TEXT,
+        origin TEXT,
+        year INTEGER,
+        price REAL,
+        price_currency INTEGER,
+        weight REAL,
+        weight_unit INTEGER,
+        preparation_method INTEGER,
+        preparation_notes TEXT,
+        dry_leaves TEXT,
+        wet_leaves TEXT,
+        liquor TEXT,
+        color INTEGER,
+        aroma_sweet INTEGER,
+        aroma_floral INTEGER,
+        aroma_nutty INTEGER,
+        aroma_spicy INTEGER,
+        aroma_fire INTEGER,
+        aroma_fruity INTEGER,
+        aroma_plants INTEGER,
+        aroma_earthy INTEGER,
+        aroma_minerals INTEGER,
+        aroma_marine INTEGER,
+        notes TEXT,
+        rating INTEGER,
+        photo STRING
+      )
+    `);
+  }
+
+  private async createSettingsTable(): Promise<void> {
+    if (!this.db) return;
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT NOT NULL,
+        int_val INTEGER,
+        str_val TEXT
+      )
+    `);
+  }
+
+  private async fillSettingsWithDefaultValues(): Promise<void> {
+    if (!this.db) return;
+    const defaults: {
+      key: string;
+      intVal: number | null;
+      strVal: string | null;
+    }[] = [
+      { key: PREFS.CURRENCY, intVal: DEFAULT_PREFS.CURRENCY, strVal: null },
+      {
+        key: PREFS.WEIGHT_UNIT,
+        intVal: DEFAULT_PREFS.WEIGHT_UNIT,
+        strVal: null,
+      },
+      { key: PREFS.LANGUAGE, intVal: DEFAULT_PREFS.LANGUAGE, strVal: null },
+      {
+        key: PREFS.CUSTOM_CURRENCY,
+        intVal: null,
+        strVal: JSON.stringify(DEFAULT_PREFS.CUSTOM_CURRENCY),
+      },
+      {
+        key: PREFS.EXCHANGE_RATES,
+        intVal: null,
+        strVal: JSON.stringify(DEFAULT_PREFS.EXCHANGE_RATES),
+      },
+    ];
+
+    for (const setting of defaults) {
+      const exists = await this.settingsValueExists(setting.key);
+      if (!exists) {
+        await this.db.run(
+          "INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)",
+          [setting.key, setting.intVal, setting.strVal],
+        );
+      }
+    }
+  }
+
+  private async settingsValueExists(key: string): Promise<boolean> {
+    if (!this.db) return false;
+    const result = await this.db.query(
+      "SELECT 1 FROM settings WHERE key = ? LIMIT 1",
+      [key],
+    );
+    return (result.values?.length ?? 0) > 0;
+  }
+
+  private rowToRecord(row: any): Record {
+    const record = new Record();
+    record.id = row.id;
+    record.name = row.name;
+    record.type = row.type;
+    record.subtype = row.sub_type;
+    record.dateAdded = new Date(row.date_added);
+    record.seller = row.seller;
+    record.origin = row.origin;
+    record.year = row.year;
+    record.price = row.price;
+    record.priceCurrency = row.price_currency;
+    record.weight = row.weight;
+    record.weightUnit = row.weight_unit;
+    record.preparationMethod = Number(row.preparation_method);
+    record.preparationNotes = row.preparation_notes;
+    record.dryLeaves = row.dry_leaves;
+    record.wetLeaves = row.wet_leaves;
+    record.liquor = row.liquor;
+    record.color = row.color;
+    record.aroma_sweet = row.aroma_sweet;
+    record.aroma_floral = row.aroma_floral;
+    record.aroma_nutty = row.aroma_nutty;
+    record.aroma_spicy = row.aroma_spicy;
+    record.aroma_fire = row.aroma_fire;
+    record.aroma_fruity = row.aroma_fruity;
+    record.aroma_plants = row.aroma_plants;
+    record.aroma_earthy = row.aroma_earthy;
+    record.aroma_minerals = row.aroma_minerals;
+    record.aroma_marine = row.aroma_marine;
+    record.notes = row.notes;
+    record.rating = row.rating;
+    record.photo = row.photo;
+    return record;
+  }
+
+  async listRecords(): Promise<Record[]> {
+    await this.ensureReady();
+    const result = await this.db!.query(
+      "SELECT * FROM records ORDER BY date_added DESC",
+    );
+    return (result.values ?? []).map((row) => this.rowToRecord(row));
+  }
+
+  async getDatabaseUrl(): Promise<string> {
+    await this.ensureReady();
+    const result = await this.db!.getUrl();
+    if (!result?.url) {
+      throw new Error("Database URL not available");
+    }
+    return result.url;
+  }
+
+  async closeConnection(): Promise<void> {
+    if (this.db) {
+      await this.db.close();
+      this.db = null;
+      this.initializing = null;
+    }
+  }
+
+  async getRecordById(id: number): Promise<Record | null> {
+    await this.ensureReady();
+    const result = await this.db!.query("SELECT * FROM records WHERE id = ?", [
+      id,
+    ]);
+    const row = result.values?.[0];
+    return row ? this.rowToRecord(row) : null;
+  }
+
+  async saveRecord(record: Record): Promise<number> {
+    await this.ensureReady();
+    const result = await this.db!.run(
+      `
+      INSERT INTO records (
+        name, type, sub_type, date_added, seller, origin, year, price, price_currency,
+        weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
+        wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
+        aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
+        aroma_minerals, aroma_marine, notes, rating, photo
+      ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      )
+      `,
+      [
+        record.name,
+        record.type,
+        record.subtype,
+        toIsoString(record.dateAdded),
+        record.seller,
+        record.origin,
+        record.year,
+        record.price,
+        record.priceCurrency,
+        record.weight,
+        record.weightUnit,
+        record.preparationMethod,
+        record.preparationNotes,
+        record.dryLeaves,
+        record.wetLeaves,
+        record.liquor,
+        record.color,
+        record.aroma_sweet,
+        record.aroma_floral,
+        record.aroma_nutty,
+        record.aroma_spicy,
+        record.aroma_fire,
+        record.aroma_fruity,
+        record.aroma_plants,
+        record.aroma_earthy,
+        record.aroma_minerals,
+        record.aroma_marine,
+        record.notes,
+        record.rating,
+        record.photo,
+      ],
+    );
+    return result.changes?.lastId ?? -1;
+  }
+
+  async updateRecord(record: Record): Promise<void> {
+    await this.ensureReady();
+    await this.db!.run(
+      `
+      UPDATE records SET
+        name = ?, type = ?, sub_type = ?, date_added = ?, seller = ?, origin = ?,
+        year = ?, price = ?, price_currency = ?, weight = ?, weight_unit = ?,
+        preparation_method = ?, preparation_notes = ?, dry_leaves = ?, wet_leaves = ?,
+        liquor = ?, color = ?, aroma_sweet = ?, aroma_floral = ?, aroma_nutty = ?,
+        aroma_spicy = ?, aroma_fire = ?, aroma_fruity = ?, aroma_plants = ?,
+        aroma_earthy = ?, aroma_minerals = ?, aroma_marine = ?, notes = ?,
+        rating = ?, photo = ?
+      WHERE id = ?
+      `,
+      [
+        record.name,
+        record.type,
+        record.subtype,
+        toIsoString(record.dateAdded),
+        record.seller,
+        record.origin,
+        record.year,
+        record.price,
+        record.priceCurrency,
+        record.weight,
+        record.weightUnit,
+        record.preparationMethod,
+        record.preparationNotes,
+        record.dryLeaves,
+        record.wetLeaves,
+        record.liquor,
+        record.color,
+        record.aroma_sweet,
+        record.aroma_floral,
+        record.aroma_nutty,
+        record.aroma_spicy,
+        record.aroma_fire,
+        record.aroma_fruity,
+        record.aroma_plants,
+        record.aroma_earthy,
+        record.aroma_minerals,
+        record.aroma_marine,
+        record.notes,
+        record.rating,
+        record.photo,
+        record.id,
+      ],
+    );
+  }
+
+  async deleteRecord(id: number): Promise<void> {
+    await this.ensureReady();
+    await this.db!.run("DELETE FROM records WHERE id = ?", [id]);
+  }
+
+  async setSettingsValue(
+    key: string,
+    intVal: number | null,
+    strVal: string | null,
+  ): Promise<void> {
+    await this.ensureReady();
+    const result = await this.db!.query(
+      "SELECT id FROM settings WHERE key = ?",
+      [key],
+    );
+    const row = result.values?.[0] as { id?: number } | undefined;
+    if (row?.id) {
+      await this.db!.run(
+        "UPDATE settings SET int_val = ?, str_val = ? WHERE key = ?",
+        [intVal, strVal, key],
+      );
+      return;
+    }
+    await this.db!.run(
+      "INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)",
+      [key, intVal, strVal],
+    );
+  }
+
+  async getSettingsValue(
+    key: string,
+  ): Promise<{ intVal: number | null; strVal: string } | null> {
+    await this.ensureReady();
+    const result = await this.db!.query(
+      "SELECT int_val, str_val FROM settings WHERE key = ?",
+      [key],
+    );
+    const row = result.values?.[0] as
+      | { int_val: number | null; str_val: string | null }
+      | undefined;
+    if (!row) return { intVal: -1, strVal: "" };
+    return { intVal: row.int_val ?? -1, strVal: row.str_val ?? "" };
+  }
+
+  async exportDatabaseToJson(): Promise<{ path: string; data: string }> {
+    await this.ensureReady();
+    const json = await this.db!.exportToJson("full");
+    const data = JSON.stringify(json);
+    const fileName = `journalitea-export-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+    await Filesystem.writeFile({
+      path: fileName,
+      data,
+      directory: Directory.Documents,
+      encoding: Encoding.UTF8,
+    });
+    const uriResult = await Filesystem.getUri({
+      path: fileName,
+      directory: Directory.Documents,
+    });
+    return { path: uriResult.uri, data };
+  }
+
+  async importDatabaseFromJson(
+    jsonString: string,
+    mode: "append" | "replace",
+  ): Promise<void> {
+    await this.ensureReady();
+    let json: any;
+    try {
+      json = JSON.parse(jsonString);
+    } catch (error) {
+      throw new Error("Selected file is not valid JSON.");
+    }
+    json.mode = mode === "append" ? "partial" : "full";
+
+    if (mode === "replace") {
+      await this.sqlite?.closeConnection(DATABASE_NAME, false);
+      const sqliteAny = this.sqlite as any;
+      if (sqliteAny?.deleteDatabase) {
+        await sqliteAny.deleteDatabase(DATABASE_NAME);
+      }
+      this.db = null;
+      this.initializing = null;
+      await this.ensureReady();
+    }
+
+    const result = await this.sqlite?.importFromJson(json);
+    if (!result?.changes || result.changes.changes < 0) {
+      throw new Error("Import failed.");
+    }
+  }
+}
+
+export const capacitorDb = new CapacitorDatabaseService();
