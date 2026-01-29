@@ -78,7 +78,7 @@ onActivated(loadStats);
 		<h1 class="text-3xl font-bold mb-6">{{ t('stats.title') }}</h1>
 
 		<div v-if="cumulativeStats" class="space-y-8">
-			<div class="flex gap-2">
+			<div class="flex flex-wrap gap-2">
 				<button
 					class="px-4 py-2 rounded-lg border"
 					:class="activeTab === 'summary' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"

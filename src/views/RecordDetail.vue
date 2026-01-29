@@ -191,7 +191,7 @@ onMounted(() => {
         </div>
       </section>
       <!-- Edit Button -->
-      <div class="mt-6 pt-6 gap-4 border-t flex items-center justify-between">
+      <div class="mt-6 pt-6 gap-4 border-t flex items-center flex-wrap-reverse justify-between">
         <button
           @click="showDeleteConfirm = true"
           class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"

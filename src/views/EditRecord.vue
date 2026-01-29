@@ -196,7 +196,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.type_label') }}</label>
             <SelectDropdown
               v-model="record.type"
@@ -205,7 +205,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.subtype_label') }}</label>
             <input
               v-model="record.subtype"
@@ -214,7 +214,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.origin_label') }}</label>
             <input
               v-model="record.origin"
@@ -223,7 +223,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.year_label') }}</label>
             <input
               v-model.number="record.year"
@@ -232,7 +232,7 @@ onMounted(() => {
             />
           </div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.seller_label') }}</label>
             <input
               v-model="record.seller"
@@ -240,10 +240,8 @@ onMounted(() => {
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          <div></div>
           
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.price_label') }}</label>
             <div class="flex flex-row items-center gap-4">
             <input
@@ -259,7 +257,7 @@ onMounted(() => {
             />
             </div>
           </div>
-          <div>
+          <div class="col-span-2 md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.weight_label') }}</label>
             <div class="flex flex-row items-center gap-4">
             <input
@@ -288,7 +286,7 @@ onMounted(() => {
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.preparation_method_label') }}</label>
             <div
-              class="inline-flex flex-nowrap gap-2 overflow-x-auto"
+              class="inline-flex flex-wrap md:flex-nowrap gap-2 overflow-x-auto"
               role="group"
               :aria-label="t('edit.preparation_method_label')"
             >
@@ -398,7 +396,7 @@ onMounted(() => {
       </section>
 
       <!-- Form Actions -->
-      <div class="flex justify-end gap-4 pt-6 border-t">
+      <div class="flex flex-wrap justify-between gap-4 pt-6 border-t">
         <button
           type="button"
           @click="cancel"
