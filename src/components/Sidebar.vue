@@ -95,4 +95,11 @@ const emit = defineEmits<{
 	background-color: #374151;
 	font-weight: 600;
 }
+
+@media (max-width: 640px) {
+	.nav-link {
+		padding: 0.875rem 1rem;
+		font-size: 1.1rem;
+	}
+}
 </style>

@@ -7,6 +7,20 @@ import {
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { DEFAULT_PREFS, DATABASE_NAME, PREFS } from "../appSettings";
 import { Record } from "../models/record";
+import {
+  createRecordsTableSql,
+  createSettingsTableSql,
+  deleteRecordSql,
+  getRecordByIdSql,
+  insertRecordSql,
+  insertSettingSql,
+  listRecordsSql,
+  selectSettingIdSql,
+  selectSettingsValueSql,
+  settingsValueExistsSql,
+  updateRecordSql,
+  updateSettingSql,
+} from "./databaseQueries";
 
 const DATABASE_VERSION = 1;
 
@@ -52,53 +66,12 @@ class CapacitorDatabaseService {
 
   private async createRecordsTable(): Promise<void> {
     if (!this.db) return;
-    await this.db.execute(`
-      CREATE TABLE IF NOT EXISTS records (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        type INTEGER NOT NULL,
-        sub_type TEXT,
-        date_added TEXT NOT NULL,
-        seller TEXT,
-        origin TEXT,
-        year INTEGER,
-        price REAL,
-        price_currency INTEGER,
-        weight REAL,
-        weight_unit INTEGER,
-        preparation_method INTEGER,
-        preparation_notes TEXT,
-        dry_leaves TEXT,
-        wet_leaves TEXT,
-        liquor TEXT,
-        color INTEGER,
-        aroma_sweet INTEGER,
-        aroma_floral INTEGER,
-        aroma_nutty INTEGER,
-        aroma_spicy INTEGER,
-        aroma_fire INTEGER,
-        aroma_fruity INTEGER,
-        aroma_plants INTEGER,
-        aroma_earthy INTEGER,
-        aroma_minerals INTEGER,
-        aroma_marine INTEGER,
-        notes TEXT,
-        rating INTEGER,
-        photo STRING
-      )
-    `);
+    await this.db.execute(createRecordsTableSql);
   }
 
   private async createSettingsTable(): Promise<void> {
     if (!this.db) return;
-    await this.db.execute(`
-      CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        key TEXT NOT NULL,
-        int_val INTEGER,
-        str_val TEXT
-      )
-    `);
+    await this.db.execute(createSettingsTableSql);
   }
 
   private async fillSettingsWithDefaultValues(): Promise<void> {
@@ -140,10 +113,7 @@ class CapacitorDatabaseService {
 
   private async settingsValueExists(key: string): Promise<boolean> {
     if (!this.db) return false;
-    const result = await this.db.query(
-      "SELECT 1 FROM settings WHERE key = ? LIMIT 1",
-      [key],
-    );
+    const result = await this.db.query(settingsValueExistsSql, [key]);
     return (result.values?.length ?? 0) > 0;
   }
 
@@ -185,9 +155,7 @@ class CapacitorDatabaseService {
 
   async listRecords(): Promise<Record[]> {
     await this.ensureReady();
-    const result = await this.db!.query(
-      "SELECT * FROM records ORDER BY date_added DESC",
-    );
+    const result = await this.db!.query(listRecordsSql);
     return (result.values ?? []).map((row) => this.rowToRecord(row));
   }
 
@@ -214,117 +182,88 @@ class CapacitorDatabaseService {
 
   async getRecordById(id: number): Promise<Record | null> {
     await this.ensureReady();
-    const result = await this.db!.query("SELECT * FROM records WHERE id = ?", [
-      id,
-    ]);
+    const result = await this.db!.query(getRecordByIdSql, [id]);
     const row = result.values?.[0];
     return row ? this.rowToRecord(row) : null;
   }
 
   async saveRecord(record: Record): Promise<number> {
     await this.ensureReady();
-    const result = await this.db!.run(
-      `
-      INSERT INTO records (
-        name, type, sub_type, date_added, seller, origin, year, price, price_currency,
-        weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
-        wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
-        aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
-        aroma_minerals, aroma_marine, notes, rating, photo
-      ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-      )
-      `,
-      [
-        record.name,
-        record.type,
-        record.subtype,
-        toIsoString(record.dateAdded),
-        record.seller,
-        record.origin,
-        record.year,
-        record.price,
-        record.priceCurrency,
-        record.weight,
-        record.weightUnit,
-        record.preparationMethod,
-        record.preparationNotes,
-        record.dryLeaves,
-        record.wetLeaves,
-        record.liquor,
-        record.color,
-        record.aroma_sweet,
-        record.aroma_floral,
-        record.aroma_nutty,
-        record.aroma_spicy,
-        record.aroma_fire,
-        record.aroma_fruity,
-        record.aroma_plants,
-        record.aroma_earthy,
-        record.aroma_minerals,
-        record.aroma_marine,
-        record.notes,
-        record.rating,
-        record.photo,
-      ],
-    );
+    const result = await this.db!.run(insertRecordSql, [
+      record.name,
+      record.type,
+      record.subtype,
+      toIsoString(record.dateAdded),
+      record.seller,
+      record.origin,
+      record.year,
+      record.price,
+      record.priceCurrency,
+      record.weight,
+      record.weightUnit,
+      record.preparationMethod,
+      record.preparationNotes,
+      record.dryLeaves,
+      record.wetLeaves,
+      record.liquor,
+      record.color,
+      record.aroma_sweet,
+      record.aroma_floral,
+      record.aroma_nutty,
+      record.aroma_spicy,
+      record.aroma_fire,
+      record.aroma_fruity,
+      record.aroma_plants,
+      record.aroma_earthy,
+      record.aroma_minerals,
+      record.aroma_marine,
+      record.notes,
+      record.rating,
+      record.photo,
+    ]);
     return result.changes?.lastId ?? -1;
   }
 
   async updateRecord(record: Record): Promise<void> {
     await this.ensureReady();
-    await this.db!.run(
-      `
-      UPDATE records SET
-        name = ?, type = ?, sub_type = ?, date_added = ?, seller = ?, origin = ?,
-        year = ?, price = ?, price_currency = ?, weight = ?, weight_unit = ?,
-        preparation_method = ?, preparation_notes = ?, dry_leaves = ?, wet_leaves = ?,
-        liquor = ?, color = ?, aroma_sweet = ?, aroma_floral = ?, aroma_nutty = ?,
-        aroma_spicy = ?, aroma_fire = ?, aroma_fruity = ?, aroma_plants = ?,
-        aroma_earthy = ?, aroma_minerals = ?, aroma_marine = ?, notes = ?,
-        rating = ?, photo = ?
-      WHERE id = ?
-      `,
-      [
-        record.name,
-        record.type,
-        record.subtype,
-        toIsoString(record.dateAdded),
-        record.seller,
-        record.origin,
-        record.year,
-        record.price,
-        record.priceCurrency,
-        record.weight,
-        record.weightUnit,
-        record.preparationMethod,
-        record.preparationNotes,
-        record.dryLeaves,
-        record.wetLeaves,
-        record.liquor,
-        record.color,
-        record.aroma_sweet,
-        record.aroma_floral,
-        record.aroma_nutty,
-        record.aroma_spicy,
-        record.aroma_fire,
-        record.aroma_fruity,
-        record.aroma_plants,
-        record.aroma_earthy,
-        record.aroma_minerals,
-        record.aroma_marine,
-        record.notes,
-        record.rating,
-        record.photo,
-        record.id,
-      ],
-    );
+    await this.db!.run(updateRecordSql, [
+      record.name,
+      record.type,
+      record.subtype,
+      toIsoString(record.dateAdded),
+      record.seller,
+      record.origin,
+      record.year,
+      record.price,
+      record.priceCurrency,
+      record.weight,
+      record.weightUnit,
+      record.preparationMethod,
+      record.preparationNotes,
+      record.dryLeaves,
+      record.wetLeaves,
+      record.liquor,
+      record.color,
+      record.aroma_sweet,
+      record.aroma_floral,
+      record.aroma_nutty,
+      record.aroma_spicy,
+      record.aroma_fire,
+      record.aroma_fruity,
+      record.aroma_plants,
+      record.aroma_earthy,
+      record.aroma_minerals,
+      record.aroma_marine,
+      record.notes,
+      record.rating,
+      record.photo,
+      record.id,
+    ]);
   }
 
   async deleteRecord(id: number): Promise<void> {
     await this.ensureReady();
-    await this.db!.run("DELETE FROM records WHERE id = ?", [id]);
+    await this.db!.run(deleteRecordSql, [id]);
   }
 
   async setSettingsValue(
@@ -333,32 +272,20 @@ class CapacitorDatabaseService {
     strVal: string | null,
   ): Promise<void> {
     await this.ensureReady();
-    const result = await this.db!.query(
-      "SELECT id FROM settings WHERE key = ?",
-      [key],
-    );
+    const result = await this.db!.query(selectSettingIdSql, [key]);
     const row = result.values?.[0] as { id?: number } | undefined;
     if (row?.id) {
-      await this.db!.run(
-        "UPDATE settings SET int_val = ?, str_val = ? WHERE key = ?",
-        [intVal, strVal, key],
-      );
+      await this.db!.run(updateSettingSql, [intVal, strVal, key]);
       return;
     }
-    await this.db!.run(
-      "INSERT INTO settings (key, int_val, str_val) VALUES (?, ?, ?)",
-      [key, intVal, strVal],
-    );
+    await this.db!.run(insertSettingSql, [key, intVal, strVal]);
   }
 
   async getSettingsValue(
     key: string,
   ): Promise<{ intVal: number | null; strVal: string } | null> {
     await this.ensureReady();
-    const result = await this.db!.query(
-      "SELECT int_val, str_val FROM settings WHERE key = ?",
-      [key],
-    );
+    const result = await this.db!.query(selectSettingsValueSql, [key]);
     const row = result.values?.[0] as
       | { int_val: number | null; str_val: string | null }
       | undefined;

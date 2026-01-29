@@ -359,7 +359,7 @@ onMounted(() => {
       <!-- Aroma Profile (ITMC Scale) -->
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.aromas_label') }}</h2>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-8 p-4">
+        <div class="grid grid-cols-4 md:grid-cols-5 gap-8 p-4">
           <div
             v-for="field in aromaFieldLabels"
             :key="field.key"
