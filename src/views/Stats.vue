@@ -55,7 +55,6 @@ const loadStats = async () => {
 	if (weightUnit.intVal != -1) {
 		preferredWeightUnit.value = weightUnit.intVal;
 	}
-	const resResult = await platformBridge	.invoke('db:getSetting', PREFS.EXCHANGE_RATES).strVal;
 	exchangeRates.value = await platformBridge
 		.invoke('db:getSetting', PREFS.EXCHANGE_RATES)
 		.then((res: any) => (res.strVal ? JSON.parse(res.strVal) : {}));

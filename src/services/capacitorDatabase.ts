@@ -203,9 +203,13 @@ class CapacitorDatabaseService {
   async closeConnection(): Promise<void> {
     if (this.db) {
       await this.db.close();
-      this.db = null;
-      this.initializing = null;
     }
+    if (this.sqlite) {
+      await this.sqlite.closeConnection(DATABASE_NAME, false);
+    }
+    this.db = null;
+    this.sqlite = null;
+    this.initializing = null;
   }
 
   async getRecordById(id: number): Promise<Record | null> {

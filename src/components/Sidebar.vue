@@ -75,6 +75,13 @@ const emit = defineEmits<{
 	transform: translateX(0);
 }
 
+.sidebar-content {
+	padding-top: calc(1rem + env(safe-area-inset-top));
+	padding-left: calc(1rem + env(safe-area-inset-left));
+	padding-right: calc(1rem + env(safe-area-inset-right));
+	padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
 .sidebar.collapsed {
 	transform: translateX(-100%);
 }

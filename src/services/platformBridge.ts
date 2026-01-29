@@ -28,11 +28,11 @@ const electronIpc: ElectronIpc | null = (() => {
 const isCapacitor = Capacitor.isNativePlatform();
 const isAndroid = Capacitor.getPlatform() === "android";
 
-const isJsonFile = (path: string | null | undefined): boolean =>
-  !!path && path.toLowerCase().endsWith(".json");
+const isJsonFile = (pathOrName: string | null | undefined): boolean =>
+  !!pathOrName && pathOrName.toLowerCase().endsWith(".json");
 
-const isDbFile = (path: string | null | undefined): boolean =>
-  !!path && /(\.db|\.db3|\.sqlite|\.sqlite3)$/i.test(path);
+const isDbFile = (pathOrName: string | null | undefined): boolean =>
+  !!pathOrName && /(\.db|\.db3|\.sqlite|\.sqlite3)$/i.test(pathOrName);
 
 const copyFileWithPicker = async (
   from: string,
@@ -128,7 +128,7 @@ const handleCapacitorInvoke = async (
       const file = result.files?.[0];
       if (!file) return { cancelled: true };
       return {
-        path: file.path ?? file.name ?? null,
+        path: file.path ?? (file as any).uri ?? null,
         data: file.data ?? null,
         name: file.name ?? null,
         mimeType: file.mimeType ?? null,
@@ -139,6 +139,7 @@ const handleCapacitorInvoke = async (
         mode: "append" | "replace";
         sourcePath?: string | null;
         sourceData?: string | null;
+        sourceName?: string | null;
       };
       if (!payload) return { cancelled: true };
       if (payload.sourceData) {
@@ -152,7 +153,9 @@ const handleCapacitorInvoke = async (
       }
       if (!payload.sourcePath) return { cancelled: true };
 
-      if (isJsonFile(payload.sourcePath)) {
+      const sourceLabel = payload.sourceName ?? payload.sourcePath;
+
+      if (isJsonFile(sourceLabel)) {
         const file = await Filesystem.readFile({
           path: payload.sourcePath,
           encoding: Encoding.UTF8,
@@ -173,7 +176,7 @@ const handleCapacitorInvoke = async (
         );
       }
 
-      if (!isDbFile(payload.sourcePath)) {
+      if (!isDbFile(sourceLabel)) {
         throw new Error("Unsupported import file type.");
       }
 

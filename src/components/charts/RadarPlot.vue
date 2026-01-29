@@ -134,7 +134,11 @@ const zeroLine = computed(() => {
 
 <template>
   <div class="radar-plot">
-    <svg :width="size" :height="size" class="mx-auto">
+    <svg
+      :viewBox="`0 0 ${size} ${size}`"
+      class="radar-svg mx-auto"
+      role="img"
+    >
       <!-- Grid levels -->
       <path
         v-for="(level, i) in gridLevels"
@@ -213,6 +217,13 @@ const zeroLine = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+}
+
+.radar-svg {
+  width: 100%;
+  height: auto;
+  max-width: 320px;
 }
 
 .data-polygon {

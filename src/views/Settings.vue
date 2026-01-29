@@ -15,6 +15,7 @@ const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate:
 const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
 const pendingImportData = ref<string | null>(null);
+const pendingImportName = ref<string | null>(null);
 
 const onCurrencyChanged = async () => {
   try {
@@ -71,6 +72,7 @@ const onImportDatabase = async () => {
 		if (result?.path || result?.data) {
 			pendingImportPath.value = result?.path ?? null;
 			pendingImportData.value = result?.data ?? null;
+			pendingImportName.value = result?.name ?? null;
 			showImportConfirm.value = true;
 		}
 	} catch (err) {
@@ -85,6 +87,7 @@ const appendImport = async () => {
 			mode: 'append',
 			sourcePath: pendingImportPath.value,
 			sourceData: pendingImportData.value,
+			sourceName: pendingImportName.value,
 		});
 		if (result?.success) {
 			window.alert(t('settings.database_import_success_append'));
@@ -94,6 +97,7 @@ const appendImport = async () => {
 	} finally {
 		pendingImportPath.value = null;
 		pendingImportData.value = null;
+		pendingImportName.value = null;
 	}
 };
 
@@ -104,6 +108,7 @@ const replaceImport = async () => {
 			mode: 'replace',
 			sourcePath: pendingImportPath.value,
 			sourceData: pendingImportData.value,
+			sourceName: pendingImportName.value,
 		});
 		if (result?.success) {
 			window.alert(t('settings.database_import_success_replace'));
@@ -113,12 +118,14 @@ const replaceImport = async () => {
 	} finally {
 		pendingImportPath.value = null;
 		pendingImportData.value = null;
+		pendingImportName.value = null;
 	}
 };
 
 const cancelImport = () => {
 	pendingImportPath.value = null;
 	pendingImportData.value = null;
+	pendingImportName.value = null;
 };
 
 onMounted(async() => {
