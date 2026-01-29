@@ -15,7 +15,8 @@ Personal tea journal app
 -  You can import your collection from an existing database via the settings menu
 
 ## Roadmap
-- Android/iOS support
+- Android support (BETA)
+- iOS support (in development)
 
 ## Contributing / Bugs
 - If you find a bug, please use the [Issues](https://github.com/Unjson/journalitea/issues) page.

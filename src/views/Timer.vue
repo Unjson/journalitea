@@ -2,6 +2,7 @@
 import { ref, computed, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CircularTimer from '../components/CircularTimer.vue';
+const singingBowlUrl = new URL('../sfx/singing-bowl.ogg', import.meta.url).toString();
 
 const { t } = useI18n();
 
@@ -21,6 +22,8 @@ const totalSeconds = ref<number>(presets[0].seconds);
 const remainingSeconds = ref<number>(presets[0].seconds);
 const isRunning = ref(false);
 
+const completionAudio = new Audio(singingBowlUrl);
+
 let intervalId: number | null = null;
 
 const formattedTime = computed(() => {
@@ -38,10 +41,15 @@ const setPreset = (preset: TimerPreset) => {
 
 const tick = () => {
 	if (remainingSeconds.value <= 0) {
-		stopTimer();
+		pauseTimer();
 		return;
 	}
 	remainingSeconds.value -= 1;
+	if (remainingSeconds.value <= 0) {
+		completionAudio.currentTime = 0;
+		void completionAudio.play().catch(() => undefined);
+		pauseTimer();
+	}
 };
 
 const startTimer = () => {
