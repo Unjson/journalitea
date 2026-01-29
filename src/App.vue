@@ -23,6 +23,11 @@ onMounted(async() => {
 		if (platform === 'android' || platform === 'ios') {
 			document.documentElement.classList.add('mobile-ui-scale');
 		}
+		platformBridge.onBackButton?.(({ canGoBack }) => {
+			if (canGoBack) {
+				router.back();
+			}
+		});
 	}
 	platformBridge.on('goToRecordsList', () => {
 		router.replace('/');

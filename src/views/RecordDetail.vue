@@ -92,7 +92,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="px-0.5 py-4">
     <div v-if="loading" class="text-center py-8 text-gray-500">
       {{ t('detail.loading') }}
     </div>

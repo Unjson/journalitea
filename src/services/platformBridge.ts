@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { Filesystem, Encoding } from "@capacitor/filesystem";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
@@ -6,6 +7,7 @@ import translationsCsv from "./i18n/translations.csv?raw";
 import { capacitorDb } from "./capacitorDatabase";
 
 export type BridgeListener = (...args: any[]) => void;
+export type BackButtonListener = (event: { canGoBack: boolean }) => void;
 
 type InvokeResult = Promise<any>;
 
@@ -199,6 +201,13 @@ const handleCapacitorInvoke = async (
 export const platformBridge = {
   isElectron,
   isCapacitor,
+  isAndroid,
+  onBackButton(listener: BackButtonListener) {
+    if (!isCapacitor || !isAndroid) return undefined;
+    return CapacitorApp.addListener("backButton", (event) => {
+      listener(event);
+    });
+  },
   on(channel: string, listener: BridgeListener): void {
     if (electronIpc) {
       electronIpc.on(channel, listener);
