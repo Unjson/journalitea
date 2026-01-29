@@ -17,7 +17,7 @@
     "app:dir": "npm run build && electron-builder --dir",
     "app:dist": "npm run build && electron-builder",
     "app:dist:win": "npm run build && electron-builder --win --x64",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps && patch-package"
   },
   "dependencies": {
     "@capacitor-community/sqlite": "^8.0.0",
@@ -45,6 +45,7 @@
     "electron-rebuild": "^3.2.9",
     "eslint": "^9.39.2",
     "nodemon": "^3.1.11",
+    "patch-package": "^8.0.0",
     "typescript": "^5.9.3",
     "vite": "latest",
     "wait-on": "^9.0.3"
