@@ -7,7 +7,7 @@ Personal tea journal app
 - Uses SQLite under the hood 
 - Stats for your tea collection (e.g. average price per gram, price histograms, cumulative aroma statistics etc.)
 - Convenient Tea timer function
-- Works on all platforms (because it's an electron app, duh)
+- Works on all platforms (Electron for desktop, Ionic Capacitor for mobile)
 - 100% Free and Open Source Software, licensed under GPLv3
 
 ## Installing
