@@ -18,6 +18,8 @@ list.title;My Tea Records;Meine Tee-Einträge
 list.create_button;Create;Erstellen
 list.loading;Loading records...;Lade Einträge...
 list.no_records;No records found. Click the "Create" button to add your first tea
+list.filter_year_label;Filter by date;Nach Datum filtern
+list.filter_year_all;All years;Alle Jahre
 edit.title;Edit Record;Eintrag bearbeiten
 edit.name_label;Name;Name
 edit.type_label;Type;Typ
@@ -89,7 +91,12 @@ settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter 
 settings.database_title;Database;Datenbank
 settings.database_export;Export database;Datenbank exportieren
 settings.database_import;Import database;Datenbank importieren
-settings.database_export_success;Database export completed.;Datenbank-Export abgeschlossen.
+settings.database_export_success_cap;Database export completed. You can find the exported file in your documents folder.;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie in Ihrem Dokumenten-Verzeichnis.
+settings.database_export_success;Database export completed. You can find the exported file at;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie unter
+settings.database_export_success_title;Export complete;Export abgeschlossen
+settings.database_export_error_title;Export failed;Export fehlgeschlagen
+settings.database_export_error;Database export failed.;Datenbank-Export fehlgeschlagen.
+settings.dialog_ok;OK;OK
 settings.database_import_prompt_title;Import database;Datenbank importieren
 settings.database_import_prompt_message;Append the records from the selected database to your current data, or replace your database entirely?;Möchten Sie die Einträge aus der ausgewählten Datenbank anfügen oder die Datenbank vollständig ersetzen?
 settings.database_import_append;Append records;Einträge anfügen

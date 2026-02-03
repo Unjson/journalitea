@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import PieChart from '../components/charts/PieChart.vue';
 import BarChart from '../components/charts/BarChart.vue';
 import AromaStats from '../components/AromaStats.vue';
+import RecordYearFooter from '../components/RecordYearFooter.vue';
 import { Record as TeaRecord } from '../models/record';
 import { platformBridge } from '../services/platformBridge';
 const { t } = useI18n();
@@ -17,6 +18,8 @@ const exchangeRates = ref<Record<CurrencyType, number> | null >(null);
 const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
 const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
+const years = ref<number[]>([]);
+const selectedYear = ref<number | null>(null);
 
 const ratingCounts = computed(() => {
 	const counts = Array.from({ length: 6 }, () => 0);
@@ -58,7 +61,7 @@ const loadStats = async () => {
 	exchangeRates.value = await platformBridge
 		.invoke('db:getSetting', PREFS.EXCHANGE_RATES)
 		.then((res: any) => (res.strVal ? JSON.parse(res.strVal) : {}));
-	records.value = await platformBridge.invoke('db:listRecords');
+	records.value = await platformBridge.invoke('db:listRecords', selectedYear.value);
 	cumulativeStats.value = getCumulativeStats(
 		records.value,
 		preferredCurrency.value,
@@ -67,16 +70,39 @@ const loadStats = async () => {
 	);
 };
 
-onMounted(loadStats);
+const loadYears = async () => {
+	try {
+		years.value = await platformBridge.invoke('db:listRecordYears');
+		if (selectedYear.value === null && years.value.length > 0) {
+			const currentYear = new Date().getFullYear();
+			if (years.value.includes(currentYear)) {
+				selectedYear.value = currentYear;
+			}
+		}
+	} catch (err) {
+		console.error('Error loading record years:', err);
+	}
+};
+
+const selectYear = async (year: number | null) => {
+	if (selectedYear.value === year) return;
+	selectedYear.value = year;
+	await loadStats();
+};
+
+onMounted(async () => {
+	await loadYears();
+	await loadStats();
+});
 onActivated(loadStats);
 
 </script>
 
 <template>
-	<div class="p-6">
+	<div class="min-h-screen flex flex-col p-6">
 		<h1 class="text-3xl font-bold mb-6">{{ t('stats.title') }}</h1>
 
-		<div v-if="cumulativeStats" class="space-y-8">
+		<div v-if="cumulativeStats" class="space-y-8 flex-1">
 			<div class="flex flex-wrap gap-2">
 				<button
 					class="px-4 py-2 rounded-lg border"
@@ -215,8 +241,16 @@ onActivated(loadStats);
 			</div>
 		</div>
 
-		<div v-else class="text-center py-12 text-gray-500">
+		<div v-else class="text-center py-12 text-gray-500 flex-1">
 			{{ t('stats.loading') }}
 		</div>
+
+		<RecordYearFooter
+			:years="years"
+			:selected-year="selectedYear"
+			:label="t('list.filter_year_label')"
+			:all-label="t('list.filter_year_all')"
+			@select="selectYear"
+		/>
 	</div>
 </template>

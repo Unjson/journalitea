@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { Filesystem, Encoding } from "@capacitor/filesystem";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
@@ -6,6 +7,7 @@ import translationsCsv from "./i18n/translations.csv?raw";
 import { capacitorDb } from "./capacitorDatabase";
 
 export type BridgeListener = (...args: any[]) => void;
+export type BackButtonListener = (event: { canGoBack: boolean }) => void;
 
 type InvokeResult = Promise<any>;
 
@@ -77,7 +79,9 @@ const handleCapacitorInvoke = async (
 ): InvokeResult => {
   switch (channel) {
     case "db:listRecords":
-      return capacitorDb.listRecords();
+      return capacitorDb.listRecords(args[0] ?? null);
+    case "db:listRecordYears":
+      return capacitorDb.listRecordYears();
     case "db:getRecordById":
       return capacitorDb.getRecordById(args[0]);
     case "db:saveRecord":
@@ -96,22 +100,7 @@ const handleCapacitorInvoke = async (
       );
     case "db:exportDatabase": {
       if (!isAndroid) return { cancelled: true };
-      const pickResult = await FilePicker.pickFiles({
-        limit: 1,
-        types: [
-          "application/x-sqlite3",
-          "application/octet-stream",
-          "application/vnd.sqlite3",
-        ],
-      });
-      const target = pickResult.files?.[0]?.path ?? null;
-      if (!target) return { cancelled: true };
-
-      const sourceUrl = await capacitorDb.getDatabaseUrl();
-      await capacitorDb.closeConnection();
-      await copyFileWithPicker(sourceUrl, target, true);
-
-      return { success: true, path: target };
+      return capacitorDb.exportDatabaseToDocuments();
     }
     case "db:pickDatabaseFile": {
       if (!isAndroid) return { cancelled: true };
@@ -191,6 +180,9 @@ const handleCapacitorInvoke = async (
     }
     case "i18n:loadTranslations":
       return parseTranslationsFromCSVContent(translationsCsv);
+    case "app:getVersion":
+      const appInfo = await CapacitorApp.getInfo();
+      return appInfo.version;
     default:
       throw new Error(`Unsupported channel: ${channel}`);
   }
@@ -199,6 +191,13 @@ const handleCapacitorInvoke = async (
 export const platformBridge = {
   isElectron,
   isCapacitor,
+  isAndroid,
+  onBackButton(listener: BackButtonListener) {
+    if (!isCapacitor || !isAndroid) return undefined;
+    return CapacitorApp.addListener("backButton", (event) => {
+      listener(event);
+    });
+  },
   on(channel: string, listener: BridgeListener): void {
     if (electronIpc) {
       electronIpc.on(channel, listener);

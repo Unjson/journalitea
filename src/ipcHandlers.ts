@@ -6,11 +6,20 @@ import { parseTranslationsFromCSVFile } from "./services/i18n/csvParser.node.js"
 
 // Setup IPC handlers for database operations
 export const setupIpcHandlers = (): void => {
-  ipcMain.handle("db:listRecords", async () => {
+  ipcMain.handle("db:listRecords", async (event, year: number | null) => {
     try {
-      return db.listRecords();
+      return db.listRecords(year ?? null);
     } catch (error) {
       console.error("Error listing records:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("db:listRecordYears", async () => {
+    try {
+      return db.listRecordYears();
+    } catch (error) {
+      console.error("Error listing record years:", error);
       throw error;
     }
   });
@@ -134,6 +143,15 @@ export const setupIpcHandlers = (): void => {
       return translations;
     } catch (error) {
       console.error("Error loading translations:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("app:getVersion", async () => {
+    try {
+      return app.getVersion();
+    } catch (error) {
+      console.error("Error getting app version:", error);
       throw error;
     }
   });

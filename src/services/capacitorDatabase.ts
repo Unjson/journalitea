@@ -14,6 +14,8 @@ import {
   getRecordByIdSql,
   insertRecordSql,
   insertSettingSql,
+  listRecordYearsSql,
+  listRecordsByYearSql,
   listRecordsSql,
   selectSettingIdSql,
   selectSettingsValueSql,
@@ -153,10 +155,20 @@ class CapacitorDatabaseService {
     return record;
   }
 
-  async listRecords(): Promise<Record[]> {
+  async listRecords(year: number | null = null): Promise<Record[]> {
     await this.ensureReady();
-    const result = await this.db!.query(listRecordsSql);
+    const result = year
+      ? await this.db!.query(listRecordsByYearSql, [String(year)])
+      : await this.db!.query(listRecordsSql);
     return (result.values ?? []).map((row) => this.rowToRecord(row));
+  }
+
+  async listRecordYears(): Promise<number[]> {
+    await this.ensureReady();
+    const result = await this.db!.query(listRecordYearsSql);
+    return (result.values ?? [])
+      .map((row) => Number(row.year))
+      .filter((year) => Number.isFinite(year));
   }
 
   async getDatabaseUrl(): Promise<string> {
@@ -309,6 +321,33 @@ class CapacitorDatabaseService {
       directory: Directory.Documents,
     });
     return { path: uriResult.uri, data };
+  }
+
+  async exportDatabaseToDocuments(): Promise<{ path: string }> {
+    await this.ensureReady();
+    const sourceUrl = await this.getDatabaseUrl();
+    const fileName = `journalitea-export-${new Date().toISOString().replace(/[:.]/g, "-")}.db`;
+
+    try {
+      await Filesystem.copy({
+        from: sourceUrl,
+        to: fileName,
+        directory: Directory.Documents,
+      });
+    } catch (error) {
+      const file = await Filesystem.readFile({ path: sourceUrl });
+      await Filesystem.writeFile({
+        path: fileName,
+        data: file.data,
+        directory: Directory.Documents,
+      });
+    }
+
+    const uriResult = await Filesystem.getUri({
+      path: fileName,
+      directory: Directory.Documents,
+    });
+    return { path: uriResult.uri };
   }
 
   async importDatabaseFromJson(

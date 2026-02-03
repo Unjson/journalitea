@@ -16,6 +16,8 @@ import {
   getRecordByIdSql,
   insertRecordSql,
   insertSettingSql,
+  listRecordYearsSql,
+  listRecordsByYearSql,
   listRecordsSql,
   selectSettingIdSql,
   selectSettingsValueSql,
@@ -43,13 +45,25 @@ class DatabaseService {
     return this.db;
   }
 
-  listRecords(): Record[] {
+  listRecords(year: number | null = null): Record[] {
     if (!this.db) throw new Error("Database not initialized");
 
-    const stmt = this.db.prepare(listRecordsSql);
-    const rows = stmt.all();
+    const stmt = year
+      ? this.db.prepare(listRecordsByYearSql)
+      : this.db.prepare(listRecordsSql);
+    const rows = year ? stmt.all(String(year)) : stmt.all();
 
     return rows.map((row) => this.rowToRecord(row));
+  }
+
+  listRecordYears(): number[] {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const stmt = this.db.prepare(listRecordYearsSql);
+    const rows = stmt.all() as { year: number }[];
+    return rows
+      .map((row) => Number(row.year))
+      .filter((year) => Number.isFinite(year));
   }
 
   getRecordById(id: number): Record | null {
