@@ -14,6 +14,8 @@ import {
   getRecordByIdSql,
   insertRecordSql,
   insertSettingSql,
+  listRecordYearsSql,
+  listRecordsByYearSql,
   listRecordsSql,
   selectSettingIdSql,
   selectSettingsValueSql,
@@ -153,10 +155,20 @@ class CapacitorDatabaseService {
     return record;
   }
 
-  async listRecords(): Promise<Record[]> {
+  async listRecords(year: number | null = null): Promise<Record[]> {
     await this.ensureReady();
-    const result = await this.db!.query(listRecordsSql);
+    const result = year
+      ? await this.db!.query(listRecordsByYearSql, [String(year)])
+      : await this.db!.query(listRecordsSql);
     return (result.values ?? []).map((row) => this.rowToRecord(row));
+  }
+
+  async listRecordYears(): Promise<number[]> {
+    await this.ensureReady();
+    const result = await this.db!.query(listRecordYearsSql);
+    return (result.values ?? [])
+      .map((row) => Number(row.year))
+      .filter((year) => Number.isFinite(year));
   }
 
   async getDatabaseUrl(): Promise<string> {

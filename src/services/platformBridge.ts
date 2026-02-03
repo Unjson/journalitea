@@ -79,7 +79,9 @@ const handleCapacitorInvoke = async (
 ): InvokeResult => {
   switch (channel) {
     case "db:listRecords":
-      return capacitorDb.listRecords();
+      return capacitorDb.listRecords(args[0] ?? null);
+    case "db:listRecordYears":
+      return capacitorDb.listRecordYears();
     case "db:getRecordById":
       return capacitorDb.getRecordById(args[0]);
     case "db:saveRecord":

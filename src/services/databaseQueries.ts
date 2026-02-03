@@ -45,6 +45,12 @@ export const createSettingsTableSql = `
 
 export const listRecordsSql = "SELECT * FROM records ORDER BY date_added DESC";
 
+export const listRecordsByYearSql =
+  "SELECT * FROM records WHERE strftime('%Y', date_added) = ? ORDER BY date_added DESC";
+
+export const listRecordYearsSql =
+  "SELECT DISTINCT CAST(strftime('%Y', date_added) AS INTEGER) AS year FROM records WHERE date_added IS NOT NULL ORDER BY year DESC";
+
 export const getRecordByIdSql = "SELECT * FROM records WHERE id = ?";
 
 export const deleteRecordSql = "DELETE FROM records WHERE id = ?";
