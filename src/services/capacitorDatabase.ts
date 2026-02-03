@@ -323,6 +323,33 @@ class CapacitorDatabaseService {
     return { path: uriResult.uri, data };
   }
 
+  async exportDatabaseToDocuments(): Promise<{ path: string }> {
+    await this.ensureReady();
+    const sourceUrl = await this.getDatabaseUrl();
+    const fileName = `journalitea-export-${new Date().toISOString().replace(/[:.]/g, "-")}.db`;
+
+    try {
+      await Filesystem.copy({
+        from: sourceUrl,
+        to: fileName,
+        directory: Directory.Documents,
+      });
+    } catch (error) {
+      const file = await Filesystem.readFile({ path: sourceUrl });
+      await Filesystem.writeFile({
+        path: fileName,
+        data: file.data,
+        directory: Directory.Documents,
+      });
+    }
+
+    const uriResult = await Filesystem.getUri({
+      path: fileName,
+      directory: Directory.Documents,
+    });
+    return { path: uriResult.uri };
+  }
+
   async importDatabaseFromJson(
     jsonString: string,
     mode: "append" | "replace",

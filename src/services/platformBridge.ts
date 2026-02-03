@@ -100,22 +100,7 @@ const handleCapacitorInvoke = async (
       );
     case "db:exportDatabase": {
       if (!isAndroid) return { cancelled: true };
-      const pickResult = await FilePicker.pickFiles({
-        limit: 1,
-        types: [
-          "application/x-sqlite3",
-          "application/octet-stream",
-          "application/vnd.sqlite3",
-        ],
-      });
-      const target = pickResult.files?.[0]?.path ?? null;
-      if (!target) return { cancelled: true };
-
-      const sourceUrl = await capacitorDb.getDatabaseUrl();
-      await capacitorDb.closeConnection();
-      await copyFileWithPicker(sourceUrl, target, true);
-
-      return { success: true, path: target };
+      return capacitorDb.exportDatabaseToDocuments();
     }
     case "db:pickDatabaseFile": {
       if (!isAndroid) return { cancelled: true };

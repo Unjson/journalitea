@@ -16,6 +16,9 @@ const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
 const pendingImportData = ref<string | null>(null);
 const pendingImportName = ref<string | null>(null);
+const showExportDialog = ref(false);
+const exportDialogTitle = ref('');
+const exportDialogMessage = ref('');
 
 const onCurrencyChanged = async () => {
   try {
@@ -58,11 +61,29 @@ const onWeightUnitChanged = async () => {
 const onExportDatabase = async () => {
 	try {
 		const result = await platformBridge.invoke('db:exportDatabase');
-		if (result?.success) {
-			window.alert(t('settings.database_export_success'));
+		if (result?.cancelled) return;
+		if (result?.success || result?.path) {
+			exportDialogTitle.value = t('settings.database_export_success_title');
+			if(platformBridge.isCapacitor){
+				exportDialogMessage.value = t('settings.database_export_success_cap');
+			} else {
+				exportDialogMessage.value = t('settings.database_export_success') + ':\n' + (result.path ?? '');
+			}
+			showExportDialog.value = true;
+			return;
 		}
+
+		exportDialogTitle.value = t('settings.database_export_error_title');
+		exportDialogMessage.value = t('settings.database_export_error');
+		showExportDialog.value = true;
 	} catch (err) {
-	console.error('Error exporting database:', err);
+		exportDialogTitle.value = t('settings.database_export_error_title');
+		exportDialogMessage.value =
+			err instanceof Error 
+			? t('settings.database_export_error') + ': \n' + err.message 
+			: t('settings.database_export_error');
+		showExportDialog.value = true;
+		console.error('Error exporting database:', err);
 	}
 };
 
@@ -264,5 +285,13 @@ onMounted(async() => {
 		@confirm="replaceImport"
 		@secondary="appendImport"
 
+	/>
+
+	<ConfirmDialog
+		v-model="showExportDialog"
+		:title="exportDialogTitle"
+		:message="exportDialogMessage"
+		:confirm-text="t('settings.dialog_ok')"
+		:show-cancel="false"
 	/>
 </template>

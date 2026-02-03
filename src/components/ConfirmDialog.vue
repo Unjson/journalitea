@@ -8,9 +8,13 @@ const props = withDefaults(
 		cancelText?: string;
 		secondaryText?: string;
 		closeOnBackdrop?: boolean;
+		showCancel?: boolean;
+		showConfirm?: boolean;
 	}>(),
 	{
 		closeOnBackdrop: true,
+		showCancel: true,
+		showConfirm: true,
 	},
 );
 
@@ -42,6 +46,9 @@ const onBackdropClick = () => {
 	if (props.closeOnBackdrop === false) return;
 	onCancel();
 };
+
+const isSingleAction = () =>
+	props.showConfirm && !props.showCancel && !props.secondaryText;
 </script>
 
 <template>
@@ -57,6 +64,7 @@ const onBackdropClick = () => {
 				</p>
 				<div class="flex justify-end gap-3">
 					<button
+						v-if="showCancel"
 						class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
 						@click="onCancel"
 					>
@@ -70,7 +78,13 @@ const onBackdropClick = () => {
 						{{ secondaryText }}
 					</button>
 					<button
-						class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+						v-if="showConfirm"
+						:class="[
+							'px-4 py-2 rounded-lg text-white',
+							isSingleAction()
+								? 'dialog-button-neutral'
+								: 'dialog-button-danger',
+						]"
 						@click="onConfirm"
 					>
 						{{ confirmText ?? 'Delete' }}
@@ -80,3 +94,21 @@ const onBackdropClick = () => {
 		</div>
 	</teleport>
 </template>
+
+<style scoped>
+.dialog-button-danger {
+	background-color: #dc2626;
+}
+
+.dialog-button-danger:hover {
+	background-color: #b91c1c;
+}
+
+.dialog-button-neutral {
+	background-color: #1f2937;
+}
+
+.dialog-button-neutral:hover {
+	background-color: #374151;
+}
+</style>
