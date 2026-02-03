@@ -137,4 +137,13 @@ export const setupIpcHandlers = (): void => {
       throw error;
     }
   });
+
+  ipcMain.handle("app:getVersion", async () => {
+    try {
+      return app.getVersion();
+    } catch (error) {
+      console.error("Error getting app version:", error);
+      throw error;
+    }
+  });
 };

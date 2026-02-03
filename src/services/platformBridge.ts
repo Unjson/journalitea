@@ -193,6 +193,9 @@ const handleCapacitorInvoke = async (
     }
     case "i18n:loadTranslations":
       return parseTranslationsFromCSVContent(translationsCsv);
+    case "app:getVersion":
+      const appInfo = await CapacitorApp.getInfo();
+      return appInfo.version;
     default:
       throw new Error(`Unsupported channel: ${channel}`);
   }
