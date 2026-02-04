@@ -20,25 +20,26 @@ onMounted(async() => {
 </script>
 
 <template>
-	<h1 class="text-3xl font-bold">{{ t('about.title') }}</h1>
-	<div class="mt-4">
-		{{ t('about.body1') }} <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://www.gnu.org/licenses/gpl-3.0.en.html')">GNU GPL v3.0</a>.<br />
-		{{ t('about.body2') }}
-		<div class="mt-2 mb-2">
-		<a href="https://github.com/Unjson/journalitea" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://github.com/Unjson/journalitea')">GitHub</a>
+	<div class="h-4 mt-4">
+		<h1 class="text-3xl font-bold">{{ t('about.title') }}</h1>
+		<div class="mt-4">
+			{{ t('about.body1') }} <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://www.gnu.org/licenses/gpl-3.0.en.html')">GNU GPL v3.0</a>.<br />
+			{{ t('about.body2') }}
+			<div class="mt-2 mb-2">
+			<a href="https://github.com/Unjson/journalitea" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://github.com/Unjson/journalitea')">GitHub</a>
+			</div>
+			{{ t('about.body3') }} 
 		</div>
-		{{ t('about.body3') }} 
+
+		<div class="mt-4">
+			Code: <b>Jonas Hundertmark</b><br />
+			Design: <b>Roewna Strack</b>
+		</div>
+
+
+		
+		<div class="mt-4 justify-end-safe">
+			{{ t('about.versionNumber') }}: <b>{{ version }}</b>
+		</div>
 	</div>
-
-	<div class="mt-4">
-		Code: <b>Jonas Hundertmark</b><br />
-		Design: <b>Roewna Strack</b>
-	</div>
-
-
-	
-	<div class="mt-4 justify-end-safe">
-		{{ t('about.versionNumber') }}: <b>{{ version }}</b>
-	</div>
-
 </template>
