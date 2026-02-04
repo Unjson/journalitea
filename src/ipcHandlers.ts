@@ -1,4 +1,4 @@
-import { app, ipcMain } from "electron";
+import { app, ipcMain, shell } from "electron";
 import path from "node:path";
 import db from "./services/database.js";
 import { pickOpenFilePath, pickSaveFilePath } from "./services/fileDialog.js";
@@ -152,6 +152,19 @@ export const setupIpcHandlers = (): void => {
       return app.getVersion();
     } catch (error) {
       console.error("Error getting app version:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("app:openExternal", async (event, url: string) => {
+    try {
+      if (!/^https?:\/\//i.test(url ?? "")) {
+        throw new Error("Invalid URL");
+      }
+      await shell.openExternal(url);
+      return true;
+    } catch (error) {
+      console.error("Error opening external URL:", error);
       throw error;
     }
   });

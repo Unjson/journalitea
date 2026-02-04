@@ -171,3 +171,5 @@ timer.progress_label;Progress: {percent}%;Fortschritt: {percent}%
 timer.start_button;Start;Start
 timer.pause_button;Pause;Pause
 timer.reset_button;Reset;Zurücksetzen
+aboutPage.title;About Page;Über diese App
+aboutPage.versionNumber;Version number;Versionsnummer
