@@ -14,8 +14,7 @@ const openExternal = async (url: string) => {
 };
 
 onMounted(async() => {
-	const ver = await platformBridge.invoke('app:getVersion');
-	version.value = ver;
+	version.value = await platformBridge.invoke('app:getVersion');;
 });
 
 </script>
