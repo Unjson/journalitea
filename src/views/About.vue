@@ -21,26 +21,25 @@ onMounted(async() => {
 </script>
 
 <template>
-	<h1 class="text-3xl font-bold">{{ t('aboutPage.title') }}</h1>
+	<h1 class="text-3xl font-bold">{{ t('about.title') }}</h1>
 	<div class="mt-4">
-		Journalitea is free software, licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://www.gnu.org/licenses/gpl-3.0.en.html')">GNU GPL v3.0</a>. 
-		The complete source code can be found through the link below:
+		{{ t('about.body1') }} <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://www.gnu.org/licenses/gpl-3.0.en.html')">GNU GPL v3.0</a>.<br />
+		{{ t('about.body2') }}
 		<div class="mt-2 mb-2">
 		<a href="https://github.com/Unjson/journalitea" target="_blank" class="text-blue-600 hover:underline" @click.prevent="openExternal('https://github.com/Unjson/journalitea')">GitHub</a>
 		</div>
-		I made Journalitea because I wanted to build it, not because I am trying to make any money off of it. 
-		If you like the app, I encourage you to also build things you enjoy making and share them with the community.
+		{{ t('about.body3') }} 
 	</div>
 
 	<div class="mt-4">
 		Code: <b>Jonas Hundertmark</b><br />
-		Design & Art: <b>Roewna Strack</b>
+		Design: <b>Roewna Strack</b>
 	</div>
 
 
 	
 	<div class="mt-4 justify-end-safe">
-		{{ t('aboutPage.versionNumber') }}: <b>{{ version }}</b>
+		{{ t('about.versionNumber') }}: <b>{{ version }}</b>
 	</div>
 
 </template>

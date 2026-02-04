@@ -171,5 +171,8 @@ timer.progress_label;Progress: {percent}%;Fortschritt: {percent}%
 timer.start_button;Start;Start
 timer.pause_button;Pause;Pause
 timer.reset_button;Reset;Zurücksetzen
-aboutPage.title;About Page;Über diese App
-aboutPage.versionNumber;Version number;Versionsnummer
+about.title;About this App;Über diese App
+about.versionNumber;Version number;Versionsnummer
+about.body1;Journalitea is free software, licensed under the;Journalitea ist freie Software, lizenziert unter der
+about.body2;The complete source code can be found through the link below:;Der vollständige Quellcode ist über den untenstehenden Link verfügbar:
+about.body3;I made Journalitea because I wanted to build it, not because I am trying to make any money off of it. If you like the app, I encourage you to also build things you enjoy making and share them with the community.;Ich habe Journalitea gebaut weil ich wollte dass die App existiert, nicht um damit später Geld zu verdienen. Wenn du die App magst, ermutige ich dich ebenfalls Dinge zu bauen die dir gefallen, und sie mit deiner Community zu teilen.
