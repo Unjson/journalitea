@@ -2,11 +2,13 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
 import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
 import { platformBridge } from './services/platformBridge';
+import { stat } from 'node:fs';
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -22,6 +24,8 @@ onMounted(async() => {
 		const platform = Capacitor.getPlatform();
 		if (platform === 'android' || platform === 'ios') {
 			document.documentElement.classList.add('mobile-ui-scale');
+			await StatusBar.setStyle({ style: Style.Dark });
+			await StatusBar.setBackgroundColor({ color: '#ffffff' });
 		}
 		platformBridge.onBackButton?.(({ canGoBack }) => {
 			if (canGoBack) {
