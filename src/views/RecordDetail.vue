@@ -71,7 +71,7 @@ const deleteRecord = async () => {
 
   try {
     await platformBridge.invoke('db:deleteRecord', record.value.id);
-    router.replace('/');
+    router.push('/');
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to delete record';
     console.error('Error deleting record:', err);
@@ -200,7 +200,7 @@ onMounted(() => {
         </button>
       <span class="flex-1"></span>
 			<button 
-		      	@click="$router.replace('/')" 
+		      	@click="$router.push('/')" 
 		      	class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
 	    	>
         	← {{ t('detail.back_button') }}

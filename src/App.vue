@@ -34,19 +34,19 @@ onMounted(async() => {
 		});
 	}
 	platformBridge.on('goToRecordsList', () => {
-		router.replace('/');
+		router.push('/');
 	});
 	platformBridge.on('goToAbout', () => {
-    router.replace('/about');
+    router.push('/about');
 	});
 	platformBridge.on('goToSettings', () => {
-		router.replace('/settings');
+		router.push('/settings');
 	});
 	platformBridge.on('goToStats', () => {
-		router.replace('/stats');
+		router.push('/stats');
 	});
 	platformBridge.on('goToTimer', () => {
-		router.replace('/timer');
+		router.push('/timer');
 	});
 	
 	router.afterEach((to) => {
