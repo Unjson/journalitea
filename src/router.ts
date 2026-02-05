@@ -1,60 +1,60 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
-    name: 'records-list',
-    component: () => import('./views/RecordsList.vue'),
+    path: "/",
+    name: "records-list",
+    component: () => import("./views/RecordsList.vue"),
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('./views/About.vue'),
+    path: "/about",
+    name: "about",
+    component: () => import("./views/About.vue"),
   },
   {
-    path: '/record/:id',
-    name: 'record-detail',
-    component: () => import('./views/RecordDetail.vue'),
+    path: "/record/:id",
+    name: "record-detail",
+    component: () => import("./views/RecordDetail.vue"),
   },
   {
-    path: '/record/:id/edit',
-    name: 'record-edit',
-    component: () => import('./views/EditRecord.vue'),
+    path: "/record/:id/edit",
+    name: "record-edit",
+    component: () => import("./views/EditRecord.vue"),
   },
   {
-    path: '/record/new',
-    name: 'record-new',
-    component: () => import('./views/EditRecord.vue'),
+    path: "/record/new",
+    name: "record-new",
+    component: () => import("./views/EditRecord.vue"),
   },
   {
-    path: '/settings',
-    name: 'settings',
-    component: () => import('./views/Settings.vue'),
+    path: "/settings",
+    name: "settings",
+    component: () => import("./views/Settings.vue"),
   },
   {
-    path: '/stats',
-    name: 'stats',
-    component: () => import('./views/Stats.vue'),
+    path: "/stats",
+    name: "stats",
+    component: () => import("./views/Stats.vue"),
   },
   {
-    path: '/timer',
-    name: 'timer',
-    component: () => import('./views/Timer.vue'),
+    path: "/timer",
+    name: "timer",
+    component: () => import("./views/Timer.vue"),
   },
 ];
 
 const mainRouteNames = new Set([
-  'records-list',
-  'timer',
-  'stats',
-  'settings',
-  'about',
+  "records-list",
+  "timer",
+  "stats",
+  "settings",
+  "about",
 ]);
 
 const blockedBackRouteNames = new Set([
-  'record-detail',
-  'record-edit',
-  'record-new',
+  "record-detail",
+  "record-edit",
+  "record-new",
 ]);
 
 let lastHistoryPosition = window.history.state?.position ?? 0;
@@ -74,7 +74,7 @@ export const resetHistoryStack = () => {
       forward: null,
       position: 0,
     },
-    '',
+    "",
     window.location.href,
   );
   lastHistoryPosition = 0;
@@ -90,7 +90,7 @@ router.beforeEach((to, from, next) => {
   lastWasBackNavigation = currentPosition < lastHistoryPosition;
 
   if (lastWasBackNavigation && blockedBackRouteNames.has(String(to.name))) {
-    next({ name: 'records-list', replace: true });
+    next({ name: "records-list", replace: true });
     return;
   }
 
@@ -98,7 +98,10 @@ router.beforeEach((to, from, next) => {
 });
 
 router.afterEach((to) => {
-  if ((pendingMainReset || lastWasBackNavigation) && mainRouteNames.has(String(to.name))) {
+  if (
+    (pendingMainReset || lastWasBackNavigation) &&
+    mainRouteNames.has(String(to.name))
+  ) {
     resetHistoryStack();
     pendingMainReset = false;
     lastWasBackNavigation = false;
