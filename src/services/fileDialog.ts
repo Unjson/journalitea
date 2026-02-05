@@ -17,7 +17,7 @@ export const pickSaveFilePath = async (): Promise<string | null> => {
       title: "Export database",
       buttonLabel: "Export",
       filters: fileFilters,
-      defaultPath: "journalitea.db",
+      defaultPath: `journalitea-export-${new Date().toISOString().replace(/[:.]/g, "-")}.db`,
     });
     if (canceled || !filePath) return null;
     if (filePath.match(/\.(db|db3|sqlite|sqlite3)$/i)) return filePath;

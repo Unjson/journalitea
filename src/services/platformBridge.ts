@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
+import { Browser } from "@capacitor/browser";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { Filesystem, Encoding } from "@capacitor/filesystem";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
@@ -78,6 +79,14 @@ const handleCapacitorInvoke = async (
   ...args: any[]
 ): InvokeResult => {
   switch (channel) {
+    case "app:openExternal": {
+      const url = String(args[0] ?? "").trim();
+      if (!/^https?:\/\//i.test(url)) {
+        throw new Error("Invalid URL");
+      }
+      await Browser.open({ url });
+      return true;
+    }
     case "db:listRecords":
       return capacitorDb.listRecords(args[0] ?? null);
     case "db:listRecordYears":
@@ -192,6 +201,23 @@ export const platformBridge = {
   isElectron,
   isCapacitor,
   isAndroid,
+  openExternal(url: string): Promise<boolean> {
+    const safeUrl = String(url ?? "").trim();
+    if (!/^https?:\/\//i.test(safeUrl)) {
+      return Promise.reject(new Error("Invalid URL"));
+    }
+    if (electronIpc) {
+      return electronIpc.invoke("app:openExternal", safeUrl);
+    }
+    if (isCapacitor) {
+      return handleCapacitorInvoke("app:openExternal", safeUrl);
+    }
+    if (typeof window !== "undefined") {
+      window.open(safeUrl, "_blank", "noopener,noreferrer");
+      return Promise.resolve(true);
+    }
+    return Promise.reject(new Error("Unsupported platform"));
+  },
   onBackButton(listener: BackButtonListener) {
     if (!isCapacitor || !isAndroid) return undefined;
     return CapacitorApp.addListener("backButton", (event) => {
