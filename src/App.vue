@@ -8,7 +8,7 @@ import { Capacitor } from '@capacitor/core';
 import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
 import { platformBridge } from './services/platformBridge';
-import { stat } from 'node:fs';
+import { markResetOnNextMainNav, resetHistoryStack } from './router';
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -28,25 +28,63 @@ onMounted(async() => {
 			await StatusBar.setBackgroundColor({ color: '#ffffff' });
 		}
 		platformBridge.onBackButton?.(({ canGoBack }) => {
+			const routeName = String(router.currentRoute.value.name ?? '');
+			if (
+				routeName === 'record-detail'
+			) {
+				markResetOnNextMainNav();
+				router.replace('/');
+				return;
+			}
+			if (routeName === 'record-edit') {
+				const recordId = router.currentRoute.value.params.id;
+				if (recordId !== undefined) {
+					router.replace({ name: 'record-detail', params: { id: recordId } });
+					return;
+				}
+				markResetOnNextMainNav();
+				router.replace('/');
+				return;
+			}
+			if (routeName === 'record-new') {
+				markResetOnNextMainNav();
+				router.replace('/');
+				return;
+			}
+			if (
+				routeName === 'records-list' ||
+				routeName === 'timer' ||
+				routeName === 'stats' ||
+				routeName === 'settings' ||
+				routeName === 'about'
+			) {
+				resetHistoryStack();
+				return;
+			}
 			if (canGoBack) {
 				router.back();
 			}
 		});
 	}
 	platformBridge.on('goToRecordsList', () => {
-		router.push('/');
+		markResetOnNextMainNav();
+		router.replace('/');
 	});
 	platformBridge.on('goToAbout', () => {
-    router.push('/about');
+		markResetOnNextMainNav();
+	    router.replace('/about');
 	});
 	platformBridge.on('goToSettings', () => {
-		router.push('/settings');
+		markResetOnNextMainNav();
+		router.replace('/settings');
 	});
 	platformBridge.on('goToStats', () => {
-		router.push('/stats');
+		markResetOnNextMainNav();
+		router.replace('/stats');
 	});
 	platformBridge.on('goToTimer', () => {
-		router.push('/timer');
+		markResetOnNextMainNav();
+		router.replace('/timer');
 	});
 	
 	router.afterEach((to) => {
