@@ -66,26 +66,6 @@ onMounted(async() => {
 			}
 		});
 	}
-	platformBridge.on('goToRecordsList', () => {
-		markResetOnNextMainNav();
-		router.replace('/');
-	});
-	platformBridge.on('goToAbout', () => {
-		markResetOnNextMainNav();
-	    router.replace('/about');
-	});
-	platformBridge.on('goToSettings', () => {
-		markResetOnNextMainNav();
-		router.replace('/settings');
-	});
-	platformBridge.on('goToStats', () => {
-		markResetOnNextMainNav();
-		router.replace('/stats');
-	});
-	platformBridge.on('goToTimer', () => {
-		markResetOnNextMainNav();
-		router.replace('/timer');
-	});
 	
 	router.afterEach((to) => {
 		switch(to.name) {

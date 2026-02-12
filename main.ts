@@ -1,34 +1,34 @@
-import { app, BrowserWindow, Menu } from 'electron';
-import path from 'node:path';
-import db from './src/services/database.js';
-import { setupIpcHandlers } from './src/ipcHandlers.js';
+import { app, BrowserWindow, Menu } from "electron";
+import path from "node:path";
+import db from "./src/services/database.js";
+import { setupIpcHandlers } from "./src/ipcHandlers.js";
 
-const isDev = process.env.NODE_ENV === 'development';
-const VITE_DEV_SERVER_URL = 'http://localhost:5173';
+const isDev = process.env.NODE_ENV === "development";
+const VITE_DEV_SERVER_URL = "http://localhost:5173";
 
 let mainWindow: BrowserWindow | null = null;
 
 app.whenReady().then(() => {
   db.initialize();
   setupIpcHandlers();
+  Menu.setApplicationMenu(null);
   createWindow();
-  createMenu();
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
 });
 
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
   db.close();
-  if (process.platform !== 'darwin') {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('before-quit', () => {
+app.on("before-quit", () => {
   db.close();
 });
 
@@ -50,48 +50,6 @@ const createWindow = (): void => {
     mainWindow.webContents.openDevTools();
   } else {
     // Load from built files in production
-    mainWindow.loadFile(path.join(app.getAppPath(), 'dist', 'index.html'));
+    mainWindow.loadFile(path.join(app.getAppPath(), "dist", "index.html"));
   }
-};
-
-// Create application menu
-const createMenu = (): void => {
-  const menu = Menu.buildFromTemplate([
-    {
-      label: 'Menu',
-      submenu: [
-        {
-          label: 'Records List',
-          click() {
-            mainWindow?.webContents.send('goToRecordsList');
-          }
-        },
-        {
-          label: 'Stats for Nerds',
-          click() {
-            mainWindow?.webContents.send('goToStats');
-          }
-        },
-        {
-          label: 'Settings',
-          click() {
-            mainWindow?.webContents.send('goToSettings');
-          }
-        },
-        {
-          label: 'About',
-          click() {
-            mainWindow?.webContents.send('goToAbout');
-          }
-        },
-        {
-          label: 'Exit',
-          click() {
-            app.quit();
-          },
-        },
-      ],
-    },
-  ]);
-  Menu.setApplicationMenu(menu);
 };
