@@ -154,6 +154,7 @@ stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
 stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
 stats.no_data;No data;Keine Daten
 stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.average_rating_label;Average Rating;Durchschnittsbewertung
 stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung
 stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar
 stats.loading;Loading statistics...;Statistiken werden geladen...

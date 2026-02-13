@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import PieChart from '../components/charts/PieChart.vue';
 import BarChart from '../components/charts/BarChart.vue';
 import AromaStats from '../components/AromaStats.vue';
+import StarRating from '../components/StarRating.vue';
 import RecordYearFooter from '../components/RecordYearFooter.vue';
 import { Record as TeaRecord } from '../models/record';
 import { platformBridge } from '../services/platformBridge';
@@ -34,6 +35,25 @@ const ratingCounts = computed(() => {
 });
 
 const maxRatingCount = computed(() => Math.max(0, ...ratingCounts.value));
+
+const averageRating = computed(() => {
+	const validRatings = records.value
+		.map((record) => Number(record.rating))
+		.filter((rating) => !Number.isNaN(rating));
+
+	if (validRatings.length === 0) {
+		return 0;
+	}
+
+	const total = validRatings.reduce((sum, rating) => sum + rating, 0);
+	return total / validRatings.length;
+});
+
+const ratedRecordCount = computed(() => records.value
+	.map((record) => Number(record.rating))
+	.filter((rating) => !Number.isNaN(rating)).length);
+
+const averageRatingDisplay = computed(() => Number(averageRating.value.toFixed(2)));
 
 const getPricePerWeightForRecord = (record: TeaRecord) => {
 	return convertToPricePerDesiredUnit(
@@ -183,6 +203,15 @@ onActivated(loadStats);
 					:labelMap="teaTypeLabels"
 					:title="t('stats.tea_collection_by_type_title')"
 				/>
+			</div>
+
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.average_rating_label') }}</h2>
+				<div v-if="ratedRecordCount > 0" class="flex items-center gap-4">
+					<StarRating :model-value="averageRating" :max="5" :disabled="true" :aria-label="t('stats.average_rating_label')" />
+					<span class="text-lg font-medium">{{ averageRatingDisplay }} / 5</span>
+				</div>
+				<div v-else class="text-gray-500">{{ t('stats.rating_distribution_no_data') }}</div>
 			</div>
 
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
