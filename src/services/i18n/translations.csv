@@ -53,6 +53,7 @@ enum.type_oolong;Oolong;Oolong
 enum.type_white;White;Weiß
 enum.type_dark;Dark;Dunkel
 enum.type_yellow;Yellow;Gelb
+enum.type_puer;Pu'er;Pu'er
 enum.type_herbal;Herbal;Kräuter
 enum.type_other;Other;Andere
 enum.preparation_western;Western;Westlich

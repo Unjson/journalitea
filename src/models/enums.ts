@@ -15,7 +15,7 @@ export enum TeaType {
   WHITE = 3,
   DARK = 4,
   YELLOW = 5,
-  // 6 not used atm (used to be PURPLE)
+  PUER = 6,
   HERBAL = 7,
   OTHER = 8,
 }
@@ -165,6 +165,7 @@ export const teaTypeLabels = [
   { value: TeaType.WHITE, label: "enum.type_white" },
   { value: TeaType.DARK, label: "enum.type_dark" },
   { value: TeaType.YELLOW, label: "enum.type_yellow" },
+  { value: TeaType.PUER, label: "enum.type_puer" },
   { value: TeaType.HERBAL, label: "enum.type_herbal" },
   { value: TeaType.OTHER, label: "enum.type_other" },
 ];
