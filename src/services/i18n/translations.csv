@@ -147,6 +147,7 @@ stats.title;Stats for Nerds;Statistiken für Nerds
 stats.tab_summary;Summary;Übersicht
 stats.tab_histograms;Histograms;Histogramme
 stats.tab_aromas;Aromas;Aromen
+stats.tab_origins;Origins;Herkünfte
 stats.cumulative_title;Cumulative Statistics;Kumulative Statistiken
 stats.total_money_spent_label;Total Money Spent:;Insgesamt ausgegeben:
 stats.total_weight_label;Total Weight of Tea:;Gesamtmenge Tee:
@@ -165,6 +166,8 @@ stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
 stats.no_price_data;No price data available;Keine Preisdaten verfügbar
 stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
 stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte
+stats.origins_title;Tea Origins;Tee-Herkünfte
+stats.origins_no_data;No origins available;Keine Herkünfte verfügbar
 timer.title;Tea Timer;Teetimer
 timer.presets_title;Steeping presets;Ziehzeiten
 timer.preset_western;Western style;Westlicher Stil

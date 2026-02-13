@@ -18,7 +18,7 @@ const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const exchangeRates = ref<Record<CurrencyType, number> | null >(null);
 const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
-const activeTab = ref<'summary' | 'histograms' | 'aromas'>('summary');
+const activeTab = ref<'summary' | 'histograms' | 'aromas' | 'origins'>('summary');
 const years = ref<number[]>([]);
 const selectedYear = ref<number | null>(null);
 
@@ -54,6 +54,30 @@ const ratedRecordCount = computed(() => records.value
 	.filter((rating) => !Number.isNaN(rating)).length);
 
 const averageRatingDisplay = computed(() => Number(averageRating.value.toFixed(2)));
+
+const origins = computed(() => {
+	const counts = new Map<string, number>();
+
+	for (const record of records.value) {
+		const parts = (record.origin ?? '')
+			.split(',')
+			.map((origin) => origin.trim())
+			.filter((origin) => origin.length > 0);
+
+		for (const origin of parts) {
+			counts.set(origin, (counts.get(origin) ?? 0) + 1);
+		}
+	}
+
+	return Array.from(counts.entries())
+		.sort((a, b) => {
+			if (b[1] !== a[1]) {
+				return b[1] - a[1];
+			}
+			return a[0].localeCompare(b[0]);
+		})
+		.map(([origin, count]) => ({ origin, count }));
+});
 
 const getPricePerWeightForRecord = (record: TeaRecord) => {
 	return convertToPricePerDesiredUnit(
@@ -144,6 +168,13 @@ onActivated(loadStats);
 					@click="activeTab = 'aromas'"
 				>
 					{{ t('stats.tab_aromas') }}
+				</button>
+				<button
+					class="px-4 py-2 rounded-lg border"
+					:class="activeTab === 'origins' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
+					@click="activeTab = 'origins'"
+				>
+					{{ t('stats.tab_origins') }}
 				</button>
 			</div>
 
@@ -262,11 +293,21 @@ onActivated(loadStats);
 				/>
 			</div>
 
-			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div v-else-if="activeTab === 'aromas'" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<AromaStats
 					:records="records"
 					:labelMap="teaTypeLabels"
 				/>
+			</div>
+
+			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.origins_title') }}</h2>
+				<ol v-if="origins.length > 0" class="list-decimal list-inside space-y-1">
+					<li v-for="entry in origins" :key="entry.origin">
+						{{ entry.origin }} ({{ entry.count }})
+					</li>
+				</ol>
+				<div v-else class="text-gray-500">{{ t('stats.origins_no_data') }}</div>
 			</div>
 		</div>
 
