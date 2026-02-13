@@ -258,7 +258,7 @@ onActivated(loadStats);
 					:preferredCurrency="preferredCurrency"
 					:preferredWeightUnit="preferredWeightUnit"
 					:exchangeRates="exchangeRates"
-					:bins="20"
+					:bins="17"
 				/>
 			</div>
 

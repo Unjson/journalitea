@@ -68,6 +68,36 @@ const buildHistogram = (values: number[]) => {
 
 const totalPriceHistogram = computed(() => buildHistogram(totalPriceValues.value));
 const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.value));
+
+const formatBinLabel = (start: number, end: number, decimals: number) => `${start.toFixed(decimals)}–${end.toFixed(decimals)}`;
+
+const getVisibleLabelIndexes = (binCount: number) => {
+	const visible = new Set<number>();
+	for (let index = 0; index < binCount; index += 2) {
+		visible.add(index);
+	}
+	return visible;
+};
+
+const totalPriceBinLabels = computed(() =>
+	totalPriceHistogram.value.bins.map((bin) => ({
+		min: bin.start.toFixed(2),
+		max: bin.end.toFixed(2),
+		full: formatBinLabel(bin.start, bin.end, 2),
+	}))
+);
+
+const totalPriceVisibleLabelIndexes = computed(() => getVisibleLabelIndexes(totalPriceBinLabels.value.length));
+
+const pricePerUnitBinLabels = computed(() =>
+	pricePerUnitHistogram.value.bins.map((bin) => ({
+		min: bin.start.toFixed(4),
+		max: bin.end.toFixed(4),
+		full: formatBinLabel(bin.start, bin.end, 4),
+	}))
+);
+
+const pricePerUnitVisibleLabelIndexes = computed(() => getVisibleLabelIndexes(pricePerUnitBinLabels.value.length));
 </script>
 
 <template>
@@ -84,9 +114,30 @@ const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.v
 							:height="(bin.count / (totalPriceHistogram.maxCount || 1)) * 200"
 							fill="#3b82f6"
 							opacity="0.8"
-						/>
+						>
+							<title>{{ formatBinLabel(bin.start, bin.end, 2) }} ({{ bin.count }})</title>
+						</rect>
 					</g>
 				</svg>
+				<div class="mt-2 overflow-x-auto">
+					<div
+						class="grid gap-0 text-[10px] text-gray-500"
+						:style="{ minWidth: '600px', gridTemplateColumns: `repeat(${totalPriceBinLabels.length}, minmax(0, 1fr))` }"
+					>
+						<span
+							v-for="(label, index) in totalPriceBinLabels"
+							:key="`total-x-${index}`"
+							class="text-center leading-tight"
+							:title="totalPriceVisibleLabelIndexes.has(index) ? label.full : ''"
+						>
+							<template v-if="totalPriceVisibleLabelIndexes.has(index)">
+								<span class="block">{{ label.min }}</span>
+								<span class="block">-</span>
+								<span class="block">{{ label.max }}</span>
+							</template>
+						</span>
+					</div>
+				</div>
 				<div class="text-xs text-gray-500 mt-2">
 					Range: {{ totalPriceHistogram.min.toFixed(2) }} - {{ totalPriceHistogram.max.toFixed(2) }}
 				</div>
@@ -106,9 +157,30 @@ const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.v
 							:height="(bin.count / (pricePerUnitHistogram.maxCount || 1)) * 200"
 							fill="#10b981"
 							opacity="0.8"
-						/>
+						>
+							<title>{{ formatBinLabel(bin.start, bin.end, 4) }} ({{ bin.count }})</title>
+						</rect>
 					</g>
 				</svg>
+				<div class="mt-2 overflow-x-auto">
+					<div
+						class="grid gap-0 text-[10px] text-gray-500"
+						:style="{ minWidth: '600px', gridTemplateColumns: `repeat(${pricePerUnitBinLabels.length}, minmax(0, 1fr))` }"
+					>
+						<span
+							v-for="(label, index) in pricePerUnitBinLabels"
+							:key="`ppu-x-${index}`"
+							class="text-center leading-tight"
+							:title="pricePerUnitVisibleLabelIndexes.has(index) ? label.full : ''"
+						>
+							<template v-if="pricePerUnitVisibleLabelIndexes.has(index)">
+								<span class="block">{{ label.min }}</span>
+								<span class="block">-</span>
+								<span class="block">{{ label.max }}</span>
+							</template>
+						</span>
+					</div>
+				</div>
 				<div class="text-xs text-gray-500 mt-2">
 					Range: {{ pricePerUnitHistogram.min.toFixed(4) }} - {{ pricePerUnitHistogram.max.toFixed(4) }}
 				</div>

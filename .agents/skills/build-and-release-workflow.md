@@ -18,11 +18,12 @@ description: Use for npm scripts, Electron packaging, Android Gradle workflow, a
 ## Project Patterns
 - Desktop build: `npm run build` then Electron packaging commands
 - Android run: `npx cap run android` (with Gradle build under `android/`)
-- Package patching via `patch-package` on postinstall
+- Package patching via `patch-package` on postinstall (mostly used for Capacitor packages)
 
 ## Implementation Guidance
 - Keep script changes explicit and reproducible.
-- For versioning, keep Android `versionName` aligned with root `package.json` version.
+- For versioning, keep Android `versionName` aligned with root `package.json` version. 
+	- This should be handled by a script already
 - Validate Gradle/electron commands after changing build-related files.
 
 ## Pitfalls
