@@ -417,6 +417,8 @@ const pricePerUnitSummary = computed(() => {
 							class="cursor-pointer"
 							fill="#3b82f6"
 							opacity="0.8"
+							role="button"
+							:aria-label="`${formatBucketRange(bin.start, bin.end, formatWholePriceValue)}. ${formatCountLabel(bin.count)}`"
 							tabindex="0"
 							@pointerenter="handlePointerEnter('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
 							@pointermove="handlePointerMove('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
