@@ -284,7 +284,6 @@ onMounted(async() => {
 						max="50"
 						step="1"
 						:aria-label="t('settings.histogram_buckets_title')"
-						@input="onHistogramBucketsChanged"
 						@change="onHistogramBucketsChanged"
 					/>
 					<div class="mt-1 flex justify-between text-xs text-gray-500">

@@ -44,7 +44,7 @@ const maxRatingCount = computed(() => Math.max(0, ...ratingCounts.value));
 const averageRating = computed(() => {
 	const validRatings = records.value
 		.map((record) => Number(record.rating))
-		.filter((rating) => !Number.isNaN(rating));
+		.filter((rating) => !Number.isNaN(rating) && rating > 0);
 
 	if (validRatings.length === 0) {
 		return 0;
@@ -56,7 +56,7 @@ const averageRating = computed(() => {
 
 const ratedRecordCount = computed(() => records.value
 	.map((record) => Number(record.rating))
-	.filter((rating) => !Number.isNaN(rating)).length);
+	.filter((rating) => !Number.isNaN(rating) && rating > 0).length);
 
 const averageRatingDisplay = computed(() => Number(averageRating.value.toFixed(2)));
 
@@ -378,7 +378,7 @@ onActivated(loadStats);
 						>
 							{{ showAllSpecificOrigins ? t('stats.origin_details_show_less') : t('stats.origin_details_show_more') }}
 						</button>
-						<div v-else class="text-gray-500">{{ t('stats.origin_details_no_data') }}</div>
+						<div v-if="specificOrigins.length === 0" class="text-gray-500">{{ t('stats.origin_details_no_data') }}</div>
 					</section>
 				</div>
 			</div>

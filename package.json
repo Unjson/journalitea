@@ -4,6 +4,9 @@
   "version": "0.2.3",
   "type": "module",
   "main": "dist-electron/main.js",
+  "engines": {
+    "node": ">=20"
+  },
   "author": {
     "name": "Jonas Hundertmark",
     "email": "hundertmark@medialesson.de"

@@ -330,7 +330,7 @@ class DatabaseService {
     }
 
     try {
-      fs.chmodSync(dbPath, 0o666);
+      fs.chmodSync(dbPath, 0o600);
     } catch (error) {
       console.warn(`Failed to ensure database is writable: ${dbPath}`, error);
     }
