@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onActivated, computed } from 'vue';
 import { CurrencyType, WeightUnit, teaTypeLabels, weightUnitLabels, currencyLabels, currencySymbols, weightUnitSymbols } from '../models/enums';
-import { PREFS } from '../appSettings.js';
+import { PREFS, DEFAULT_PREFS } from '../appSettings.js';
 import { getCumulativeStats, formatPriceString, convertToPricePerDesiredUnit} from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import PieChart from '../components/charts/PieChart.vue';
@@ -25,6 +25,7 @@ const activeTab = ref<'summary' | 'histograms' | 'aromas' | 'origins'>('summary'
 const showAllSpecificOrigins = ref(false);
 const years = ref<number[]>([]);
 const selectedYear = ref<number | null>(null);
+const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
 
 const ratingCounts = computed(() => {
 	const counts = Array.from({ length: 6 }, () => 0);
@@ -139,6 +140,10 @@ const loadStats = async () => {
 	const weightUnit = await platformBridge.invoke('db:getSetting', PREFS.WEIGHT_UNIT);
 	if (weightUnit.intVal != -1) {
 		preferredWeightUnit.value = weightUnit.intVal;
+	}
+	const histogramBucketSetting = await platformBridge.invoke('db:getSetting', PREFS.HISTOGRAM_BUCKETS);
+	if (histogramBucketSetting.intVal != -1) {
+		histogramBuckets.value = Math.min(50, Math.max(5, histogramBucketSetting.intVal));
 	}
 	exchangeRates.value = await platformBridge
 		.invoke('db:getSetting', PREFS.EXCHANGE_RATES)
@@ -327,7 +332,7 @@ onActivated(loadStats);
 					:preferredCurrency="preferredCurrency"
 					:preferredWeightUnit="preferredWeightUnit"
 					:exchangeRates="exchangeRates"
-					:bins="17"
+					:bins="histogramBuckets"
 				/>
 			</div>
 

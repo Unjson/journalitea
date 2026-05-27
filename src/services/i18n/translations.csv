@@ -89,6 +89,8 @@ enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets
+settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl fuer die Statistik-Histogramme anpassen
 settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
 settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
 settings.database_title;Database;Datenbank
@@ -169,6 +171,9 @@ stats.loading;Loading statistics...;Statistiken werden geladen...
 stats.histogram_total_price;Total Prices;Gesamtpreise
 stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm
 stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
+stats.average_value;Average;Durchschnitt
+stats.median_value;Median;Median
+stats.count_value;Count;Anzahl
 stats.no_price_data;No price data available;Keine Preisdaten verfügbar
 stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
 stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte

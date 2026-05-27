@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { Language, CurrencyType, WeightUnit, languageLabels, currencyLabels, weightUnitLabels, getLocaleFromLanguage, setCustomCurrency } from '../models/enums';
 import { lookUpExchangeRates } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
-import { PREFS } from '../appSettings.js';
+import { PREFS, DEFAULT_PREFS } from '../appSettings.js';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { platformBridge } from '../services/platformBridge';
@@ -11,6 +11,7 @@ const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
+const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
 const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate: 1.0 });
 const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
@@ -56,6 +57,15 @@ const onWeightUnitChanged = async () => {
   } catch (err) {
 	console.error('Error saving preferred weight unit:', err);
   }
+};
+
+const onHistogramBucketsChanged = async () => {
+	histogramBuckets.value = Math.min(50, Math.max(5, Math.round(histogramBuckets.value)));
+	try {
+	await platformBridge.invoke('db:setSetting', PREFS.HISTOGRAM_BUCKETS, histogramBuckets.value);
+	} catch (err) {
+	console.error('Error saving histogram bucket setting:', err);
+	}
 };
 
 const onExportDatabase = async () => {
@@ -163,6 +173,10 @@ onMounted(async() => {
 	if(weightUnit.intVal != -1){
 		preferredWeightUnit.value = weightUnit.intVal;
 	}
+	const histogramBucketSetting = await platformBridge.invoke('db:getSetting', PREFS.HISTOGRAM_BUCKETS);
+	if(histogramBucketSetting.intVal != -1){
+		histogramBuckets.value = Math.min(50, Math.max(5, histogramBucketSetting.intVal));
+	}
 	const customCurrencySetting = await platformBridge.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
 	if(customCurrencySetting.strVal){
 		try{
@@ -253,6 +267,36 @@ onMounted(async() => {
 				:aria-label="t('settings.weightunit_title')"
 				@update:model-value="onWeightUnitChanged"
 			/>
+		</div>
+
+		<div class="mb-6">
+			<label class="block text-gray-700 font-bold mb-2" for="histogramBuckets">
+				{{ t('settings.histogram_buckets_title') }}
+			</label>
+			<div class="flex items-start gap-4">
+				<div class="flex-1">
+					<input
+						id="histogramBuckets"
+						v-model.number="histogramBuckets"
+						class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
+						type="range"
+						min="5"
+						max="50"
+						step="1"
+						:aria-label="t('settings.histogram_buckets_title')"
+						@input="onHistogramBucketsChanged"
+						@change="onHistogramBucketsChanged"
+					/>
+					<div class="mt-1 flex justify-between text-xs text-gray-500">
+						<span>5</span>
+						<span>50</span>
+					</div>
+					<div class="mt-1 text-center text-xs text-gray-500">
+						{{ t('settings.histogram_buckets_hint') }}
+					</div>
+				</div>
+				<span class="w-12 shrink-0 text-right font-medium text-gray-700">{{ histogramBuckets }}</span>
+			</div>
 		</div>
 
 		<div class="mt-6">

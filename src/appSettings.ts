@@ -9,11 +9,13 @@ export const PREFS = {
   WEIGHT_UNIT: "weight_unit",
   EXCHANGE_RATES: "exchange_rates",
   CUSTOM_CURRENCY: "custom_currency",
+  HISTOGRAM_BUCKETS: "histogram_buckets",
 };
 export const DEFAULT_PREFS = {
   CURRENCY: 0, //USD
   LANGUAGE: 0, //ENGLISH
   WEIGHT_UNIT: 0, //METRIC_GRAM
+  HISTOGRAM_BUCKETS: 17,
   CUSTOM_CURRENCY: {
     symbol: "",
     rate: 1.0,
