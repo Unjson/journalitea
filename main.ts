@@ -44,7 +44,7 @@ const createWindow = (): void => {
   });
 
   if (isDev) {
-    // Load from Vite dev server with HMR supportnpm run dev
+    // Load from the Vite dev server with HMR support
     mainWindow.loadURL(VITE_DEV_SERVER_URL);
     // Open DevTools in development mode
     mainWindow.webContents.openDevTools();
