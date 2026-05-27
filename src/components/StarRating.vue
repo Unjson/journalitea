@@ -20,6 +20,11 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: number): void }>();
 
 const stars = computed(() => Array.from({ length: props.max }, (_, i) => i + 1));
 
+const getFillPercentage = (value: number) => {
+  const fill = Math.max(0, Math.min(1, props.modelValue - (value - 1)));
+  return `${Math.round(fill * 100)}%`;
+};
+
 const setRating = (value: number) => {
   if (props.disabled) return;
   emit('update:modelValue', value === props.modelValue ? 0 : value);
@@ -33,13 +38,15 @@ const setRating = (value: number) => {
       :key="value"
       type="button"
       class="star-button"
-      :class="{ active: value <= modelValue }"
       :aria-checked="value === modelValue"
       role="radio"
       :disabled="disabled"
       @click="setRating(value)"
     >
-      <span aria-hidden="true">★</span>
+      <span class="star" aria-hidden="true">
+        <span class="star-base">★</span>
+        <span class="star-fill" :style="{ width: getFillPercentage(value) }">★</span>
+      </span>
     </button>
   </div>
 </template>
@@ -63,8 +70,24 @@ const setRating = (value: number) => {
   cursor: pointer;
 }
 
-.star-button.active {
+.star {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+
+.star-base {
+  color: #d1d5db;
+}
+
+.star-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  overflow: hidden;
   color: #f59e0b;
+  white-space: nowrap;
 }
 
 .star-button:disabled {

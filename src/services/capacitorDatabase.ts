@@ -91,6 +91,11 @@ class CapacitorDatabaseService {
       },
       { key: PREFS.LANGUAGE, intVal: DEFAULT_PREFS.LANGUAGE, strVal: null },
       {
+        key: PREFS.HISTOGRAM_BUCKETS,
+        intVal: DEFAULT_PREFS.HISTOGRAM_BUCKETS,
+        strVal: null,
+      },
+      {
         key: PREFS.CUSTOM_CURRENCY,
         intVal: null,
         strVal: JSON.stringify(DEFAULT_PREFS.CUSTOM_CURRENCY),
@@ -375,7 +380,8 @@ class CapacitorDatabaseService {
     }
 
     const result = await this.sqlite?.importFromJson(json);
-    if (!result?.changes || result.changes.changes < 0) {
+    const importChangeCount = result?.changes?.changes ?? -1;
+    if (importChangeCount < 0) {
       throw new Error("Import failed.");
     }
   }

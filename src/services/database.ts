@@ -31,11 +31,13 @@ class DatabaseService {
 
   initialize(dbName: string = DATABASE_NAME): Database.Database {
     if (this.db) return this.db;
-    fs.mkdirSync(path.join(app.getPath("userData"), APP_USER_FOLDER), {
+    const dbDirectory = path.join(app.getPath("userData"), APP_USER_FOLDER);
+    fs.mkdirSync(dbDirectory, {
       recursive: true,
     });
 
-    const dbPath = path.join(app.getPath("userData"), APP_USER_FOLDER, dbName);
+    const dbPath = path.join(dbDirectory, dbName);
+    this.ensureWritableDatabasePath(dbPath);
     this.db = new Database(dbPath);
     console.log(`Database initialized: ${dbPath}`);
 
@@ -263,6 +265,11 @@ class DatabaseService {
       },
       { key: PREFS.LANGUAGE, intVal: DEFAULT_PREFS.LANGUAGE, strVal: null },
       {
+        key: PREFS.HISTOGRAM_BUCKETS,
+        intVal: DEFAULT_PREFS.HISTOGRAM_BUCKETS,
+        strVal: null,
+      },
+      {
         key: PREFS.CUSTOM_CURRENCY,
         intVal: null,
         strVal: JSON.stringify(DEFAULT_PREFS.CUSTOM_CURRENCY),
@@ -313,7 +320,20 @@ class DatabaseService {
     if (!dbPath) throw new Error("Database path not available");
     this.close();
     fs.copyFileSync(sourcePath, dbPath);
+    this.ensureWritableDatabasePath(dbPath);
     this.initialize();
+  }
+
+  private ensureWritableDatabasePath(dbPath: string): void {
+    if (!fs.existsSync(dbPath)) {
+      return;
+    }
+
+    try {
+      fs.chmodSync(dbPath, 0o600);
+    } catch (error) {
+      console.warn(`Failed to ensure database is writable: ${dbPath}`, error);
+    }
   }
 
   appendDatabaseRecords(sourcePath: string): void {

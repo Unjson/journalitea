@@ -111,7 +111,7 @@ const saveRecord = async () => {
 const cancel = () => {
   if (!isDirty.value) {
     if (isNewRecord.value) {
-      router.replace({ name: 'records-list' });
+      router.push({ name: 'records-list' });
     } else {
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
@@ -134,7 +134,7 @@ const confirmCancel = () => {
   }
 
   if (isNewRecord.value) {
-    router.replace({ name: 'records-list' });
+    router.push({ name: 'records-list' });
   } else {
     router.push({ name: 'record-detail', params: { id: record.value.id } });
   }

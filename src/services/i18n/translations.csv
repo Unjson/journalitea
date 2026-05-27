@@ -17,9 +17,11 @@ create.title;Create new Record;Neuen Eintrag erstellen
 list.title;My Tea Records;Meine Tee-Einträge
 list.create_button;Create;Erstellen
 list.loading;Loading records...;Lade Einträge...
-list.no_records;No records found. Click the "Create" button to add your first tea
+list.no_records;No records found. Click the "Create" button to add your first tea;Keine Einträge gefunden. Klicke auf die Schaltfläche "Erstellen", um deinen ersten Tee hinzuzufügen
+list.search_placeholder;Search teas;Tees suchen
 list.filter_year_label;Filter by date;Nach Datum filtern
 list.filter_year_all;All years;Alle Jahre
+list.scroll_to_top;Scroll to top;Nach oben scrollen
 edit.title;Edit Record;Eintrag bearbeiten
 edit.name_label;Name;Name
 edit.type_label;Type;Typ
@@ -53,6 +55,7 @@ enum.type_oolong;Oolong;Oolong
 enum.type_white;White;Weiß
 enum.type_dark;Dark;Dunkel
 enum.type_yellow;Yellow;Gelb
+enum.type_puer;Pu'er;Pu'er
 enum.type_herbal;Herbal;Kräuter
 enum.type_other;Other;Andere
 enum.preparation_western;Western;Westlich
@@ -86,6 +89,8 @@ enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets
+settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl für die Statistik-Histogramme anpassen
 settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
 settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
 settings.database_title;Database;Datenbank
@@ -109,6 +114,8 @@ detail.error_prefix;Error:;Fehler:
 detail.details_title;Details;Details
 detail.type_label;Type:;Typ:
 detail.subtype_label;Subtype:;Untertyp:
+detail.origin_country_label;Country:;Land:
+detail.origin_detail_label;Origin:;Herkunft:
 detail.origin_label;Origin:;Herkunft:
 detail.year_label;Year:;Jahr:
 detail.seller_label;Seller:;Verkäufer:
@@ -137,6 +144,8 @@ detail.delete_confirm_confirm;Delete;Löschen
 detail.delete_confirm_cancel;Cancel;Abbrechen
 record.type_label;Type:;Typ:
 record.subtype_label;Subtype:;Untertyp:
+record.origin_country_label;Country:;Land:
+record.origin_detail_label;Origin:;Herkunft:
 record.origin_label;Origin:;Herkunft:
 record.year_label;Year:;Jahr:
 record.seller_label;Seller:;Verkäufer:
@@ -146,6 +155,7 @@ stats.title;Stats for Nerds;Statistiken für Nerds
 stats.tab_summary;Summary;Übersicht
 stats.tab_histograms;Histograms;Histogramme
 stats.tab_aromas;Aromas;Aromen
+stats.tab_origins;Origins;Herkünfte
 stats.cumulative_title;Cumulative Statistics;Kumulative Statistiken
 stats.total_money_spent_label;Total Money Spent:;Insgesamt ausgegeben:
 stats.total_weight_label;Total Weight of Tea:;Gesamtmenge Tee:
@@ -154,15 +164,27 @@ stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
 stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
 stats.no_data;No data;Keine Daten
 stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.average_rating_label;Average Rating;Durchschnittsbewertung
 stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung
 stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar
 stats.loading;Loading statistics...;Statistiken werden geladen...
 stats.histogram_total_price;Total Prices;Gesamtpreise
 stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm
 stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
+stats.average_value;Average;Durchschnitt
+stats.median_value;Median;Median
+stats.count_value;Count;Anzahl
 stats.no_price_data;No price data available;Keine Preisdaten verfügbar
 stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
 stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte
+stats.origins_title;Tea Origins;Tee-Herkünfte
+stats.origin_countries_title;Most Common Origin Countries;Häufigste Herkunftsländer
+stats.origin_countries_no_data;No origin countries available;Keine Herkunftsländer verfügbar
+stats.origin_details_title;Specific Origins;Spezifische Herkünfte
+stats.origin_details_no_data;No specific origins available;Keine spezifischen Herkünfte verfügbar
+stats.origin_details_show_more;Show more origins;Mehr Herkünfte anzeigen
+stats.origin_details_show_less;Show fewer origins;Weniger Herkünfte anzeigen
+stats.origins_no_data;No origins available;Keine Herkünfte verfügbar
 timer.title;Tea Timer;Teetimer
 timer.presets_title;Steeping presets;Ziehzeiten
 timer.preset_western;Western style;Westlicher Stil

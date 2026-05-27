@@ -6,6 +6,7 @@ interface Props {
   selectedYear: number | null;
   label: string;
   allLabel: string;
+  disabled?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -41,6 +42,7 @@ const centerSelected = async () => {
 };
 
 const onSelect = (year: number | null) => {
+  if (props.disabled) return;
   emit('select', year);
 };
 
@@ -59,12 +61,13 @@ watch(
 
 <template>
   <footer class="sticky bottom-0 bg-white/90 backdrop-blur border-t pt-4 pb-3">
-    <div class="text-sm font-medium text-gray-600 mb-2 text-center">
+    <div class="text-sm font-medium text-gray-600 mb-2 text-center" :class="props.disabled ? 'opacity-60' : ''">
       {{ label }}
     </div>
     <div
       ref="scrollerRef"
       class="year-footer-scroll flex gap-2 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory"
+      :class="props.disabled ? 'opacity-50' : ''"
     >
       <div class="shrink-0 w-[50vw]" aria-hidden="true"></div>
       <button
@@ -75,6 +78,7 @@ watch(
             ? 'bg-blue-500 text-white border-blue-500'
             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
         "
+        :disabled="props.disabled"
         @click="onSelect(null)"
       >
         {{ allLabel }}
@@ -89,6 +93,7 @@ watch(
             ? 'bg-blue-500 text-white border-blue-500'
             : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
         "
+        :disabled="props.disabled"
         @click="onSelect(year)"
       >
         {{ year }}
