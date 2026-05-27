@@ -31,11 +31,13 @@ class DatabaseService {
 
   initialize(dbName: string = DATABASE_NAME): Database.Database {
     if (this.db) return this.db;
-    fs.mkdirSync(path.join(app.getPath("userData"), APP_USER_FOLDER), {
+    const dbDirectory = path.join(app.getPath("userData"), APP_USER_FOLDER);
+    fs.mkdirSync(dbDirectory, {
       recursive: true,
     });
 
-    const dbPath = path.join(app.getPath("userData"), APP_USER_FOLDER, dbName);
+    const dbPath = path.join(dbDirectory, dbName);
+    this.ensureWritableDatabasePath(dbPath);
     this.db = new Database(dbPath);
     console.log(`Database initialized: ${dbPath}`);
 
@@ -313,7 +315,20 @@ class DatabaseService {
     if (!dbPath) throw new Error("Database path not available");
     this.close();
     fs.copyFileSync(sourcePath, dbPath);
+    this.ensureWritableDatabasePath(dbPath);
     this.initialize();
+  }
+
+  private ensureWritableDatabasePath(dbPath: string): void {
+    if (!fs.existsSync(dbPath)) {
+      return;
+    }
+
+    try {
+      fs.chmodSync(dbPath, 0o666);
+    } catch (error) {
+      console.warn(`Failed to ensure database is writable: ${dbPath}`, error);
+    }
   }
 
   appendDatabaseRecords(sourcePath: string): void {

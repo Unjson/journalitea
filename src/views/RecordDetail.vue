@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Record } from '../models/record';
+import { Record, getRecordOriginCountry, getRecordSpecificOrigin } from '../models/record';
 import { getColorForRating } from '../models/colors';
 import RadarPlot from '../components/charts/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
@@ -25,6 +25,8 @@ const preparationMethod = ref<string | null>(null);
 const showDeleteConfirm = ref(false);
 const aromaOpen = ref(false);
 const aromaPlotVersion = ref(0);
+const originCountry = computed(() => record.value ? getRecordOriginCountry(record.value) : '');
+const specificOrigin = computed(() => record.value ? getRecordSpecificOrigin(record.value) : '');
 
 const aromaDataPoints = computed(() => {
   if (!record.value) return [];
@@ -110,7 +112,8 @@ onMounted(() => {
         <div class="grid grid-cols-2 gap-4">
           <div><span class="font-medium text-gray-700">{{ t('detail.type_label') }}</span> {{ teaType }}</div>
           <div v-if="record.subtype"><span class="font-medium text-gray-700">{{ t('detail.subtype_label') }}</span> {{ record.subtype }}</div>
-          <div v-if="record.origin"><span class="font-medium text-gray-700">{{ t('detail.origin_label') }}</span> {{ record.origin }}</div>
+          <div v-if="originCountry"><span class="font-medium text-gray-700">{{ t('detail.origin_country_label') }}</span> {{ originCountry }}</div>
+          <div v-if="specificOrigin"><span class="font-medium text-gray-700">{{ t('detail.origin_detail_label') }}</span> {{ specificOrigin }}</div>
           <div v-if="record.year"><span class="font-medium text-gray-700">{{ t('detail.year_label') }}</span> {{ record.year }}</div>
           <div v-if="record.seller"><span class="font-medium text-gray-700">{{ t('detail.seller_label') }}</span> {{ record.seller }}</div>
           <div><span class="font-medium text-gray-700">{{ t('detail.date_added_label') }}</span> {{ new Date(record.dateAdded).toLocaleDateString() }}</div>

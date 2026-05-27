@@ -375,7 +375,8 @@ class CapacitorDatabaseService {
     }
 
     const result = await this.sqlite?.importFromJson(json);
-    if (!result?.changes || result.changes.changes < 0) {
+    const importChangeCount = result?.changes?.changes ?? -1;
+    if (importChangeCount < 0) {
       throw new Error("Import failed.");
     }
   }

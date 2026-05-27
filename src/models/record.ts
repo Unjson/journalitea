@@ -1,5 +1,61 @@
 import { TeaType, PreparationMethod, CurrencyType, WeightUnit, currencySymbols } from './enums.js';
 
+type OriginSource = {
+	origin?: string | null;
+	originCountry?: string | null;
+};
+
+const normalizeOriginValue = (value: string | null | undefined): string => String(value ?? '').trim();
+
+const isSameOriginValue = (left: string, right: string): boolean =>
+	left.trim().toLocaleLowerCase() === right.trim().toLocaleLowerCase();
+
+const splitOriginParts = (value: string | null | undefined): string[] =>
+	normalizeOriginValue(value)
+		.split(',')
+		.map((part) => part.trim())
+		.filter((part) => part.length > 0);
+
+const getNormalizedOrigin = (record: OriginSource): string => {
+	const originParts = splitOriginParts(record.origin);
+	const legacyCountry = normalizeOriginValue(record.originCountry);
+
+	if (originParts.length === 0) {
+		return legacyCountry;
+	}
+
+	if (legacyCountry.length === 0) {
+		return originParts.join(', ');
+	}
+
+	const lastOriginPart = originParts[originParts.length - 1];
+	if (isSameOriginValue(lastOriginPart, legacyCountry)) {
+		return originParts.join(', ');
+	}
+
+	return [...originParts, legacyCountry].join(', ');
+};
+
+export const getRecordOriginCountry = (record: OriginSource): string => {
+	const parts = splitOriginParts(getNormalizedOrigin(record));
+	if (parts.length > 0) {
+		return parts[parts.length - 1];
+	}
+
+	return '';
+};
+
+export const getRecordSpecificOrigin = (record: OriginSource): string => {
+	const parts = splitOriginParts(getNormalizedOrigin(record));
+	if (parts.length > 1) {
+		return parts.slice(0, -1).join(', ');
+	}
+
+	return '';
+};
+
+export const getRecordOriginSummary = (record: OriginSource): string => getNormalizedOrigin(record);
+
 export class Record {
 	//Data Block
 	id: number;

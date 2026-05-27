@@ -21,6 +21,7 @@ list.no_records;No records found. Click the "Create" button to add your first te
 list.search_placeholder;Search teas;Tees suchen
 list.filter_year_label;Filter by date;Nach Datum filtern
 list.filter_year_all;All years;Alle Jahre
+list.scroll_to_top;Scroll to top;Nach oben scrollen
 edit.title;Edit Record;Eintrag bearbeiten
 edit.name_label;Name;Name
 edit.type_label;Type;Typ
@@ -111,6 +112,8 @@ detail.error_prefix;Error:;Fehler:
 detail.details_title;Details;Details
 detail.type_label;Type:;Typ:
 detail.subtype_label;Subtype:;Untertyp:
+detail.origin_country_label;Country:;Land:
+detail.origin_detail_label;Origin:;Herkunft:
 detail.origin_label;Origin:;Herkunft:
 detail.year_label;Year:;Jahr:
 detail.seller_label;Seller:;Verkäufer:
@@ -139,6 +142,8 @@ detail.delete_confirm_confirm;Delete;Löschen
 detail.delete_confirm_cancel;Cancel;Abbrechen
 record.type_label;Type:;Typ:
 record.subtype_label;Subtype:;Untertyp:
+record.origin_country_label;Country:;Land:
+record.origin_detail_label;Origin:;Herkunft:
 record.origin_label;Origin:;Herkunft:
 record.year_label;Year:;Jahr:
 record.seller_label;Seller:;Verkäufer:
@@ -168,6 +173,12 @@ stats.no_price_data;No price data available;Keine Preisdaten verfügbar
 stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
 stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte
 stats.origins_title;Tea Origins;Tee-Herkünfte
+stats.origin_countries_title;Most Common Origin Countries;Häufigste Herkunftsländer
+stats.origin_countries_no_data;No origin countries available;Keine Herkunftsländer verfügbar
+stats.origin_details_title;Specific Origins;Spezifische Herkünfte
+stats.origin_details_no_data;No specific origins available;Keine spezifischen Herkünfte verfügbar
+stats.origin_details_show_more;Show more origins;Mehr Herkünfte anzeigen
+stats.origin_details_show_less;Show fewer origins;Weniger Herkünfte anzeigen
 stats.origins_no_data;No origins available;Keine Herkünfte verfügbar
 timer.title;Tea Timer;Teetimer
 timer.presets_title;Steeping presets;Ziehzeiten

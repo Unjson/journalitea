@@ -9,16 +9,20 @@ import BarChart from '../components/charts/BarChart.vue';
 import AromaStats from '../components/AromaStats.vue';
 import StarRating from '../components/StarRating.vue';
 import RecordYearFooter from '../components/RecordYearFooter.vue';
-import { Record as TeaRecord } from '../models/record';
+import { Record as TeaRecord, getRecordOriginCountry, getRecordSpecificOrigin } from '../models/record';
 import { platformBridge } from '../services/platformBridge';
 const { t } = useI18n();
 
+const EMPTY_EXCHANGE_RATES = {} as Record<CurrencyType, number>;
+const SPECIFIC_ORIGIN_COLLAPSED_LIMIT = 10;
+
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
-const exchangeRates = ref<Record<CurrencyType, number> | null >(null);
+const exchangeRates = ref<Record<CurrencyType, number>>(EMPTY_EXCHANGE_RATES);
 const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
 const activeTab = ref<'summary' | 'histograms' | 'aromas' | 'origins'>('summary');
+const showAllSpecificOrigins = ref(false);
 const years = ref<number[]>([]);
 const selectedYear = ref<number | null>(null);
 
@@ -55,16 +59,38 @@ const ratedRecordCount = computed(() => records.value
 
 const averageRatingDisplay = computed(() => Number(averageRating.value.toFixed(2)));
 
-const origins = computed(() => {
+const originCountries = computed(() => {
 	const counts = new Map<string, number>();
 
 	for (const record of records.value) {
-		const parts = (record.origin ?? '')
+		const country = getRecordOriginCountry(record);
+		if (country.length > 0) {
+			counts.set(country, (counts.get(country) ?? 0) + 1);
+		}
+	}
+
+	return Array.from(counts.entries())
+		.sort((a, b) => {
+			if (b[1] !== a[1]) {
+				return b[1] - a[1];
+			}
+			return a[0].localeCompare(b[0]);
+		})
+		.map(([country, count]) => ({ country, count }));
+});
+
+const maxOriginCountryCount = computed(() => Math.max(0, ...originCountries.value.map((entry) => entry.count)));
+
+const specificOrigins = computed(() => {
+	const counts = new Map<string, number>();
+
+	for (const record of records.value) {
+		const originParts = getRecordSpecificOrigin(record)
 			.split(',')
 			.map((origin) => origin.trim())
 			.filter((origin) => origin.length > 0);
 
-		for (const origin of parts) {
+		for (const origin of originParts) {
 			counts.set(origin, (counts.get(origin) ?? 0) + 1);
 		}
 	}
@@ -77,6 +103,18 @@ const origins = computed(() => {
 			return a[0].localeCompare(b[0]);
 		})
 		.map(([origin, count]) => ({ origin, count }));
+});
+
+const hasHiddenSpecificOrigins = computed(
+	() => specificOrigins.value.length > SPECIFIC_ORIGIN_COLLAPSED_LIMIT,
+);
+
+const visibleSpecificOrigins = computed(() => {
+	if (showAllSpecificOrigins.value) {
+		return specificOrigins.value;
+	}
+
+	return specificOrigins.value.slice(0, SPECIFIC_ORIGIN_COLLAPSED_LIMIT);
 });
 
 const getPricePerWeightForRecord = (record: TeaRecord) => {
@@ -104,7 +142,7 @@ const loadStats = async () => {
 	}
 	exchangeRates.value = await platformBridge
 		.invoke('db:getSetting', PREFS.EXCHANGE_RATES)
-		.then((res: any) => (res.strVal ? JSON.parse(res.strVal) : {}));
+		.then((res: any) => (res.strVal ? JSON.parse(res.strVal) : EMPTY_EXCHANGE_RATES) as Record<CurrencyType, number>);
 	records.value = await platformBridge.invoke('db:listRecords', selectedYear.value);
 	cumulativeStats.value = getCumulativeStats(
 		records.value,
@@ -302,12 +340,42 @@ onActivated(loadStats);
 
 			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.origins_title') }}</h2>
-				<ol v-if="origins.length > 0" class="list-decimal list-inside space-y-1">
-					<li v-for="entry in origins" :key="entry.origin">
-						{{ entry.origin }} ({{ entry.count }})
-					</li>
-				</ol>
-				<div v-else class="text-gray-500">{{ t('stats.origins_no_data') }}</div>
+				<div class="space-y-8">
+					<section>
+						<h3 class="text-xl font-semibold mb-4">{{ t('stats.origin_countries_title') }}</h3>
+						<div v-if="originCountries.length > 0" class="space-y-3">
+							<div v-for="entry in originCountries" :key="entry.country" class="flex items-center gap-3">
+								<div class="w-32 shrink-0 text-sm font-medium text-gray-700">{{ entry.country }}</div>
+								<div class="h-4 flex-1 overflow-hidden rounded-full bg-gray-200">
+									<div
+										class="h-full rounded-full bg-blue-500"
+										:style="{ width: `${(entry.count / (maxOriginCountryCount || 1)) * 100}%` }"
+									></div>
+								</div>
+								<div class="w-10 shrink-0 text-right text-sm text-gray-600">{{ entry.count }}</div>
+							</div>
+						</div>
+						<div v-else class="text-gray-500">{{ t('stats.origin_countries_no_data') }}</div>
+					</section>
+
+					<section>
+						<h3 class="text-xl font-semibold mb-4">{{ t('stats.origin_details_title') }}</h3>
+						<ol v-if="specificOrigins.length > 0" class="list-decimal list-inside space-y-1">
+							<li v-for="entry in visibleSpecificOrigins" :key="entry.origin">
+								{{ entry.origin }} ({{ entry.count }})
+							</li>
+						</ol>
+						<button
+							v-if="hasHiddenSpecificOrigins"
+							type="button"
+							class="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+							@click="showAllSpecificOrigins = !showAllSpecificOrigins"
+						>
+							{{ showAllSpecificOrigins ? t('stats.origin_details_show_less') : t('stats.origin_details_show_more') }}
+						</button>
+						<div v-else class="text-gray-500">{{ t('stats.origin_details_no_data') }}</div>
+					</section>
+				</div>
 			</div>
 		</div>
 
