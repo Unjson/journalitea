@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -19,6 +19,89 @@ const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 };
 
+const canNavigateBack = () => {
+	const historyState = window.history.state ?? {};
+	return historyState.back != null || (historyState.position ?? 0) > 0;
+};
+
+const handleBackNavigation = (canGoBack: boolean) => {
+	const routeName = String(router.currentRoute.value.name ?? '');
+	if (
+		routeName === 'record-detail'
+	) {
+		markResetOnNextMainNav();
+		router.replace('/');
+		return;
+	}
+	if (routeName === 'record-edit') {
+		const recordId = router.currentRoute.value.params.id;
+		if (recordId !== undefined) {
+			router.replace({ name: 'record-detail', params: { id: recordId } });
+			return;
+		}
+		markResetOnNextMainNav();
+		router.replace('/');
+		return;
+	}
+	if (routeName === 'record-new') {
+		markResetOnNextMainNav();
+		router.replace('/');
+		return;
+	}
+	if (
+		(routeName === 'timer' ||
+			routeName === 'stats' ||
+			routeName === 'settings' ||
+			routeName === 'about') &&
+		!canGoBack
+	) {
+		markResetOnNextMainNav();
+		router.replace('/');
+		return;
+	}
+	if (canGoBack) {
+		router.back();
+		return;
+	}
+	if (
+		routeName === 'records-list'
+	) {
+		resetHistoryStack();
+		return;
+	}
+};
+
+const isEditableTarget = (target: EventTarget | null) => {
+	if (!(target instanceof HTMLElement)) {
+		return false;
+	}
+	return (
+		target.isContentEditable ||
+		target.closest('[contenteditable="true"]') !== null ||
+		target instanceof HTMLInputElement ||
+		target instanceof HTMLTextAreaElement ||
+		target instanceof HTMLSelectElement
+	);
+};
+
+const handleDesktopBackspace = (event: KeyboardEvent) => {
+	if (
+		!platformBridge.isElectron ||
+		event.key !== 'Backspace' ||
+		event.repeat ||
+		event.defaultPrevented ||
+		event.altKey ||
+		event.ctrlKey ||
+		event.metaKey ||
+		isEditableTarget(event.target)
+	) {
+		return;
+	}
+
+	event.preventDefault();
+	handleBackNavigation(canNavigateBack());
+};
+
 onMounted(async() => {
 	if (platformBridge.isCapacitor) {
 		const platform = Capacitor.getPlatform();
@@ -28,43 +111,12 @@ onMounted(async() => {
 			await StatusBar.setBackgroundColor({ color: '#ffffff' });
 		}
 		platformBridge.onBackButton?.(({ canGoBack }) => {
-			const routeName = String(router.currentRoute.value.name ?? '');
-			if (
-				routeName === 'record-detail'
-			) {
-				markResetOnNextMainNav();
-				router.replace('/');
-				return;
-			}
-			if (routeName === 'record-edit') {
-				const recordId = router.currentRoute.value.params.id;
-				if (recordId !== undefined) {
-					router.replace({ name: 'record-detail', params: { id: recordId } });
-					return;
-				}
-				markResetOnNextMainNav();
-				router.replace('/');
-				return;
-			}
-			if (routeName === 'record-new') {
-				markResetOnNextMainNav();
-				router.replace('/');
-				return;
-			}
-			if (
-				routeName === 'records-list' ||
-				routeName === 'timer' ||
-				routeName === 'stats' ||
-				routeName === 'settings' ||
-				routeName === 'about'
-			) {
-				resetHistoryStack();
-				return;
-			}
-			if (canGoBack) {
-				router.back();
-			}
+			handleBackNavigation(canGoBack);
 		});
+	}
+
+	if (platformBridge.isElectron) {
+		window.addEventListener('keydown', handleDesktopBackspace);
 	}
 	
 	router.afterEach((to) => {
@@ -102,6 +154,12 @@ onMounted(async() => {
 	if(language.intVal != -1){
 		const newLocale = getLocaleFromLanguage(language.intVal);
 		locale.value = newLocale;
+	}
+});
+
+onBeforeUnmount(() => {
+	if (platformBridge.isElectron) {
+		window.removeEventListener('keydown', handleDesktopBackspace);
 	}
 });
 </script>

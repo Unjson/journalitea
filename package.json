@@ -11,7 +11,7 @@
   "scripts": {
     "compile:electron": "tsc --project tsconfig.node.json",
     "watch:electron": "tsc --project tsconfig.node.json --watch",
-    "dev": "concurrently \"npm run watch:electron\" \"wait-on dist-electron/main.js && NODE_ENV=development vite\" \"wait-on dist-electron/main.js && wait-on http://localhost:5173 && NODE_ENV=development nodemon --watch dist-electron --exec electron .\"",
+    "dev": "concurrently \"npm run watch:electron\" \"wait-on dist-electron/main.js && cross-env NODE_ENV=development vite\" \"wait-on dist-electron/main.js && wait-on http://localhost:5173 && cross-env NODE_ENV=development nodemon --watch dist-electron --exec electron .\"",
     "build": "npm run compile:electron && vite build && node scripts/copyAssets.mjs",
     "start": "npm run build && electron .",
     "app:dir": "npm run build && electron-builder --dir",
@@ -43,6 +43,7 @@
     "@types/node": "^25.0.6",
     "@vitejs/plugin-vue": "latest",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "electron": "latest",
     "electron-builder": "^26.4.0",
     "electron-rebuild": "^3.2.9",

@@ -18,6 +18,7 @@ list.title;My Tea Records;Meine Tee-Einträge
 list.create_button;Create;Erstellen
 list.loading;Loading records...;Lade Einträge...
 list.no_records;No records found. Click the "Create" button to add your first tea
+list.search_placeholder;Search teas;Tees suchen
 list.filter_year_label;Filter by date;Nach Datum filtern
 list.filter_year_all;All years;Alle Jahre
 edit.title;Edit Record;Eintrag bearbeiten
