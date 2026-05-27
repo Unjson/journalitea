@@ -153,8 +153,6 @@ const buildHistogram = (values: number[], roundToWholeUnits = false): HistogramD
 const totalPriceHistogram = computed(() => buildHistogram(totalPriceValues.value, true));
 const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.value));
 
-const formatBinLabel = (start: number, end: number, decimals: number) => `${start.toFixed(decimals)}–${end.toFixed(decimals)}`;
-
 const getValueSummary = (values: number[]): ValueSummary | null => {
 	if (values.length === 0) {
 		return null;
