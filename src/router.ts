@@ -61,6 +61,24 @@ let lastHistoryPosition = window.history.state?.position ?? 0;
 let lastWasBackNavigation = false;
 let pendingMainReset = false;
 
+const normalizeHistoryLocation = (location: unknown) => {
+  const rawLocation = String(location ?? "");
+  if (rawLocation.length === 0) {
+    return "";
+  }
+
+  if (rawLocation.includes("#")) {
+    return rawLocation.slice(rawLocation.indexOf("#") + 1);
+  }
+
+  try {
+    const parsedLocation = new URL(rawLocation, window.location.origin);
+    return `${parsedLocation.pathname}${parsedLocation.search}${parsedLocation.hash}`;
+  } catch {
+    return rawLocation;
+  }
+};
+
 export const markResetOnNextMainNav = () => {
   pendingMainReset = true;
 };
@@ -87,7 +105,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const currentPosition = window.history.state?.position ?? lastHistoryPosition;
-  lastWasBackNavigation = currentPosition < lastHistoryPosition;
+  const currentForward = normalizeHistoryLocation(
+    window.history.state?.forward,
+  );
+  lastWasBackNavigation =
+    currentPosition < lastHistoryPosition || currentForward === from.fullPath;
 
   if (lastWasBackNavigation && blockedBackRouteNames.has(String(to.name))) {
     next({ name: "records-list", replace: true });
