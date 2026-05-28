@@ -68,25 +68,28 @@ export const buildRecordPageQuery = (
   const offset = Math.max(0, Math.floor(query.offset));
   const params: Array<string | number> = [];
   const whereClauses: string[] = [];
+  const searchTerms = normalizedSearch.split(/\s+/).filter(Boolean);
 
-  if (normalizedSearch.length > 0) {
-    const searchTerm = `%${escapeLikePattern(normalizedSearch)}%`;
-    whereClauses.push(`(
-      LOWER(COALESCE(name, '')) LIKE ? ESCAPE '\\'
-      OR LOWER(COALESCE(sub_type, '')) LIKE ? ESCAPE '\\'
-      OR LOWER(COALESCE(seller, '')) LIKE ? ESCAPE '\\'
-      OR LOWER(COALESCE(origin, '')) LIKE ? ESCAPE '\\'
-      OR LOWER(COALESCE(notes, '')) LIKE ? ESCAPE '\\'
-      OR LOWER(COALESCE(CAST(year AS TEXT), '')) LIKE ? ESCAPE '\\'
-    )`);
-    params.push(
-      searchTerm,
-      searchTerm,
-      searchTerm,
-      searchTerm,
-      searchTerm,
-      searchTerm,
-    );
+  if (searchTerms.length > 0) {
+    for (const term of searchTerms) {
+      const searchTerm = `%${escapeLikePattern(term)}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(name, '')) LIKE ? ESCAPE '\\'
+        OR LOWER(COALESCE(sub_type, '')) LIKE ? ESCAPE '\\'
+        OR LOWER(COALESCE(seller, '')) LIKE ? ESCAPE '\\'
+        OR LOWER(COALESCE(origin, '')) LIKE ? ESCAPE '\\'
+        OR LOWER(COALESCE(notes, '')) LIKE ? ESCAPE '\\'
+        OR LOWER(COALESCE(CAST(year AS TEXT), '')) LIKE ? ESCAPE '\\'
+      )`);
+      params.push(
+        searchTerm,
+        searchTerm,
+        searchTerm,
+        searchTerm,
+        searchTerm,
+        searchTerm,
+      );
+    }
   } else if (query.year !== null && query.year !== undefined) {
     whereClauses.push("strftime('%Y', date_added) = ?");
     params.push(String(query.year));

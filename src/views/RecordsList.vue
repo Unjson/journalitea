@@ -20,6 +20,7 @@ const scrollToTopButtonOffset = ref('96px');
 
 const RECORDS_PAGE_SIZE = 50;
 const SCROLL_TO_TOP_THRESHOLD = 320;
+const SEARCH_DEBOUNCE_MS = 250;
 let scrollTarget: Window | HTMLElement = window;
 let latestLoadRequestId = 0;
 
@@ -75,16 +76,13 @@ const loadRecords = async ({ reset = false } = {}) => {
     error.value = err instanceof Error ? err.message : 'Failed to load records';
     console.error('Error loading records:', err);
   } finally {
-    if (requestId !== latestLoadRequestId) {
-      return;
+    if (requestId === latestLoadRequestId) {
+      if (reset) {
+        loading.value = false;
+      } else {
+        loadingMore.value = false;
+      }
     }
-
-    if (reset) {
-      loading.value = false;
-      return;
-    }
-
-    loadingMore.value = false;
   }
 };
 
@@ -151,7 +149,13 @@ onMounted(async () => {
 });
 
 watch(normalizedSearchQuery, () => {
-  void resetAndLoadRecords();
+  const debounceTimeout = window.setTimeout(() => {
+    void resetAndLoadRecords();
+  }, SEARCH_DEBOUNCE_MS);
+
+  return () => {
+    window.clearTimeout(debounceTimeout);
+  };
 });
 
 onActivated(() => {
