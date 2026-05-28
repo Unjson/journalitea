@@ -148,14 +148,14 @@ onMounted(async () => {
   updateScrollToTopVisibility();
 });
 
-watch(normalizedSearchQuery, () => {
+watch(normalizedSearchQuery, (_, __, onCleanup) => {
   const debounceTimeout = window.setTimeout(() => {
     void resetAndLoadRecords();
   }, SEARCH_DEBOUNCE_MS);
 
-  return () => {
+  onCleanup(() => {
     window.clearTimeout(debounceTimeout);
-  };
+  });
 });
 
 onActivated(() => {
