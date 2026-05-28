@@ -10,6 +10,7 @@ import {
   DEFAULT_PREFS,
 } from "../appSettings.js";
 import {
+  buildRecordPageQuery,
   createRecordsTableSql,
   createSettingsTableSql,
   deleteRecordSql,
@@ -19,6 +20,7 @@ import {
   listRecordYearsSql,
   listRecordsByYearSql,
   listRecordsSql,
+  type RecordPageQuery,
   selectSettingIdSql,
   selectSettingsValueSql,
   settingsValueExistsSql,
@@ -54,6 +56,16 @@ class DatabaseService {
       ? this.db.prepare(listRecordsByYearSql)
       : this.db.prepare(listRecordsSql);
     const rows = year ? stmt.all(String(year)) : stmt.all();
+
+    return rows.map((row) => this.rowToRecord(row));
+  }
+
+  listRecordsPage(query: RecordPageQuery): Record[] {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const { sql, params } = buildRecordPageQuery(query);
+    const stmt = this.db.prepare(sql);
+    const rows = stmt.all(...params);
 
     return rows.map((row) => this.rowToRecord(row));
   }

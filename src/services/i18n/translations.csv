@@ -22,6 +22,9 @@ list.search_placeholder;Search teas;Tees suchen
 list.filter_year_label;Filter by date;Nach Datum filtern
 list.filter_year_all;All years;Alle Jahre
 list.scroll_to_top;Scroll to top;Nach oben scrollen
+list.load_more;Load more tea;Mehr Tee laden
+list.loading_more;Loading more tea...;Lade mehr Tee...
+list.end_of_list;no more tea :(;kein Tee mehr :(
 edit.title;Edit Record;Eintrag bearbeiten
 edit.name_label;Name;Name
 edit.type_label;Type;Typ

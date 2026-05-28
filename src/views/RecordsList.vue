@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed, ref, onActivated, onMounted, onUnmounted } from 'vue';
-import { Record, getRecordOriginCountry, getRecordSpecificOrigin } from '../models/record';
+import { computed, ref, onActivated, onMounted, onUnmounted, watch } from 'vue';
+import { Record } from '../models/record';
 import RecordCard from '../components/RecordCard.vue';
 import RecordYearFooter from '../components/RecordYearFooter.vue';
 import { useI18n } from 'vue-i18n';
@@ -8,7 +8,9 @@ import { platformBridge } from '../services/platformBridge';
 const { t } = useI18n();
 const records = ref<Record[]>([]);
 const loading = ref(true);
+const loadingMore = ref(false);
 const error = ref<string | null>(null);
+const hasMoreRecords = ref(false);
 const years = ref<number[]>([]);
 const selectedYear = ref<number | null>(null);
 const searchQuery = ref('');
@@ -16,56 +18,82 @@ const showScrollToTop = ref(false);
 const rootRef = ref<HTMLElement | null>(null);
 const scrollToTopButtonOffset = ref('96px');
 
+const RECORDS_PAGE_SIZE = 50;
 const SCROLL_TO_TOP_THRESHOLD = 320;
 let scrollTarget: Window | HTMLElement = window;
+let latestLoadRequestId = 0;
 
 const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLocaleLowerCase());
 const hasActiveSearch = computed(() => normalizedSearchQuery.value.length > 0);
 
-const filteredRecords = computed(() => {
-  const query = normalizedSearchQuery.value;
-
-  return records.value.filter((record) => {
-    if (!query && selectedYear.value !== null) {
-      const recordYear = new Date(record.dateAdded).getFullYear();
-      if (recordYear !== selectedYear.value) {
-        return false;
-      }
-    }
-
-    if (!query) {
-      return true;
-    }
-
-    const searchableContent = [
-      record.name,
-      record.subtype,
-      record.seller,
-      getRecordOriginCountry(record),
-      getRecordSpecificOrigin(record),
-      record.notes,
-      String(record.year ?? ''),
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLocaleLowerCase();
-
-    return searchableContent.includes(query);
-  });
+const buildRecordPageQuery = (offset: number) => ({
+  year: hasActiveSearch.value ? null : selectedYear.value,
+  search: normalizedSearchQuery.value || null,
+  limit: RECORDS_PAGE_SIZE + 1,
+  offset,
 });
 
-const loadRecords = async () => {
-  loading.value = true;
+const loadRecords = async ({ reset = false } = {}) => {
+  const requestId = ++latestLoadRequestId;
+
+  if (reset) {
+    loading.value = true;
+    loadingMore.value = false;
+    hasMoreRecords.value = false;
+    records.value = [];
+  } else {
+    if (loading.value || loadingMore.value || !hasMoreRecords.value) {
+      return;
+    }
+    loadingMore.value = true;
+  }
+
   error.value = null;
-  
+
   try {
-    records.value = await platformBridge.invoke('db:listRecords', null);
+    const page = (await platformBridge.invoke(
+      'db:listRecordsPage',
+      buildRecordPageQuery(reset ? 0 : records.value.length),
+    )) as Record[];
+
+    if (requestId !== latestLoadRequestId) {
+      return;
+    }
+
+    hasMoreRecords.value = page.length > RECORDS_PAGE_SIZE;
+    const nextRecords = hasMoreRecords.value ? page.slice(0, RECORDS_PAGE_SIZE) : page;
+    records.value = reset ? nextRecords : records.value.concat(nextRecords);
   } catch (err) {
+    if (requestId !== latestLoadRequestId) {
+      return;
+    }
+
+    if (reset) {
+      hasMoreRecords.value = false;
+      records.value = [];
+    }
     error.value = err instanceof Error ? err.message : 'Failed to load records';
     console.error('Error loading records:', err);
   } finally {
-    loading.value = false;
+    if (requestId !== latestLoadRequestId) {
+      return;
+    }
+
+    if (reset) {
+      loading.value = false;
+      return;
+    }
+
+    loadingMore.value = false;
   }
+};
+
+const resetAndLoadRecords = async () => {
+  await loadRecords({ reset: true });
+};
+
+const loadMoreRecords = async () => {
+  await loadRecords();
 };
 
 const loadYears = async () => {
@@ -85,11 +113,13 @@ const loadYears = async () => {
 const selectYear = async (year: number | null) => {
   if (selectedYear.value === year) return;
   selectedYear.value = year;
+  await resetAndLoadRecords();
 };
 
-const createRecord = async () =>{
-
-}
+const refreshRecordsList = async () => {
+  await loadYears();
+  await resetAndLoadRecords();
+};
 
 const updateScrollToTopVisibility = () => {
   const scrollTop = scrollTarget instanceof Window ? scrollTarget.scrollY : scrollTarget.scrollTop;
@@ -115,16 +145,19 @@ onMounted(async () => {
   updateScrollToTopVisibility();
   scrollTarget.addEventListener('scroll', updateScrollToTopVisibility, { passive: true });
   window.addEventListener('resize', updateScrollToTopButtonOffset, { passive: true });
-  await loadYears();
-  await loadRecords();
+  await refreshRecordsList();
   updateScrollToTopButtonOffset();
   updateScrollToTopVisibility();
+});
+
+watch(normalizedSearchQuery, () => {
+  void resetAndLoadRecords();
 });
 
 onActivated(() => {
   updateScrollToTopButtonOffset();
   updateScrollToTopVisibility();
-  loadRecords();
+  void refreshRecordsList();
 });
 
 onUnmounted(() => {
@@ -162,7 +195,7 @@ onUnmounted(() => {
       Error: {{ error }}
     </div>
 
-    <div v-else-if="filteredRecords.length === 0" class="text-center py-8 text-gray-500">
+    <div v-else-if="records.length === 0" class="text-center py-8 text-gray-500">
       {{ t('list.no_records') }}
     </div>
 
@@ -192,10 +225,26 @@ onUnmounted(() => {
 
     <div class="flex-1">
       <RecordCard class="my-3" 
-          v-for="record in filteredRecords" 
+          v-for="record in records" 
           :key="record.id"
           :record="record"
         />
+
+      <div v-if="records.length > 0" class="flex flex-col items-center gap-3 py-6">
+        <button
+          v-if="hasMoreRecords"
+          type="button"
+          class="rounded-full border border-blue-200 bg-white/90 px-5 py-2 text-sm font-medium text-blue-600 shadow-sm transition hover:border-blue-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          :disabled="loadingMore"
+          @click="loadMoreRecords"
+        >
+          {{ loadingMore ? t('list.loading_more') : t('list.load_more') }}
+        </button>
+
+        <p v-else class="text-center text-sm text-gray-500/60">
+          {{ t('list.end_of_list') }}
+        </p>
+      </div>
     </div>
 
     <RecordYearFooter

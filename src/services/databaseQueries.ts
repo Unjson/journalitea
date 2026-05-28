@@ -48,6 +48,59 @@ export const listRecordsSql = "SELECT * FROM records ORDER BY date_added DESC";
 export const listRecordsByYearSql =
   "SELECT * FROM records WHERE strftime('%Y', date_added) = ? ORDER BY date_added DESC";
 
+export type RecordPageQuery = {
+  year?: number | null;
+  search?: string | null;
+  limit: number;
+  offset: number;
+};
+
+const escapeLikePattern = (value: string): string =>
+  value.replace(/[\\%_]/g, "\\$&");
+
+export const buildRecordPageQuery = (
+  query: RecordPageQuery,
+): { sql: string; params: Array<string | number> } => {
+  const normalizedSearch = String(query.search ?? "")
+    .trim()
+    .toLocaleLowerCase();
+  const limit = Math.max(1, Math.floor(query.limit));
+  const offset = Math.max(0, Math.floor(query.offset));
+  const params: Array<string | number> = [];
+  const whereClauses: string[] = [];
+
+  if (normalizedSearch.length > 0) {
+    const searchTerm = `%${escapeLikePattern(normalizedSearch)}%`;
+    whereClauses.push(`(
+      LOWER(COALESCE(name, '')) LIKE ? ESCAPE '\\'
+      OR LOWER(COALESCE(sub_type, '')) LIKE ? ESCAPE '\\'
+      OR LOWER(COALESCE(seller, '')) LIKE ? ESCAPE '\\'
+      OR LOWER(COALESCE(origin, '')) LIKE ? ESCAPE '\\'
+      OR LOWER(COALESCE(notes, '')) LIKE ? ESCAPE '\\'
+      OR LOWER(COALESCE(CAST(year AS TEXT), '')) LIKE ? ESCAPE '\\'
+    )`);
+    params.push(
+      searchTerm,
+      searchTerm,
+      searchTerm,
+      searchTerm,
+      searchTerm,
+      searchTerm,
+    );
+  } else if (query.year !== null && query.year !== undefined) {
+    whereClauses.push("strftime('%Y', date_added) = ?");
+    params.push(String(query.year));
+  }
+
+  const whereSql =
+    whereClauses.length > 0 ? ` WHERE ${whereClauses.join(" AND ")}` : "";
+
+  return {
+    sql: `SELECT * FROM records${whereSql} ORDER BY date_added DESC LIMIT ? OFFSET ?`,
+    params: [...params, limit, offset],
+  };
+};
+
 export const listRecordYearsSql =
   "SELECT DISTINCT CAST(strftime('%Y', date_added) AS INTEGER) AS year FROM records WHERE date_added IS NOT NULL ORDER BY year DESC";
 

@@ -15,6 +15,26 @@ export const setupIpcHandlers = (): void => {
     }
   });
 
+  ipcMain.handle(
+    "db:listRecordsPage",
+    async (
+      event,
+      query: {
+        year?: number | null;
+        search?: string | null;
+        limit: number;
+        offset: number;
+      },
+    ) => {
+      try {
+        return db.listRecordsPage(query);
+      } catch (error) {
+        console.error("Error listing paged records:", error);
+        throw error;
+      }
+    },
+  );
+
   ipcMain.handle("db:listRecordYears", async () => {
     try {
       return db.listRecordYears();
