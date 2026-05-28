@@ -8,6 +8,7 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { DEFAULT_PREFS, DATABASE_NAME, PREFS } from "../appSettings";
 import { Record } from "../models/record";
 import {
+  buildRecordPageQuery,
   createRecordsTableSql,
   createSettingsTableSql,
   deleteRecordSql,
@@ -17,6 +18,7 @@ import {
   listRecordYearsSql,
   listRecordsByYearSql,
   listRecordsSql,
+  type RecordPageQuery,
   selectSettingIdSql,
   selectSettingsValueSql,
   settingsValueExistsSql,
@@ -165,6 +167,13 @@ class CapacitorDatabaseService {
     const result = year
       ? await this.db!.query(listRecordsByYearSql, [String(year)])
       : await this.db!.query(listRecordsSql);
+    return (result.values ?? []).map((row) => this.rowToRecord(row));
+  }
+
+  async listRecordsPage(query: RecordPageQuery): Promise<Record[]> {
+    await this.ensureReady();
+    const { sql, params } = buildRecordPageQuery(query);
+    const result = await this.db!.query(sql, params);
     return (result.values ?? []).map((row) => this.rowToRecord(row));
   }
 

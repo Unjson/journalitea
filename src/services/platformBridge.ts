@@ -89,6 +89,8 @@ const handleCapacitorInvoke = async (
     }
     case "db:listRecords":
       return capacitorDb.listRecords(args[0] ?? null);
+    case "db:listRecordsPage":
+      return capacitorDb.listRecordsPage(args[0]);
     case "db:listRecordYears":
       return capacitorDb.listRecordYears();
     case "db:getRecordById":

@@ -19,12 +19,29 @@ const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 };
 
+const isBlockedBackTarget = () => {
+	const backTarget = String(window.history.state?.back ?? '');
+	if (backTarget.length === 0) {
+		return false;
+	}
+
+	const normalizedBackTarget = backTarget.includes('#')
+		? backTarget.slice(backTarget.indexOf('#') + 1)
+		: backTarget;
+
+	return (
+		normalizedBackTarget === '/record/new' ||
+		/^\/record\/[^/]+(?:\/edit)?$/.test(normalizedBackTarget)
+	);
+};
+
 const canNavigateBack = () => {
 	const historyState = window.history.state ?? {};
 	return historyState.back != null || (historyState.position ?? 0) > 0;
 };
 
-const handleBackNavigation = (canGoBack: boolean) => {
+const handleBackNavigation = () => {
+	const canGoBack = canNavigateBack();
 	const routeName = String(router.currentRoute.value.name ?? '');
 	if (
 		routeName === 'record-detail'
@@ -52,9 +69,13 @@ const handleBackNavigation = (canGoBack: boolean) => {
 		(routeName === 'timer' ||
 			routeName === 'stats' ||
 			routeName === 'settings' ||
-			routeName === 'about') &&
-		!canGoBack
+			routeName === 'about')
 	) {
+		if (canGoBack && !isBlockedBackTarget()) {
+			router.back();
+			return;
+		}
+
 		markResetOnNextMainNav();
 		router.replace('/');
 		return;
@@ -99,7 +120,7 @@ const handleDesktopBackspace = (event: KeyboardEvent) => {
 	}
 
 	event.preventDefault();
-	handleBackNavigation(canNavigateBack());
+	handleBackNavigation();
 };
 
 onMounted(async() => {
@@ -110,8 +131,8 @@ onMounted(async() => {
 			await StatusBar.setStyle({ style: Style.Dark });
 			await StatusBar.setBackgroundColor({ color: '#ffffff' });
 		}
-		platformBridge.onBackButton?.(({ canGoBack }) => {
-			handleBackNavigation(canGoBack);
+		platformBridge.onBackButton?.(() => {
+			handleBackNavigation();
 		});
 	}
 
