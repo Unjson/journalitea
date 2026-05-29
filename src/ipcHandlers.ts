@@ -3,6 +3,13 @@ import path from "node:path";
 import db from "./services/database.js";
 import { pickOpenFilePath, pickSaveFilePath } from "./services/fileDialog.js";
 import { parseTranslationsFromCSVFile } from "./services/i18n/csvParser.node.js";
+import { syncSecrets } from "./services/syncSecrets.node.js";
+import { syncTransport } from "./services/syncTransport.node.js";
+import type {
+  SyncDownloadRequest,
+  SyncHttpRequest,
+  SyncUploadRequest,
+} from "./services/syncTypes.js";
 
 // Setup IPC handlers for database operations
 export const setupIpcHandlers = (): void => {
@@ -40,6 +47,15 @@ export const setupIpcHandlers = (): void => {
       return db.listRecordYears();
     } catch (error) {
       console.error("Error listing record years:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("db:getRecordCount", async () => {
+    try {
+      return db.getRecordCount();
+    } catch (error) {
+      console.error("Error counting records:", error);
       throw error;
     }
   });
@@ -185,6 +201,101 @@ export const setupIpcHandlers = (): void => {
       return true;
     } catch (error) {
       console.error("Error opening external URL:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("sync:getSecret", async () => {
+    try {
+      return syncSecrets.getAppPassword();
+    } catch (error) {
+      console.error("Error loading sync secret:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("sync:setSecret", async (event, value: string) => {
+    try {
+      syncSecrets.setAppPassword(value);
+      return true;
+    } catch (error) {
+      console.error("Error storing sync secret:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle("sync:clearSecret", async () => {
+    try {
+      syncSecrets.clearAppPassword();
+      return true;
+    } catch (error) {
+      console.error("Error clearing sync secret:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    "sync:httpRequest",
+    async (event, options: SyncHttpRequest) => {
+      try {
+        return await syncTransport.request(options);
+      } catch (error) {
+        console.error("Error during sync HTTP request:", error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle("sync:createDatabaseSnapshot", async () => {
+    try {
+      return syncTransport.createDatabaseSnapshot();
+    } catch (error) {
+      console.error("Error creating sync snapshot:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    "sync:replaceDatabaseFromFile",
+    async (event, sourcePath: string) => {
+      try {
+        return syncTransport.replaceDatabaseFromFile(sourcePath);
+      } catch (error) {
+        console.error("Error replacing database from sync file:", error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "sync:uploadFile",
+    async (event, options: SyncUploadRequest) => {
+      try {
+        return await syncTransport.uploadFile(options);
+      } catch (error) {
+        console.error("Error uploading sync file:", error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "sync:downloadFile",
+    async (event, options: SyncDownloadRequest) => {
+      try {
+        return await syncTransport.downloadFile(options);
+      } catch (error) {
+        console.error("Error downloading sync file:", error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle("sync:deleteFile", async (event, filePath: string) => {
+    try {
+      return syncTransport.deleteFile(filePath);
+    } catch (error) {
+      console.error("Error deleting sync temp file:", error);
       throw error;
     }
   });
