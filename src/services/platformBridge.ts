@@ -199,7 +199,9 @@ const handleCapacitorInvoke = async (
     case "db:deleteRecord": {
       const recordId = Number(args[0] ?? -1);
       await capacitorDb.deleteRecord(recordId);
-      await deleteRecordPhotos(recordId);
+      if (Number.isInteger(recordId) && recordId > 0) {
+        await deleteRecordPhotos(recordId);
+      }
       return true;
     }
     case "db:getSetting":

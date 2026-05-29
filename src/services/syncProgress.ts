@@ -73,6 +73,7 @@ export const finishSyncProgress = (
   state.percent = 100;
   state.messageKey = messageKey;
   state.active = false;
+  activeToken = 0;
 };
 
 export const clearSyncProgress = (token?: number): void => {

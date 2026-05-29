@@ -40,20 +40,28 @@ const PHOTO_CONTENT_TYPES: Record<string, string> = {
   ".webp": "image/webp",
 };
 
+const decodeUriComponentSafe = (value: string): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
 const getManagedPhotoAbsolutePath = (requestUrl: string): string | null => {
   const url = new URL(requestUrl);
   const pathOnlyRelativePath = normalizePhotoRelativePath(
     url.pathname
       .split("/")
       .filter((segment) => segment.length > 0)
-      .map((segment) => decodeURIComponent(segment))
+      .map((segment) => decodeUriComponentSafe(segment))
       .join("/"),
   );
 
   const relativePath = isManagedPhotoPath(pathOnlyRelativePath)
     ? pathOnlyRelativePath
     : normalizePhotoRelativePath(
-        `${url.host && url.host !== "local" ? `${decodeURIComponent(url.host)}/` : ""}${pathOnlyRelativePath}`,
+        `${url.host && url.host !== "local" ? `${url.host}/` : ""}${pathOnlyRelativePath}`,
       );
 
   if (!isManagedPhotoPath(relativePath)) {
