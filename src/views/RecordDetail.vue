@@ -59,9 +59,16 @@ const loadRecord = async () => {
     teaType.value = recordInstance.getTypeName();
     preparationMethod.value = t(recordInstance.getPreparationMethodName());
     currencyString.value =  formatPriceString(recordInstance.price, recordInstance.priceCurrency);
-    photoPreviewUrl.value = recordInstance.photo.trim()
-      ? await photoService.resolveUrl(recordInstance.photo)
-      : '';
+    if (recordInstance.photo.trim()) {
+      try {
+        photoPreviewUrl.value = await photoService.resolveUrl(recordInstance.photo);
+      } catch (photoError) {
+        photoPreviewUrl.value = '';
+        console.error('Error loading record photo preview:', photoError);
+      }
+    } else {
+      photoPreviewUrl.value = '';
+    }
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load record';
     console.error('Error loading record:', err);
