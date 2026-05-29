@@ -3,7 +3,9 @@ import type {
   PhotoArchiveResult,
   PhotoAssetResult,
   PhotoImportIdMapEntry,
+  PhotoSyncImportResult,
   PhotoSelectionResult,
+  SyncablePhotoFile,
 } from "./photoTypes";
 
 export const photoService = {
@@ -77,5 +79,21 @@ export const photoService = {
       mode,
       idMapEntries,
     );
+  },
+  listSyncablePhotos(): Promise<SyncablePhotoFile[]> {
+    return platformBridge.invoke("photo:listSyncablePhotos");
+  },
+  importSyncFile(
+    sourcePath: string,
+    relativePath: string,
+  ): Promise<PhotoSyncImportResult> {
+    return platformBridge.invoke(
+      "photo:importSyncFile",
+      sourcePath,
+      relativePath,
+    );
+  },
+  deleteManagedPath(relativePath: string): Promise<void> {
+    return platformBridge.invoke("photo:deleteManagedPath", relativePath);
   },
 };

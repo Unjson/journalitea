@@ -361,9 +361,9 @@ onBeforeUnmount(() => {
 
 .main-content {
 	width: 100%;
-	/* 2 px extra to account for shadow (72+2) */
-	height: calc(100% - 74px); 
+	--app-header-offset: calc(74px + env(safe-area-inset-top));
+	height: calc(100% - var(--app-header-offset));
 	overflow: auto;
-	margin-top: 74px;
+	margin-top: var(--app-header-offset);
 }
 </style>

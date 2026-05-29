@@ -27,7 +27,9 @@ import type {
   PhotoArchiveResult,
   PhotoAssetResult,
   PhotoImportIdMapEntry,
+  PhotoSyncImportResult,
   PhotoSelectionResult,
+  SyncablePhotoFile,
 } from "./photoTypes";
 
 const PHOTO_DIRECTORY = Directory.Data;
@@ -322,6 +324,30 @@ const writeArchiveFile = async (
   return result.uri;
 };
 
+const extractBase64Payload = (value: string): string =>
+  String(value ?? "")
+    .split(",")
+    .pop() ?? "";
+
+const base64ToBytes = (value: string): Uint8Array => {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+};
+
+const createContentHash = async (base64Data: string): Promise<string> => {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    base64ToBytes(base64Data),
+  );
+  return Array.from(new Uint8Array(digest), (value) =>
+    value.toString(16).padStart(2, "0"),
+  ).join("");
+};
+
 export const pickAndStagePhoto = async (): Promise<PhotoSelectionResult> => {
   const result = await FilePicker.pickFiles({
     types: ["image/*"],
@@ -481,6 +507,72 @@ export const getSiblingArchive = async (
     hasPhotos: exists,
     exists,
   };
+};
+
+export const listSyncablePhotos = async (): Promise<SyncablePhotoFile[]> => {
+  const files = (await collectFilesRecursively(PHOTO_ROOT_FOLDER)).filter(
+    (relativePath) =>
+      !relativePath.startsWith(`${PHOTO_ROOT_FOLDER}/${PHOTO_STAGING_FOLDER}/`),
+  );
+
+  return Promise.all(
+    files.map(async (relativePath) => {
+      const file = await Filesystem.readFile({
+        path: relativePath,
+        directory: PHOTO_DIRECTORY,
+      });
+      const stats = await Filesystem.stat({
+        path: relativePath,
+        directory: PHOTO_DIRECTORY,
+      });
+      return {
+        relativePath,
+        contentHash: await createContentHash(
+          extractBase64Payload(String(file.data)),
+        ),
+        byteSize: Number(stats.size ?? 0),
+        sourcePath: await getPhotoUri(relativePath),
+      };
+    }),
+  );
+};
+
+export const importSyncFile = async (
+  sourcePath: string,
+  relativePath: string,
+): Promise<PhotoSyncImportResult> => {
+  const normalizedPath = normalizePhotoRelativePath(relativePath);
+  if (
+    !normalizedPath ||
+    !isManagedPhotoPath(normalizedPath) ||
+    !isSafePhotoRelativePath(normalizedPath) ||
+    isStagedPhotoPath(normalizedPath)
+  ) {
+    throw new Error("Invalid managed photo sync path.");
+  }
+
+  await copyExternalFileToManagedPath(sourcePath, normalizedPath);
+  return {
+    relativePath: normalizedPath,
+    exists: true,
+  };
+};
+
+export const deleteManagedPath = async (
+  relativePath: string,
+): Promise<void> => {
+  const normalizedPath = normalizePhotoRelativePath(relativePath);
+  if (
+    !normalizedPath ||
+    !isManagedPhotoPath(normalizedPath) ||
+    !isSafePhotoRelativePath(normalizedPath) ||
+    isStagedPhotoPath(normalizedPath)
+  ) {
+    return;
+  }
+
+  await safeDeleteFile(normalizedPath);
+  await cleanupEmptyParentDirectories(normalizedPath);
 };
 
 export const createArchive = async (

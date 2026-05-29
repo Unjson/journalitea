@@ -31,6 +31,14 @@ export type SyncFileTransferResponse = SyncHttpResponse & {
   path: string | null;
 };
 
+export type SyncPhotoMode = "archive" | "mirror";
+
+export type SyncManifestPhotoEntry = {
+  contentHash: string;
+  remoteEtag: string;
+  byteSize: number;
+};
+
 export type SyncManifest = {
   uploadedAt: string;
   etag: string;
@@ -39,4 +47,7 @@ export type SyncManifest = {
   sourcePlatform: string;
   deviceLabel: string;
   fileName: string;
+  photoMode: SyncPhotoMode;
+  photoRoot: string;
+  photoEntries: Record<string, SyncManifestPhotoEntry>;
 };

@@ -14,10 +14,13 @@ import {
   commitSavedRecordPhoto,
   createSiblingArchive,
   createTemporaryArchive,
+  deleteManagedPath,
   deleteRecordPhotos,
   discardStagedPhotos,
   finalizeRecordPhoto,
   getSiblingArchive,
+  importSyncFile,
+  listSyncablePhotos,
   pickAndStagePhoto,
   resolvePhotoUrl,
   restoreArchive,
@@ -398,6 +401,12 @@ const handleCapacitorInvoke = async (
             : "replace",
         args[2] ?? [],
       );
+    case "photo:listSyncablePhotos":
+      return listSyncablePhotos();
+    case "photo:importSyncFile":
+      return importSyncFile(String(args[0] ?? ""), String(args[1] ?? ""));
+    case "photo:deleteManagedPath":
+      return deleteManagedPath(String(args[0] ?? ""));
     case "i18n:loadTranslations":
       return parseTranslationsFromCSVContent(translationsCsv);
     case "app:getVersion":

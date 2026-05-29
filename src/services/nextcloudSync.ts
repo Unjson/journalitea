@@ -1,6 +1,15 @@
 import { platformBridge } from "./platformBridge";
 import { APP_NAME } from "../appSettings";
-import { buildSiblingPhotoArchivePath } from "./photoStorageShared";
+import { parseRecordPhotos } from "../models/record";
+import type { SyncablePhotoFile } from "./photoTypes";
+import {
+  buildSiblingPhotoArchivePath,
+  isManagedPhotoPath,
+  isSafePhotoRelativePath,
+  isStagedPhotoPath,
+  normalizePhotoRelativePath,
+  PHOTO_ROOT_FOLDER,
+} from "./photoStorageShared";
 import {
   beginSyncProgress,
   clearSyncProgress,
@@ -22,6 +31,8 @@ import type {
   SyncHttpRequest,
   SyncHttpResponse,
   SyncManifest,
+  SyncManifestPhotoEntry,
+  SyncPhotoMode,
   SyncUploadRequest,
 } from "./syncTypes";
 
@@ -30,6 +41,7 @@ const LOGIN_FLOW_TIMEOUT_MS = 20 * 60 * 1000;
 const SYNC_SCHEMA_VERSION = 1;
 const REMOTE_DATABASE_FILE_NAME = "database.db";
 const REMOTE_PHOTO_ARCHIVE_FILE_NAME = "database_photos.zip";
+const REMOTE_PHOTO_DIRECTORY_NAME = PHOTO_ROOT_FOLDER;
 const REMOTE_MANIFEST_FILE_NAME = "manifest.json";
 const REMOTE_BACKUPS_DIRECTORY = "backups";
 const NEXTCLOUD_CLIENT_NAME = APP_NAME.split(" - ")[0].trim() || APP_NAME;
@@ -77,6 +89,17 @@ type RemoteFileInfo = {
   lastModified: string;
   isCollection: boolean;
   href: string;
+};
+
+type RemoteMirrorPhotoFile = RemoteFileInfo & {
+  relativePath: string;
+};
+
+type MirrorPhotoSyncPlan = {
+  uploadPaths: string[];
+  downloadPaths: string[];
+  deleteRemotePaths: string[];
+  conflicts: string[];
 };
 
 class NextcloudSyncError extends Error {
@@ -241,6 +264,11 @@ const buildUserRootDavUrl = (
 const buildOcsUrl = (serverUrl: string, pathName: string): string =>
   new URL(pathName, `${serverUrl}/`).toString();
 
+const normalizeDavPathname = (pathname: string): string => {
+  const normalized = decodeURIComponent(pathname).replace(/\/+$/, "");
+  return normalized || "/";
+};
+
 const getElementText = (parent: ParentNode, localName: string): string => {
   const candidates = Array.from(parent.childNodes).filter(
     (node): node is Element => node instanceof Element,
@@ -283,8 +311,82 @@ const parseDavResponse = (responseBody: string): RemoteFileInfo[] => {
   );
 };
 
+const isSyncPhotoMode = (value: unknown): value is SyncPhotoMode =>
+  value === "archive" || value === "mirror";
+
+const normalizeManifestPhotoEntries = (
+  value: unknown,
+): Record<string, SyncManifestPhotoEntry> => {
+  if (typeof value !== "object" || value === null) {
+    return {};
+  }
+
+  const entries: Record<string, SyncManifestPhotoEntry> = {};
+  for (const [rawPath, rawEntry] of Object.entries(value)) {
+    const relativePath = normalizePhotoRelativePath(rawPath);
+    if (
+      !relativePath ||
+      !isManagedPhotoPath(relativePath) ||
+      !isSafePhotoRelativePath(relativePath) ||
+      isStagedPhotoPath(relativePath)
+    ) {
+      continue;
+    }
+
+    const entry =
+      typeof rawEntry === "object" && rawEntry !== null ? rawEntry : {};
+    entries[relativePath] = {
+      contentHash: String(
+        (entry as { contentHash?: unknown }).contentHash ?? "",
+      ).trim(),
+      remoteEtag: String(
+        (entry as { remoteEtag?: unknown }).remoteEtag ?? "",
+      ).trim(),
+      byteSize: Math.max(
+        0,
+        Number.isFinite(Number((entry as { byteSize?: unknown }).byteSize))
+          ? Number((entry as { byteSize?: unknown }).byteSize)
+          : 0,
+      ),
+    };
+  }
+
+  return entries;
+};
+
+const normalizeSyncManifest = (
+  value: Partial<SyncManifest> | null | undefined,
+): SyncManifest | null => {
+  if (!value) {
+    return null;
+  }
+
+  return {
+    uploadedAt: toIsoOrEmpty(String(value.uploadedAt ?? "")),
+    etag: String(value.etag ?? "").trim(),
+    appVersion: String(value.appVersion ?? "").trim(),
+    schemaVersion: Number.isFinite(Number(value.schemaVersion))
+      ? Number(value.schemaVersion)
+      : SYNC_SCHEMA_VERSION,
+    sourcePlatform: String(value.sourcePlatform ?? "").trim(),
+    deviceLabel: String(value.deviceLabel ?? "").trim(),
+    fileName:
+      String(value.fileName ?? REMOTE_DATABASE_FILE_NAME).trim() ||
+      REMOTE_DATABASE_FILE_NAME,
+    photoMode: isSyncPhotoMode(value.photoMode) ? value.photoMode : "mirror",
+    photoRoot:
+      normalizePhotoRelativePath(
+        value.photoRoot ?? REMOTE_PHOTO_DIRECTORY_NAME,
+      ) || REMOTE_PHOTO_DIRECTORY_NAME,
+    photoEntries: normalizeManifestPhotoEntries(value.photoEntries),
+  };
+};
+
 const buildManifestFromRemoteFile = async (
   remoteFile: RemoteFileInfo,
+  overrides: Partial<
+    Pick<SyncManifest, "photoMode" | "photoRoot" | "photoEntries">
+  > = {},
 ): Promise<SyncManifest> => ({
   uploadedAt: remoteFile.lastModified || new Date().toISOString(),
   etag: remoteFile.etag,
@@ -293,6 +395,9 @@ const buildManifestFromRemoteFile = async (
   sourcePlatform: platformBridge.isElectron ? "electron" : buildDeviceLabel(),
   deviceLabel: buildDeviceLabel(),
   fileName: REMOTE_DATABASE_FILE_NAME,
+  photoMode: overrides.photoMode ?? "mirror",
+  photoRoot: overrides.photoRoot ?? REMOTE_PHOTO_DIRECTORY_NAME,
+  photoEntries: overrides.photoEntries ?? {},
 });
 
 class NextcloudSyncService {
@@ -448,6 +553,541 @@ class NextcloudSyncService {
         ...record,
         photo: localPhotoRaw,
       });
+    }
+  }
+
+  private getReferencedPhotoPaths(records: readonly SyncRecord[]): Set<string> {
+    const referencedPaths = new Set<string>();
+
+    for (const record of records) {
+      for (const entry of parseRecordPhotos(record.photo)) {
+        const relativePath = normalizePhotoRelativePath(entry.path);
+        if (
+          !relativePath ||
+          !isManagedPhotoPath(relativePath) ||
+          !isSafePhotoRelativePath(relativePath) ||
+          isStagedPhotoPath(relativePath)
+        ) {
+          continue;
+        }
+        referencedPaths.add(relativePath);
+      }
+    }
+
+    return referencedPaths;
+  }
+
+  private async getLocalReferencedPhotoPaths(): Promise<Set<string>> {
+    return this.getReferencedPhotoPaths(await this.listAllRecords());
+  }
+
+  private async listLocalSyncablePhotos(): Promise<
+    Map<string, SyncablePhotoFile>
+  > {
+    const rawFiles = await platformBridge.invoke("photo:listSyncablePhotos");
+    const photos = new Map<string, SyncablePhotoFile>();
+    if (!Array.isArray(rawFiles)) {
+      return photos;
+    }
+
+    for (const rawFile of rawFiles) {
+      const relativePath = normalizePhotoRelativePath(rawFile?.relativePath);
+      const contentHash = String(rawFile?.contentHash ?? "").trim();
+      const sourcePath = String(rawFile?.sourcePath ?? "").trim();
+      const byteSize = Number(rawFile?.byteSize ?? 0);
+
+      if (
+        !relativePath ||
+        !contentHash ||
+        !sourcePath ||
+        !isManagedPhotoPath(relativePath) ||
+        !isSafePhotoRelativePath(relativePath) ||
+        isStagedPhotoPath(relativePath)
+      ) {
+        continue;
+      }
+
+      photos.set(relativePath, {
+        relativePath,
+        contentHash,
+        byteSize: Number.isFinite(byteSize) ? Math.max(0, byteSize) : 0,
+        sourcePath,
+      });
+    }
+
+    return photos;
+  }
+
+  private getRemoteRelativePathFromHref(
+    credentials: SyncCredentials,
+    href: string,
+  ): string {
+    if (!href.trim()) {
+      return "";
+    }
+
+    const hrefPath = decodeURIComponent(
+      new URL(href, credentials.serverUrl).pathname,
+    );
+    const davPrefix = `/remote.php/dav/files/${credentials.userId}/`;
+    const relativePathFromRoot = hrefPath.startsWith(davPrefix)
+      ? hrefPath.slice(davPrefix.length)
+      : "";
+    const syncRootPrefix = `${credentials.remoteFolder.replace(/^\/+/, "")}/`;
+    return relativePathFromRoot.startsWith(syncRootPrefix)
+      ? normalizePhotoRelativePath(
+          relativePathFromRoot.slice(syncRootPrefix.length),
+        )
+      : "";
+  }
+
+  private async listRemoteDirectoryEntries(
+    credentials: SyncCredentials,
+    relativePath: string,
+  ): Promise<RemoteFileInfo[]> {
+    const response = await this.request({
+      url: buildDavUrl(credentials, relativePath),
+      method: "PROPFIND",
+      headers: {
+        ...buildAuthHeaders(credentials),
+        Depth: "1",
+        Accept: "application/xml, text/xml",
+        "Content-Type": "application/xml; charset=utf-8",
+      },
+      body: `<?xml version="1.0" encoding="UTF-8"?>
+<d:propfind xmlns:d="DAV:">
+  <d:prop>
+    <d:getetag />
+    <d:getlastmodified />
+    <d:resourcetype />
+  </d:prop>
+</d:propfind>`,
+    });
+
+    if (response.status === 404) {
+      return [];
+    }
+
+    this.assertStatus(
+      response,
+      [207],
+      "dav-list-directory-failed",
+      "Could not read the remote Nextcloud folder.",
+    );
+
+    const directoryUrl = buildDavUrl(credentials, relativePath);
+    const directoryPathname = normalizeDavPathname(
+      new URL(directoryUrl).pathname,
+    );
+    return parseDavResponse(response.data).filter((entry) => {
+      if (!entry.href) {
+        return false;
+      }
+
+      const entryPathname = normalizeDavPathname(
+        new URL(entry.href, credentials.serverUrl).pathname,
+      );
+      return entryPathname !== directoryPathname;
+    });
+  }
+
+  private async listRemoteMirrorPhotos(
+    credentials: SyncCredentials,
+    relativeDirectory = REMOTE_PHOTO_DIRECTORY_NAME,
+  ): Promise<Map<string, RemoteMirrorPhotoFile>> {
+    const normalizedDirectory = normalizePhotoRelativePath(relativeDirectory);
+    const entries = await this.listRemoteDirectoryEntries(
+      credentials,
+      relativeDirectory,
+    );
+    const photos = new Map<string, RemoteMirrorPhotoFile>();
+
+    for (const entry of entries) {
+      const relativePath = this.getRemoteRelativePathFromHref(
+        credentials,
+        entry.href,
+      );
+      if (!relativePath) {
+        continue;
+      }
+
+      if (entry.isCollection) {
+        if (relativePath === normalizedDirectory) {
+          continue;
+        }
+        const nestedPhotos = await this.listRemoteMirrorPhotos(
+          credentials,
+          relativePath,
+        );
+        for (const [nestedPath, nestedEntry] of nestedPhotos) {
+          photos.set(nestedPath, nestedEntry);
+        }
+        continue;
+      }
+
+      if (
+        !isManagedPhotoPath(relativePath) ||
+        !isSafePhotoRelativePath(relativePath) ||
+        isStagedPhotoPath(relativePath)
+      ) {
+        continue;
+      }
+
+      photos.set(relativePath, {
+        ...entry,
+        relativePath,
+      });
+    }
+
+    return photos;
+  }
+
+  private async ensureRemotePhotoParentExists(
+    credentials: SyncCredentials,
+    relativePath: string,
+  ): Promise<void> {
+    const segments = splitRemotePath(relativePath);
+    if (segments.length === 0) {
+      return;
+    }
+
+    const parentPath = segments.slice(0, -1).join("/");
+    const targetPath = parentPath || segments[0];
+    await this.ensureRemoteFolderExists(
+      credentials,
+      `${credentials.remoteFolder}/${targetPath}`,
+    );
+  }
+
+  private async uploadRemotePhoto(
+    credentials: SyncCredentials,
+    photoFile: SyncablePhotoFile,
+  ): Promise<void> {
+    await this.ensureRemotePhotoParentExists(
+      credentials,
+      photoFile.relativePath,
+    );
+    const uploadResponse = await this.uploadFile({
+      url: buildDavUrl(credentials, photoFile.relativePath),
+      sourcePath: photoFile.sourcePath,
+      method: "PUT",
+      headers: {
+        ...buildAuthHeaders(credentials),
+        "Content-Type": "application/octet-stream",
+      },
+    });
+
+    this.assertStatus(
+      uploadResponse,
+      [200, 201, 204],
+      "upload-failed",
+      "Could not upload a changed photo to Nextcloud.",
+    );
+  }
+
+  private async downloadRemotePhoto(
+    credentials: SyncCredentials,
+    relativePath: string,
+  ): Promise<string> {
+    const fileName = `nextcloud-photo-${Date.now()}-${relativePath.split("/").pop() || "photo"}`;
+    const download = await this.downloadFile({
+      url: buildDavUrl(credentials, relativePath),
+      fileName,
+      headers: buildAuthHeaders(credentials),
+    });
+
+    this.assertStatus(
+      download,
+      [200],
+      "remote-download-failed",
+      "Could not download a changed photo from Nextcloud.",
+    );
+
+    if (!download.path) {
+      throw new NextcloudSyncError(
+        "remote-download-failed",
+        "The remote photo download did not return a local file.",
+      );
+    }
+
+    return download.path;
+  }
+
+  private async importLocalSyncPhoto(
+    sourcePath: string,
+    relativePath: string,
+  ): Promise<void> {
+    await platformBridge.invoke(
+      "photo:importSyncFile",
+      sourcePath,
+      relativePath,
+    );
+  }
+
+  private async deleteLocalSyncPhoto(relativePath: string): Promise<void> {
+    await platformBridge.invoke("photo:deleteManagedPath", relativePath);
+  }
+
+  private resolveRemotePhotoMode(
+    manifest: SyncManifest | null,
+    remotePhotoArchive: RemoteFileInfo | null,
+  ): SyncPhotoMode {
+    if (remotePhotoArchive?.exists) {
+      return "archive";
+    }
+    if (manifest && isSyncPhotoMode(manifest.photoMode)) {
+      return manifest.photoMode;
+    }
+    return "mirror";
+  }
+
+  private createMirrorPhotoSyncPlan(
+    localPhotos: ReadonlyMap<string, SyncablePhotoFile>,
+    remotePhotos: ReadonlyMap<string, RemoteMirrorPhotoFile>,
+    manifest: SyncManifest | null,
+    referencedPaths: ReadonlySet<string>,
+  ): MirrorPhotoSyncPlan {
+    const uploadPaths = new Set<string>();
+    const downloadPaths = new Set<string>();
+    const deleteRemotePaths = new Set<string>();
+    const conflicts = new Set<string>();
+    const manifestEntries = manifest?.photoEntries ?? {};
+    const candidatePaths = new Set<string>([
+      ...Object.keys(manifestEntries),
+      ...localPhotos.keys(),
+      ...remotePhotos.keys(),
+    ]);
+
+    for (const relativePath of Array.from(candidatePaths).sort()) {
+      const localPhoto = localPhotos.get(relativePath);
+      const remotePhoto = remotePhotos.get(relativePath);
+      const manifestEntry = manifestEntries[relativePath];
+      const isReferenced = referencedPaths.has(relativePath);
+
+      if (!isReferenced) {
+        if (remotePhoto) {
+          deleteRemotePaths.add(relativePath);
+        }
+        continue;
+      }
+
+      if (!manifestEntry) {
+        if (localPhoto) {
+          uploadPaths.add(relativePath);
+        } else if (remotePhoto) {
+          downloadPaths.add(relativePath);
+        }
+        continue;
+      }
+
+      const localChanged =
+        !localPhoto || localPhoto.contentHash !== manifestEntry.contentHash;
+      const remoteChanged =
+        !remotePhoto || remotePhoto.etag !== manifestEntry.remoteEtag;
+
+      if (!localPhoto && remotePhoto) {
+        downloadPaths.add(relativePath);
+        continue;
+      }
+
+      if (localPhoto && !remotePhoto) {
+        uploadPaths.add(relativePath);
+        continue;
+      }
+
+      if (!localPhoto && !remotePhoto) {
+        continue;
+      }
+
+      if (localChanged && remoteChanged) {
+        conflicts.add(relativePath);
+        continue;
+      }
+
+      if (localChanged) {
+        uploadPaths.add(relativePath);
+        continue;
+      }
+
+      if (remoteChanged) {
+        downloadPaths.add(relativePath);
+      }
+    }
+
+    return {
+      uploadPaths: Array.from(uploadPaths),
+      downloadPaths: Array.from(downloadPaths),
+      deleteRemotePaths: Array.from(deleteRemotePaths),
+      conflicts: Array.from(conflicts),
+    };
+  }
+
+  private buildMirrorPhotoManifestEntries(
+    localPhotos: ReadonlyMap<string, SyncablePhotoFile>,
+    remotePhotos: ReadonlyMap<string, RemoteMirrorPhotoFile>,
+  ): Record<string, SyncManifestPhotoEntry> {
+    const photoEntries: Record<string, SyncManifestPhotoEntry> = {};
+    const candidatePaths = new Set<string>([
+      ...localPhotos.keys(),
+      ...remotePhotos.keys(),
+    ]);
+
+    for (const relativePath of Array.from(candidatePaths).sort()) {
+      const localPhoto = localPhotos.get(relativePath);
+      const remotePhoto = remotePhotos.get(relativePath);
+      if (!localPhoto || !remotePhoto) {
+        continue;
+      }
+
+      photoEntries[relativePath] = {
+        contentHash: localPhoto.contentHash,
+        remoteEtag: remotePhoto.etag,
+        byteSize: localPhoto.byteSize,
+      };
+    }
+
+    return photoEntries;
+  }
+
+  private async syncMirrorPhotos(
+    credentials: SyncCredentials,
+    manifest: SyncManifest | null,
+    referencedPaths: ReadonlySet<string>,
+    progressToken: number,
+  ): Promise<Record<string, SyncManifestPhotoEntry>> {
+    await this.ensureRemoteFolderExists(
+      credentials,
+      `${credentials.remoteFolder}/${REMOTE_PHOTO_DIRECTORY_NAME}`,
+    );
+    const localPhotos = await this.listLocalSyncablePhotos();
+    const remotePhotos = await this.listRemoteMirrorPhotos(credentials);
+    const plan = this.createMirrorPhotoSyncPlan(
+      localPhotos,
+      remotePhotos,
+      manifest,
+      referencedPaths,
+    );
+
+    if (plan.conflicts.length > 0) {
+      throw new NextcloudSyncError(
+        "remote-photos-changed",
+        "Some synced photos changed both locally and on Nextcloud. Download first to avoid overwriting newer photo changes.",
+      );
+    }
+
+    if (plan.uploadPaths.length > 0) {
+      updateSyncProgress(progressToken, {
+        direction: "upload",
+        messageKey: "sync.progress_upload_photos",
+        percent: 58,
+      });
+      for (const relativePath of plan.uploadPaths) {
+        const photoFile = localPhotos.get(relativePath);
+        if (!photoFile) {
+          continue;
+        }
+        await this.uploadRemotePhoto(credentials, photoFile);
+      }
+    }
+
+    if (plan.downloadPaths.length > 0) {
+      updateSyncProgress(progressToken, {
+        direction: "download",
+        messageKey: "sync.progress_download_photos",
+        percent: 66,
+      });
+      for (const relativePath of plan.downloadPaths) {
+        const downloadPath = await this.downloadRemotePhoto(
+          credentials,
+          relativePath,
+        );
+        try {
+          await this.importLocalSyncPhoto(downloadPath, relativePath);
+        } finally {
+          await platformBridge.invoke("sync:deleteFile", downloadPath);
+        }
+      }
+    }
+
+    if (plan.deleteRemotePaths.length > 0) {
+      updateSyncProgress(progressToken, {
+        direction: "sync",
+        messageKey: "sync.progress_upload_photos",
+        percent: 72,
+      });
+      for (const relativePath of plan.deleteRemotePaths) {
+        await this.deleteRemoteFile(credentials, relativePath);
+      }
+    }
+
+    const nextLocalPhotos = await this.listLocalSyncablePhotos();
+    const nextRemotePhotos = await this.listRemoteMirrorPhotos(credentials);
+    return this.buildMirrorPhotoManifestEntries(
+      nextLocalPhotos,
+      nextRemotePhotos,
+    );
+  }
+
+  private async restoreMirrorPhotos(
+    credentials: SyncCredentials,
+    manifest: SyncManifest | null,
+    progressToken: number,
+  ): Promise<void> {
+    const referencedPaths = await this.getLocalReferencedPhotoPaths();
+    const localPhotos = await this.listLocalSyncablePhotos();
+    const remotePhotos = await this.listRemoteMirrorPhotos(credentials);
+    const manifestEntries = manifest?.photoEntries ?? {};
+
+    const downloadPaths = Array.from(referencedPaths)
+      .filter((relativePath) => {
+        const remotePhoto = remotePhotos.get(relativePath);
+        if (!remotePhoto) {
+          return false;
+        }
+
+        const localPhoto = localPhotos.get(relativePath);
+        const manifestEntry = manifestEntries[relativePath];
+        return (
+          !localPhoto ||
+          !manifestEntry ||
+          localPhoto.contentHash !== manifestEntry.contentHash ||
+          remotePhoto.etag !== manifestEntry.remoteEtag
+        );
+      })
+      .sort();
+
+    const deleteLocalPaths = Array.from(localPhotos.keys())
+      .filter((relativePath) => !referencedPaths.has(relativePath))
+      .sort();
+
+    if (downloadPaths.length > 0) {
+      updateSyncProgress(progressToken, {
+        direction: "download",
+        messageKey: "sync.progress_download_photos",
+        percent: 58,
+      });
+      for (const relativePath of downloadPaths) {
+        const downloadPath = await this.downloadRemotePhoto(
+          credentials,
+          relativePath,
+        );
+        try {
+          await this.importLocalSyncPhoto(downloadPath, relativePath);
+        } finally {
+          await platformBridge.invoke("sync:deleteFile", downloadPath);
+        }
+      }
+    }
+
+    if (deleteLocalPaths.length > 0) {
+      updateSyncProgress(progressToken, {
+        direction: "sync",
+        messageKey: "sync.progress_restore_photos",
+        percent: 76,
+      });
+      for (const relativePath of deleteLocalPaths) {
+        await this.deleteLocalSyncPhoto(relativePath);
+      }
     }
   }
 
@@ -660,10 +1300,20 @@ class NextcloudSyncService {
       "Could not read the remote sync manifest.",
     );
 
-    return parseJsonResponse<SyncManifest>(
-      manifestResponse,
-      "The remote sync manifest is invalid.",
+    const manifest = normalizeSyncManifest(
+      parseJsonResponse<Partial<SyncManifest>>(
+        manifestResponse,
+        "The remote sync manifest is invalid.",
+      ),
     );
+    if (!manifest) {
+      throw new NextcloudSyncError(
+        "invalid-json",
+        "The remote sync manifest is invalid.",
+        manifestResponse.status,
+      );
+    }
+    return manifest;
   }
 
   private async copyRemoteFile(
@@ -1059,7 +1709,21 @@ class NextcloudSyncService {
 
     try {
       const credentials = await this.getCredentials();
-      const localPhotoSnapshot = await this.captureLocalPhotoSnapshot();
+      const remoteManifest = await this.getRemoteManifest(credentials);
+      const remotePhotoArchive = credentials.syncPictures
+        ? await this.getRemoteFileInfo(
+            credentials,
+            REMOTE_PHOTO_ARCHIVE_FILE_NAME,
+          )
+        : null;
+      const remotePhotoMode = this.resolveRemotePhotoMode(
+        remoteManifest,
+        remotePhotoArchive,
+      );
+      const localPhotoSnapshot =
+        credentials.syncPictures && remotePhotoMode === "archive"
+          ? await this.captureLocalPhotoSnapshot()
+          : new Map<number, string>();
       const remoteFile = await this.getRemoteFileInfo(
         credentials,
         REMOTE_DATABASE_FILE_NAME,
@@ -1104,63 +1768,73 @@ class NextcloudSyncService {
         );
 
         if (credentials.syncPictures) {
-          const remotePhotoArchive = await this.getRemoteFileInfo(
-            credentials,
-            REMOTE_PHOTO_ARCHIVE_FILE_NAME,
-          );
+          if (remotePhotoMode === "archive") {
+            if (remotePhotoArchive?.exists) {
+              updateSyncProgress(progressToken, {
+                direction: "download",
+                messageKey: "sync.progress_download_photos",
+                percent: 58,
+              });
+              const photoDownload = await this.downloadFile({
+                url: buildDavUrl(credentials, REMOTE_PHOTO_ARCHIVE_FILE_NAME),
+                fileName: `nextcloud-restore-${Date.now()}_photos.zip`,
+                headers: buildAuthHeaders(credentials),
+              });
 
-          if (remotePhotoArchive.exists) {
-            updateSyncProgress(progressToken, {
-              direction: "download",
-              messageKey: "sync.progress_download_photos",
-              percent: 58,
-            });
-            const photoDownload = await this.downloadFile({
-              url: buildDavUrl(credentials, REMOTE_PHOTO_ARCHIVE_FILE_NAME),
-              fileName: `nextcloud-restore-${Date.now()}_photos.zip`,
-              headers: buildAuthHeaders(credentials),
-            });
-
-            this.assertStatus(
-              photoDownload,
-              [200],
-              "remote-download-failed",
-              "Could not download the remote photo archive.",
-            );
-
-            if (!photoDownload.path) {
-              throw new NextcloudSyncError(
+              this.assertStatus(
+                photoDownload,
+                [200],
                 "remote-download-failed",
-                "The remote photo archive download did not return a local file.",
+                "Could not download the remote photo archive.",
               );
-            }
 
-            photoDownloadPath = photoDownload.path;
+              if (!photoDownload.path) {
+                throw new NextcloudSyncError(
+                  "remote-download-failed",
+                  "The remote photo archive download did not return a local file.",
+                );
+              }
+
+              photoDownloadPath = photoDownload.path;
+              updateSyncProgress(progressToken, {
+                direction: "sync",
+                messageKey: "sync.progress_restore_photos",
+                percent: 76,
+              });
+              await platformBridge.invoke(
+                "photo:restoreArchive",
+                photoDownload.path,
+                "merge",
+              );
+            } else {
+              updateSyncProgress(progressToken, {
+                direction: "sync",
+                messageKey: "sync.progress_keep_local_photos",
+                percent: 76,
+              });
+            }
+          } else {
             updateSyncProgress(progressToken, {
               direction: "sync",
               messageKey: "sync.progress_restore_photos",
               percent: 76,
             });
-            await platformBridge.invoke(
-              "photo:restoreArchive",
-              photoDownload.path,
-              "merge",
+            await this.restoreMirrorPhotos(
+              credentials,
+              remoteManifest,
+              progressToken,
             );
-          } else {
-            updateSyncProgress(progressToken, {
-              direction: "sync",
-              messageKey: "sync.progress_keep_local_photos",
-              percent: 76,
-            });
           }
         }
 
-        updateSyncProgress(progressToken, {
-          direction: "sync",
-          messageKey: "sync.progress_restore_missing_photos",
-          percent: 90,
-        });
-        await this.restoreAvailableLocalPhotos(localPhotoSnapshot);
+        if (localPhotoSnapshot.size > 0) {
+          updateSyncProgress(progressToken, {
+            direction: "sync",
+            messageKey: "sync.progress_restore_missing_photos",
+            percent: 90,
+          });
+          await this.restoreAvailableLocalPhotos(localPhotoSnapshot);
+        }
       } finally {
         await platformBridge.invoke("sync:deleteFile", download.path);
         if (photoDownloadPath) {
@@ -1202,6 +1876,7 @@ class NextcloudSyncService {
       const credentials = await this.getCredentials();
       await this.ensureRemoteStructure(credentials);
 
+      const existingManifest = await this.getRemoteManifest(credentials);
       const existingRemoteFile = await this.getRemoteFileInfo(
         credentials,
         REMOTE_DATABASE_FILE_NAME,
@@ -1212,6 +1887,13 @@ class NextcloudSyncService {
             REMOTE_PHOTO_ARCHIVE_FILE_NAME,
           )
         : null;
+      const remotePhotoMode = this.resolveRemotePhotoMode(
+        existingManifest,
+        existingRemotePhotoArchive,
+      );
+      const referencedPhotoPaths = credentials.syncPictures
+        ? await this.getLocalReferencedPhotoPaths()
+        : new Set<string>();
       const currentConfig = loadSyncConfig();
       const hasKnownRemoteState =
         currentConfig.lastRemoteEtag.trim().length > 0 ||
@@ -1259,22 +1941,40 @@ class NextcloudSyncService {
       const tempRemotePath = `.upload-${uploadToken}.db`;
       const tempRemotePhotoPath = buildSiblingPhotoArchivePath(tempRemotePath);
       let localPhotoArchivePath = "";
+      let nextPhotoEntries: Record<string, SyncManifestPhotoEntry> =
+        remotePhotoMode === "mirror"
+          ? (existingManifest?.photoEntries ?? {})
+          : {};
       try {
         if (credentials.syncPictures) {
-          updateSyncProgress(progressToken, {
-            direction: "sync",
-            messageKey: "sync.progress_archive_photos",
-            percent: 28,
-          });
-          const photoArchive = await platformBridge.invoke(
-            "photo:createTemporaryArchive",
-            "nextcloud-photos",
-          );
-          localPhotoArchivePath = String(photoArchive?.path ?? "").trim();
-          if (!localPhotoArchivePath) {
-            throw new NextcloudSyncError(
-              "snapshot-failed",
-              "Could not create a temporary photo archive.",
+          if (remotePhotoMode === "archive") {
+            updateSyncProgress(progressToken, {
+              direction: "sync",
+              messageKey: "sync.progress_archive_photos",
+              percent: 28,
+            });
+            const photoArchive = await platformBridge.invoke(
+              "photo:createTemporaryArchive",
+              "nextcloud-photos",
+            );
+            localPhotoArchivePath = String(photoArchive?.path ?? "").trim();
+            if (!localPhotoArchivePath) {
+              throw new NextcloudSyncError(
+                "snapshot-failed",
+                "Could not create a temporary photo archive.",
+              );
+            }
+          } else {
+            updateSyncProgress(progressToken, {
+              direction: "sync",
+              messageKey: "sync.progress_upload_photos",
+              percent: 28,
+            });
+            nextPhotoEntries = await this.syncMirrorPhotos(
+              credentials,
+              existingManifest,
+              referencedPhotoPaths,
+              progressToken,
             );
           }
         }
@@ -1376,7 +2076,11 @@ class NextcloudSyncService {
           credentials,
           REMOTE_DATABASE_FILE_NAME,
         );
-        const manifest = await buildManifestFromRemoteFile(remoteFile);
+        const manifest = await buildManifestFromRemoteFile(remoteFile, {
+          photoMode: remotePhotoMode,
+          photoRoot: REMOTE_PHOTO_DIRECTORY_NAME,
+          photoEntries: remotePhotoMode === "mirror" ? nextPhotoEntries : {},
+        });
 
         updateSyncProgress(progressToken, {
           direction: "sync",

@@ -363,6 +363,40 @@ export const setupIpcHandlers = (): void => {
     },
   );
 
+  ipcMain.handle("photo:listSyncablePhotos", async () => {
+    try {
+      return photoStorage.listSyncablePhotos();
+    } catch (error) {
+      console.error("Error listing syncable photos:", error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    "photo:importSyncFile",
+    async (event, sourcePath: string, relativePath: string) => {
+      try {
+        return photoStorage.importSyncFile(sourcePath, relativePath);
+      } catch (error) {
+        console.error("Error importing synced photo:", error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "photo:deleteManagedPath",
+    async (event, relativePath: string) => {
+      try {
+        photoStorage.deleteManagedPath(relativePath);
+        return true;
+      } catch (error) {
+        console.error("Error deleting managed photo path:", error);
+        throw error;
+      }
+    },
+  );
+
   ipcMain.handle("i18n:loadTranslations", async () => {
     try {
       const csvPath = path.join(

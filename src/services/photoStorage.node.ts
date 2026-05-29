@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import JSZip from "jszip";
@@ -30,6 +31,8 @@ import type {
   PhotoArchiveResult,
   PhotoAssetResult,
   PhotoImportIdMapEntry,
+  PhotoSyncImportResult,
+  SyncablePhotoFile,
 } from "./photoTypes.js";
 
 const createStagingToken = (): string =>
@@ -75,6 +78,9 @@ const collectFilesRecursively = (directoryPath: string): string[] => {
   }
   return files;
 };
+
+const createContentHash = (buffer: Buffer): string =>
+  createHash("sha256").update(buffer).digest("hex");
 
 class PhotoStorageNodeService {
   private getUserRoot(): string {
@@ -309,6 +315,82 @@ class PhotoStorageNodeService {
         fs.existsSync(archivePath) && fs.statSync(archivePath).size > 0,
       exists: fs.existsSync(archivePath),
     };
+  }
+
+  listSyncablePhotos(): SyncablePhotoFile[] {
+    const photosRoot = this.getPhotosRoot();
+    const files = collectFilesRecursively(photosRoot)
+      .map((filePath) => {
+        const relativeToRoot = path
+          .relative(photosRoot, filePath)
+          .split(path.sep)
+          .join("/");
+        return `${PHOTO_ROOT_FOLDER}/${relativeToRoot}`;
+      })
+      .filter(
+        (relativePath) =>
+          isSafePhotoRelativePath(relativePath) &&
+          !relativePath.startsWith(
+            `${PHOTO_ROOT_FOLDER}/${PHOTO_STAGING_FOLDER}/`,
+          ),
+      );
+
+    return files.map((relativePath) => {
+      const absolutePath = this.resolveAbsolutePath(relativePath);
+      const fileBuffer = fs.readFileSync(absolutePath);
+      const stats = fs.statSync(absolutePath);
+      return {
+        relativePath,
+        contentHash: createContentHash(fileBuffer),
+        byteSize: stats.size,
+        sourcePath: absolutePath,
+      };
+    });
+  }
+
+  importSyncFile(
+    sourcePath: string,
+    relativePath: string,
+  ): PhotoSyncImportResult {
+    const normalizedPath = normalizePhotoRelativePath(relativePath);
+    if (
+      !normalizedPath ||
+      !isManagedPhotoPath(normalizedPath) ||
+      !isSafePhotoRelativePath(normalizedPath) ||
+      isStagedPhotoPath(normalizedPath)
+    ) {
+      throw new Error("Invalid managed photo sync path.");
+    }
+
+    const resolvedSourcePath = path.resolve(sourcePath);
+    if (!fs.existsSync(resolvedSourcePath)) {
+      return {
+        relativePath: normalizedPath,
+        exists: false,
+      };
+    }
+
+    const targetAbsolutePath = this.ensureParentDirectory(normalizedPath);
+    fs.copyFileSync(resolvedSourcePath, targetAbsolutePath);
+    return {
+      relativePath: normalizedPath,
+      exists: true,
+    };
+  }
+
+  deleteManagedPath(relativePath: string): void {
+    const normalizedPath = normalizePhotoRelativePath(relativePath);
+    if (
+      !normalizedPath ||
+      !isManagedPhotoPath(normalizedPath) ||
+      !isSafePhotoRelativePath(normalizedPath) ||
+      isStagedPhotoPath(normalizedPath)
+    ) {
+      return;
+    }
+
+    safeUnlink(this.resolveAbsolutePath(normalizedPath));
+    this.cleanupEmptyParentDirectories(normalizedPath);
   }
 
   async createArchive(archivePath: string): Promise<PhotoArchiveResult> {
