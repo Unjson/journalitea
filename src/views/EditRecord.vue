@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-import { Record } from '../models/record';
+import { getPrimaryRecordPhotoPath, Record } from '../models/record';
 import { aromaFieldLabels, teaTypeLabels, currencyLabels, weightUnitLabels, preparationMethodLabels } from '../models/enums';
 import { useI18n } from 'vue-i18n';
 import ColorSlider from '../components/ColorSlider.vue';
@@ -9,8 +9,12 @@ import VerticalSlider from '../components/VerticalSlider.vue';
 import StarRating from '../components/StarRating.vue';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
+import ZoomablePhoto from '../components/ZoomablePhoto.vue';
 import { PREFS } from '../appSettings.js';
 import { platformBridge } from '../services/platformBridge';
+import { photoService } from '../services/photoService';
+import type { PhotoSelectionResult } from '../services/photoTypes';
+import { isStagedPhotoPath } from '../services/photoStorageShared';
 
 const route = useRoute();
 const router = useRouter();
@@ -23,9 +27,106 @@ const showCancelConfirm = ref(false);
 const pendingNavigation = ref<string | null>(null);
 const allowNavigation = ref(false);
 const initialSnapshot = ref('');
+const initialPhotoRaw = ref('');
+const photoPreviewUrl = ref('');
+const photoBusy = ref(false);
 
 const getSnapshot = () => JSON.stringify(record.value.convertToPlainObject());
 const isDirty = computed(() => initialSnapshot.value !== '' && getSnapshot() !== initialSnapshot.value);
+const hasPhoto = computed(() => record.value.photo.trim().length > 0);
+const canCapturePhoto = computed(() => platformBridge.isCapacitor);
+
+const isStagedPhoto = (photoRaw: string): boolean => {
+  const primaryPath = getPrimaryRecordPhotoPath(photoRaw);
+  return primaryPath ? isStagedPhotoPath(primaryPath) : false;
+};
+
+const refreshPhotoPreview = async () => {
+  photoPreviewUrl.value = record.value.photo.trim()
+    ? await photoService.resolveUrl(record.value.photo)
+    : '';
+};
+
+const syncInitialState = async () => {
+  initialPhotoRaw.value = record.value.photo ?? '';
+  await refreshPhotoPreview();
+  initialSnapshot.value = getSnapshot();
+};
+
+const discardCurrentStagedPhoto = async () => {
+  if (!isStagedPhoto(record.value.photo)) {
+    return;
+  }
+  await photoService.discardStagedPhotos(record.value.photo);
+};
+
+const applyPhotoSelection = async (result: PhotoSelectionResult) => {
+  if ('cancelled' in result) {
+    return;
+  }
+
+  await discardCurrentStagedPhoto();
+  record.value.photo = result.photo;
+  photoPreviewUrl.value = result.previewUrl;
+};
+
+const choosePhoto = async () => {
+  photoBusy.value = true;
+  error.value = null;
+
+  try {
+    const result = await photoService.pickImage();
+    await applyPhotoSelection(result);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('edit.photo_error_generic');
+    console.error('Error choosing photo:', err);
+  } finally {
+    photoBusy.value = false;
+  }
+};
+
+const capturePhoto = async () => {
+  photoBusy.value = true;
+  error.value = null;
+
+  try {
+    const result = await photoService.captureImage();
+    await applyPhotoSelection(result);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('edit.photo_error_generic');
+    console.error('Error capturing photo:', err);
+  } finally {
+    photoBusy.value = false;
+  }
+};
+
+const removePhoto = async () => {
+  photoBusy.value = true;
+  error.value = null;
+
+  try {
+    await discardCurrentStagedPhoto();
+    record.value.photo = '';
+    photoPreviewUrl.value = '';
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('edit.photo_error_generic');
+    console.error('Error removing photo:', err);
+  } finally {
+    photoBusy.value = false;
+  }
+};
+
+const preparePhotoForSave = async (recordId: number) => {
+  if (!record.value.photo.trim()) {
+    return { photo: '', previewUrl: '' };
+  }
+
+  const finalizedPhoto = await photoService.finalizeRecordPhoto(recordId, record.value.photo);
+  return {
+    photo: finalizedPhoto?.photo ?? '',
+    previewUrl: finalizedPhoto?.previewUrl ?? '',
+  };
+};
 
 const loadRecord = async () => {
   const id = Number(route.params.id);
@@ -35,7 +136,7 @@ const loadRecord = async () => {
     isNewRecord.value = true;
     record.value = new Record();
     await setDefaults();
-    setInitialSnapshot();
+    await syncInitialState();
     return;
   }
   
@@ -46,7 +147,7 @@ const loadRecord = async () => {
     if (data) {
       record.value = Object.assign(new Record(), data);
       isNewRecord.value = false;
-      setInitialSnapshot();
+      await syncInitialState();
     } else {
       error.value = 'Record not found';
     }
@@ -77,30 +178,50 @@ const setDefaults = async () => {
   }
 };
 
-const setInitialSnapshot = () => {
-  initialSnapshot.value = getSnapshot();
-};
-
 const saveRecord = async () => {
   loading.value = true;
   error.value = null;
+  let preparedPhotoRaw = record.value.photo;
+  let preparedPhotoPreview = photoPreviewUrl.value;
   
   try {
-    // Convert Record instance to plain object for IPC (removes methods, keeps data)
-    const plainRecord = record.value.convertToPlainObject();
-    
     if (isNewRecord.value || record.value.id === -1) {
-      // Create new record
-      const newId = await platformBridge.invoke('db:saveRecord', plainRecord);
+      const createRecord = record.value.convertToPlainObject();
+      createRecord.photo = '';
+      const newId = await platformBridge.invoke('db:saveRecord', createRecord);
+
+      record.value.id = newId;
+      isNewRecord.value = false;
+      ({ photo: preparedPhotoRaw, previewUrl: preparedPhotoPreview } = await preparePhotoForSave(newId));
+
+      if (preparedPhotoRaw) {
+        const updateRecord = record.value.convertToPlainObject();
+        updateRecord.id = newId;
+        updateRecord.photo = preparedPhotoRaw;
+        await platformBridge.invoke('db:updateRecord', updateRecord);
+      }
+
+      await photoService.commitSavedRecordPhoto(newId, initialPhotoRaw.value, preparedPhotoRaw);
+      record.value.photo = preparedPhotoRaw;
+      photoPreviewUrl.value = preparedPhotoPreview;
+      await syncInitialState();
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
-      // Update existing record
+      ({ photo: preparedPhotoRaw, previewUrl: preparedPhotoPreview } = await preparePhotoForSave(record.value.id));
+      const plainRecord = record.value.convertToPlainObject();
+      plainRecord.photo = preparedPhotoRaw;
       await platformBridge.invoke('db:updateRecord', plainRecord);
+      await photoService.commitSavedRecordPhoto(record.value.id, initialPhotoRaw.value, preparedPhotoRaw);
+      record.value.photo = preparedPhotoRaw;
+      photoPreviewUrl.value = preparedPhotoPreview;
+      await syncInitialState();
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
   } catch (err) {
+    record.value.photo = preparedPhotoRaw;
+    photoPreviewUrl.value = preparedPhotoPreview;
     error.value = err instanceof Error ? err.message : 'Failed to save record';
     console.error('Error saving record:', err);
   } finally {
@@ -122,8 +243,9 @@ const cancel = () => {
   showCancelConfirm.value = true;
 };
 
-const confirmCancel = () => {
+const confirmCancel = async () => {
   showCancelConfirm.value = false;
+  await discardCurrentStagedPhoto();
   allowNavigation.value = true;
 
   if (pendingNavigation.value) {
@@ -162,8 +284,12 @@ onBeforeRouteLeave((to, from, next) => {
   next(false);
 });
 
+onBeforeUnmount(() => {
+  void discardCurrentStagedPhoto();
+});
+
 onMounted(() => {
-  loadRecord();
+  void loadRecord();
 });
 </script>
 
@@ -380,6 +506,62 @@ onMounted(() => {
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">{{ t('edit.notes_rating_title')}}</h2>
         <div class="space-y-4">
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">{{ t('edit.photo_label') }}</label>
+                <p class="text-xs text-gray-500 mt-1">{{ t('edit.photo_hint') }}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="loading || photoBusy"
+                  @click="choosePhoto"
+                >
+                  {{ hasPhoto ? t('edit.photo_replace_button') : t('edit.photo_add_button') }}
+                </button>
+                <button
+                  v-if="canCapturePhoto"
+                  type="button"
+                  class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="loading || photoBusy"
+                  @click="capturePhoto"
+                >
+                  {{ t('edit.photo_take_button') }}
+                </button>
+                <button
+                  v-if="hasPhoto"
+                  type="button"
+                  class="px-3 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="loading || photoBusy"
+                  @click="removePhoto"
+                >
+                  {{ t('edit.photo_remove_button') }}
+                </button>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 overflow-hidden">
+              <ZoomablePhoto
+                v-if="photoPreviewUrl"
+                :src="photoPreviewUrl"
+                :alt="record.name || t('edit.photo_label')"
+                :aria-label="t('photo.open_viewer')"
+                :disabled="loading || photoBusy"
+                class="relative aspect-4/3 bg-gray-100"
+                image-class="h-full w-full object-cover"
+              >
+                <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/55 to-transparent px-4 py-3 text-sm text-white">
+                  {{ record.name || t('edit.photo_label') }}
+                </div>
+              </ZoomablePhoto>
+              <div v-else class="px-4 py-10 text-center text-sm text-gray-500">
+                {{ t('edit.photo_empty') }}
+              </div>
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.notes_label') }}</label>
             <textarea
@@ -390,7 +572,8 @@ onMounted(() => {
           </div>
           
           <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.rating_label') }}</label><StarRating v-model="record.rating" :max="5" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('edit.rating_label') }}</label>
+            <StarRating v-model="record.rating" :max="5" />
           </div>
         </div>
       </section>

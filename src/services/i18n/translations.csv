@@ -43,6 +43,18 @@ edit.liquor_label;Liquor;Aufguss
 edit.color_label;Color;Farbe
 edit.aromas_label;Aromas;Aromen
 edit.notes_rating_title;Notes & Rating;Notizen & Bewertung
+edit.photo_label;Photo;Foto
+edit.photo_hint;One photo per record for now. You can replace it at any time.;Vorerst ist pro Eintrag nur ein Foto moeglich. Sie koennen es jederzeit ersetzen.
+photo.open_viewer;Open photo fullscreen;Foto im Vollbild oeffnen
+photo.close_viewer;Close photo viewer;Fotoansicht schliessen
+photo.zoom_viewer;Zoom photo;Foto zoomen
+photo.image_error;The photo cannot be loaded.;Das Foto kann nicht geladen werden.
+edit.photo_add_button;Add photo;Foto hinzufuegen
+edit.photo_replace_button;Replace photo;Foto ersetzen
+edit.photo_take_button;Take photo;Foto aufnehmen
+edit.photo_remove_button;Remove photo;Foto entfernen
+edit.photo_empty;No photo selected yet.;Noch kein Foto ausgewaehlt.
+edit.photo_error_generic;Photo action failed.;Fotoaktion fehlgeschlagen.
 edit.notes_label;Notes;Notizen
 edit.rating_label;Rating;Bewertung
 edit.cancel_button;Cancel;Abbrechen
@@ -101,6 +113,7 @@ settings.database_export;Export database;Datenbank exportieren
 settings.database_import;Import database;Datenbank importieren
 settings.database_export_success_cap;Database export completed. You can find the exported file in your documents folder.;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie in Ihrem Dokumenten-Verzeichnis.
 settings.database_export_success;Database export completed. You can find the exported file at;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie unter
+settings.database_export_photo_archive;Photo archive: {path};Fotoarchiv: {path}
 settings.database_export_success_title;Export complete;Export abgeschlossen
 settings.database_export_error_title;Export failed;Export fehlgeschlagen
 settings.database_export_error;Database export failed.;Datenbank-Export fehlgeschlagen.
@@ -112,9 +125,13 @@ settings.database_import_replace;Replace database;Datenbank ersetzen
 settings.database_import_cancel;Cancel;Abbrechen
 settings.database_import_success_append;Database import completed (records appended).;Datenbankimport abgeschlossen (Einträge angefügt).
 settings.database_import_success_replace;Database import completed (database replaced).;Datenbankimport abgeschlossen (Datenbank ersetzt).
+settings.database_import_photos_restored;Sibling photo archive imported from: {path};Zugehöriges Fotoarchiv importiert von: {path}
+settings.database_import_photos_missing;No sibling photo archive was found.;Kein zugehöriges Fotoarchiv gefunden.
 sync.section_title;Nextcloud Sync;Nextcloud-Synchronisierung
 sync.enable_label;Enable Nextcloud sync;Nextcloud-Sync aktivieren
 sync.disable_hint;The app only checks and uploads when sync is enabled.;Die App prüft und lädt nur hoch, wenn die Synchronisierung aktiviert ist.
+sync.pictures_label;Sync pictures;Bilder synchronisieren
+sync.pictures_hint;Upload and download record photos together with the database. Already uploaded remote pictures stay untouched when disabled.;Fotos zusammen mit der Datenbank hoch- und herunterladen. Bereits hochgeladene Remote-Bilder bleiben beim Deaktivieren unverändert.
 sync.server_url;Server URL;Server-URL
 sync.folder_path;Remote folder;Remote-Ordner
 sync.backup_retention;Rolling backups;Rotierende Backups
@@ -132,6 +149,23 @@ sync.status_syncing;Syncing database...;Datenbank wird synchronisiert...
 sync.status_source_choice_required;Choose which database should be used for sync before continuing.;Wählen Sie zuerst aus, welche Datenbank für die Synchronisierung verwendet werden soll.
 sync.status_last_sync_prefix;Last sync:;Letzte Synchronisierung:
 sync.status_dirty;Local changes are waiting to be uploaded.;Lokale Änderungen warten auf den Upload.
+sync.progress_prepare_sync;Preparing sync...;Synchronisierung wird vorbereitet...
+sync.progress_snapshot_database;Creating database snapshot...;Datenbank-Schnappschuss wird erstellt...
+sync.progress_archive_photos;Preparing photo archive...;Fotoarchiv wird vorbereitet...
+sync.progress_upload_database;Uploading database...;Datenbank wird hochgeladen...
+sync.progress_upload_photos;Uploading photo archive...;Fotoarchiv wird hochgeladen...
+sync.progress_backup_remote_database;Backing up remote database...;Remote-Datenbank wird gesichert...
+sync.progress_backup_remote_photos;Backing up remote photo archive...;Remote-Fotoarchiv wird gesichert...
+sync.progress_publish_remote;Finalizing remote sync...;Remote-Synchronisierung wird abgeschlossen...
+sync.progress_write_manifest;Updating sync manifest...;Synchronisationsmanifest wird aktualisiert...
+sync.progress_prune_backups;Cleaning up old backups...;Alte Backups werden bereinigt...
+sync.progress_download_database;Downloading database...;Datenbank wird heruntergeladen...
+sync.progress_restore_database;Restoring database...;Datenbank wird wiederhergestellt...
+sync.progress_download_photos;Downloading photo archive...;Fotoarchiv wird heruntergeladen...
+sync.progress_restore_photos;Restoring photo archive...;Fotoarchiv wird wiederhergestellt...
+sync.progress_keep_local_photos;Keeping local photos because no remote photo archive was found.;Lokale Fotos bleiben erhalten, da kein Remote-Fotoarchiv gefunden wurde.
+sync.progress_restore_missing_photos;Restoring available local photo references...;Verfügbare lokale Fotoreferenzen werden wiederhergestellt...
+sync.progress_complete;Sync complete.;Synchronisierung abgeschlossen.
 sync.connected_account;Connected account;Verbundenes Konto
 sync.last_sync_never;Never;Nie
 sync.choose_source;Choose source database;Quelldatenbank wählen

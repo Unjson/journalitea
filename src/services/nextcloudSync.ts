@@ -1,5 +1,12 @@
 import { platformBridge } from "./platformBridge";
 import { APP_NAME } from "../appSettings";
+import { buildSiblingPhotoArchivePath } from "./photoStorageShared";
+import {
+  beginSyncProgress,
+  clearSyncProgress,
+  finishSyncProgress,
+  updateSyncProgress,
+} from "./syncProgress";
 import {
   clearSyncConfig,
   clearSyncDirty,
@@ -22,6 +29,7 @@ const LOGIN_FLOW_POLL_INTERVAL_MS = 1500;
 const LOGIN_FLOW_TIMEOUT_MS = 20 * 60 * 1000;
 const SYNC_SCHEMA_VERSION = 1;
 const REMOTE_DATABASE_FILE_NAME = "database.db";
+const REMOTE_PHOTO_ARCHIVE_FILE_NAME = "database_photos.zip";
 const REMOTE_MANIFEST_FILE_NAME = "manifest.json";
 const REMOTE_BACKUPS_DIRECTORY = "backups";
 const NEXTCLOUD_CLIENT_NAME = APP_NAME.split(" - ")[0].trim() || APP_NAME;
@@ -54,6 +62,13 @@ type SyncCredentials = {
   appPassword: string;
   remoteFolder: string;
   backupRetention: number;
+  syncPictures: boolean;
+};
+
+type SyncRecord = {
+  id?: number | string | null;
+  photo?: string | null;
+  [key: string]: unknown;
 };
 
 type RemoteFileInfo = {
@@ -372,6 +387,70 @@ class NextcloudSyncService {
     return Number.isFinite(count) ? Math.max(0, Math.round(count)) : 0;
   }
 
+  private async listAllRecords(): Promise<SyncRecord[]> {
+    const records = await platformBridge.invoke("db:listRecords", null);
+    return Array.isArray(records) ? (records as SyncRecord[]) : [];
+  }
+
+  private async captureLocalPhotoSnapshot(): Promise<Map<number, string>> {
+    const snapshot = new Map<number, string>();
+    const records = await this.listAllRecords();
+
+    for (const record of records) {
+      const recordId = Number(record.id ?? -1);
+      const photoRaw = String(record.photo ?? "").trim();
+      if (!Number.isFinite(recordId) || recordId <= 0 || !photoRaw) {
+        continue;
+      }
+      snapshot.set(recordId, photoRaw);
+    }
+
+    return snapshot;
+  }
+
+  private async hasLocalPhotoAsset(photoRaw: string): Promise<boolean> {
+    const normalizedPhoto = String(photoRaw ?? "").trim();
+    if (!normalizedPhoto) {
+      return false;
+    }
+
+    const previewUrl = await platformBridge.invoke(
+      "photo:resolveUrl",
+      normalizedPhoto,
+    );
+    return String(previewUrl ?? "").trim().length > 0;
+  }
+
+  private async restoreAvailableLocalPhotos(
+    snapshot: ReadonlyMap<number, string>,
+  ): Promise<void> {
+    if (snapshot.size === 0) {
+      return;
+    }
+
+    const records = await this.listAllRecords();
+    for (const record of records) {
+      const recordId = Number(record.id ?? -1);
+      const localPhotoRaw = snapshot.get(recordId);
+      if (!localPhotoRaw) {
+        continue;
+      }
+
+      const currentPhotoRaw = String(record.photo ?? "").trim();
+      if (currentPhotoRaw && (await this.hasLocalPhotoAsset(currentPhotoRaw))) {
+        continue;
+      }
+      if (!(await this.hasLocalPhotoAsset(localPhotoRaw))) {
+        continue;
+      }
+
+      await platformBridge.invoke("db:updateRecord", {
+        ...record,
+        photo: localPhotoRaw,
+      });
+    }
+  }
+
   private async getCredentials(): Promise<SyncCredentials> {
     const config = loadSyncConfig();
     if (!config.serverUrl || !config.loginName || !config.userId) {
@@ -387,6 +466,7 @@ class NextcloudSyncService {
       userId: config.userId,
       remoteFolder: config.remoteFolder,
       backupRetention: config.backupRetention,
+      syncPictures: config.syncPictures,
       appPassword: await this.getStoredSecret(),
     };
   }
@@ -843,6 +923,7 @@ class NextcloudSyncService {
         userId,
         remoteFolder: currentConfig.remoteFolder,
         backupRetention: currentConfig.backupRetention,
+        syncPictures: currentConfig.syncPictures,
         appPassword,
       };
 
@@ -969,142 +1050,366 @@ class NextcloudSyncService {
   }
 
   async applyRemoteDatabase(): Promise<SyncConfig> {
-    const credentials = await this.getCredentials();
-    const remoteFile = await this.getRemoteFileInfo(
-      credentials,
-      REMOTE_DATABASE_FILE_NAME,
+    const progressToken = beginSyncProgress(
+      "download",
+      "sync.progress_download_database",
+      8,
     );
-    if (!remoteFile.exists) {
-      throw new NextcloudSyncError(
-        "remote-database-missing",
-        "There is no remote database to restore.",
-      );
-    }
-
-    const download = await this.downloadFile({
-      url: buildDavUrl(credentials, REMOTE_DATABASE_FILE_NAME),
-      fileName: `nextcloud-restore-${Date.now()}.db`,
-      headers: buildAuthHeaders(credentials),
-    });
-
-    this.assertStatus(
-      download,
-      [200],
-      "remote-download-failed",
-      "Could not download the remote database.",
-    );
-
-    if (!download.path) {
-      throw new NextcloudSyncError(
-        "remote-download-failed",
-        "The remote database download did not return a local file.",
-      );
-    }
+    let progressFinished = false;
 
     try {
-      await platformBridge.invoke(
-        "sync:replaceDatabaseFromFile",
-        download.path,
-      );
-    } finally {
-      await platformBridge.invoke("sync:deleteFile", download.path);
-    }
-
-    clearSyncError();
-    clearSyncDirty();
-    return saveSyncConfig({
-      dirty: false,
-      requiresSourceChoice: false,
-      lastAppliedRemoteAt: remoteFile.lastModified || new Date().toISOString(),
-      lastRemoteUploadedAt: remoteFile.lastModified || new Date().toISOString(),
-      lastRemoteEtag: remoteFile.etag,
-      lastSyncAt: new Date().toISOString(),
-    });
-  }
-
-  async syncNow(): Promise<SyncManifest> {
-    const credentials = await this.getCredentials();
-    await this.ensureRemoteStructure(credentials);
-
-    const existingRemoteFile = await this.getRemoteFileInfo(
-      credentials,
-      REMOTE_DATABASE_FILE_NAME,
-    );
-    const snapshot = await platformBridge.invoke("sync:createDatabaseSnapshot");
-    const snapshotPath = String(snapshot?.path ?? "").trim();
-    if (!snapshotPath) {
-      throw new NextcloudSyncError(
-        "snapshot-failed",
-        "Could not create a local database snapshot.",
-      );
-    }
-
-    const uploadToken = formatTimestampForFileName(new Date());
-    const tempRemotePath = `.upload-${uploadToken}.db`;
-    try {
-      const uploadResponse = await this.uploadFile({
-        url: buildDavUrl(credentials, tempRemotePath),
-        sourcePath: snapshotPath,
-        method: "PUT",
-        headers: {
-          ...buildAuthHeaders(credentials),
-          "Content-Type": "application/octet-stream",
-        },
-      });
-
-      this.assertStatus(
-        uploadResponse,
-        [200, 201, 204],
-        "upload-failed",
-        "Could not upload the database to Nextcloud.",
-      );
-
-      if (existingRemoteFile.exists) {
-        await this.copyRemoteFile(
-          credentials,
-          REMOTE_DATABASE_FILE_NAME,
-          `${REMOTE_BACKUPS_DIRECTORY}/database-${uploadToken}.db`,
-        );
-      }
-
-      await this.moveRemoteFile(
-        credentials,
-        tempRemotePath,
-        REMOTE_DATABASE_FILE_NAME,
-      );
-
+      const credentials = await this.getCredentials();
+      const localPhotoSnapshot = await this.captureLocalPhotoSnapshot();
       const remoteFile = await this.getRemoteFileInfo(
         credentials,
         REMOTE_DATABASE_FILE_NAME,
       );
-      const manifest = await buildManifestFromRemoteFile(remoteFile);
-      await this.writeRemoteManifest(credentials, manifest);
-      await this.pruneRemoteBackups(credentials);
+      if (!remoteFile.exists) {
+        throw new NextcloudSyncError(
+          "remote-database-missing",
+          "There is no remote database to restore.",
+        );
+      }
+
+      const download = await this.downloadFile({
+        url: buildDavUrl(credentials, REMOTE_DATABASE_FILE_NAME),
+        fileName: `nextcloud-restore-${Date.now()}.db`,
+        headers: buildAuthHeaders(credentials),
+      });
+
+      this.assertStatus(
+        download,
+        [200],
+        "remote-download-failed",
+        "Could not download the remote database.",
+      );
+
+      if (!download.path) {
+        throw new NextcloudSyncError(
+          "remote-download-failed",
+          "The remote database download did not return a local file.",
+        );
+      }
+
+      let photoDownloadPath = "";
+      try {
+        updateSyncProgress(progressToken, {
+          direction: "sync",
+          messageKey: "sync.progress_restore_database",
+          percent: 38,
+        });
+        await platformBridge.invoke(
+          "sync:replaceDatabaseFromFile",
+          download.path,
+        );
+
+        if (credentials.syncPictures) {
+          const remotePhotoArchive = await this.getRemoteFileInfo(
+            credentials,
+            REMOTE_PHOTO_ARCHIVE_FILE_NAME,
+          );
+
+          if (remotePhotoArchive.exists) {
+            updateSyncProgress(progressToken, {
+              direction: "download",
+              messageKey: "sync.progress_download_photos",
+              percent: 58,
+            });
+            const photoDownload = await this.downloadFile({
+              url: buildDavUrl(credentials, REMOTE_PHOTO_ARCHIVE_FILE_NAME),
+              fileName: `nextcloud-restore-${Date.now()}_photos.zip`,
+              headers: buildAuthHeaders(credentials),
+            });
+
+            this.assertStatus(
+              photoDownload,
+              [200],
+              "remote-download-failed",
+              "Could not download the remote photo archive.",
+            );
+
+            if (!photoDownload.path) {
+              throw new NextcloudSyncError(
+                "remote-download-failed",
+                "The remote photo archive download did not return a local file.",
+              );
+            }
+
+            photoDownloadPath = photoDownload.path;
+            updateSyncProgress(progressToken, {
+              direction: "sync",
+              messageKey: "sync.progress_restore_photos",
+              percent: 76,
+            });
+            await platformBridge.invoke(
+              "photo:restoreArchive",
+              photoDownload.path,
+              "merge",
+            );
+          } else {
+            updateSyncProgress(progressToken, {
+              direction: "sync",
+              messageKey: "sync.progress_keep_local_photos",
+              percent: 76,
+            });
+          }
+        }
+
+        updateSyncProgress(progressToken, {
+          direction: "sync",
+          messageKey: "sync.progress_restore_missing_photos",
+          percent: 90,
+        });
+        await this.restoreAvailableLocalPhotos(localPhotoSnapshot);
+      } finally {
+        await platformBridge.invoke("sync:deleteFile", download.path);
+        if (photoDownloadPath) {
+          await platformBridge.invoke("sync:deleteFile", photoDownloadPath);
+        }
+      }
 
       clearSyncError();
       clearSyncDirty();
-      saveSyncConfig({
+      const nextConfig = saveSyncConfig({
         dirty: false,
         requiresSourceChoice: false,
-        lastUploadAt: manifest.uploadedAt,
-        lastAppliedRemoteAt: manifest.uploadedAt,
-        lastRemoteUploadedAt: manifest.uploadedAt,
-        lastRemoteEtag: manifest.etag,
+        lastAppliedRemoteAt:
+          remoteFile.lastModified || new Date().toISOString(),
+        lastRemoteUploadedAt:
+          remoteFile.lastModified || new Date().toISOString(),
+        lastRemoteEtag: remoteFile.etag,
         lastSyncAt: new Date().toISOString(),
       });
+      finishSyncProgress(progressToken);
+      progressFinished = true;
+      return nextConfig;
+    } finally {
+      if (!progressFinished) {
+        clearSyncProgress(progressToken);
+      }
+    }
+  }
 
-      return manifest;
+  async syncNow(): Promise<SyncManifest> {
+    const progressToken = beginSyncProgress(
+      "sync",
+      "sync.progress_prepare_sync",
+      4,
+    );
+    let progressFinished = false;
+
+    try {
+      const credentials = await this.getCredentials();
+      await this.ensureRemoteStructure(credentials);
+
+      const existingRemoteFile = await this.getRemoteFileInfo(
+        credentials,
+        REMOTE_DATABASE_FILE_NAME,
+      );
+      const existingRemotePhotoArchive = credentials.syncPictures
+        ? await this.getRemoteFileInfo(
+            credentials,
+            REMOTE_PHOTO_ARCHIVE_FILE_NAME,
+          )
+        : null;
+
+      updateSyncProgress(progressToken, {
+        direction: "sync",
+        messageKey: "sync.progress_snapshot_database",
+        percent: 14,
+      });
+      const snapshot = await platformBridge.invoke(
+        "sync:createDatabaseSnapshot",
+      );
+      const snapshotPath = String(snapshot?.path ?? "").trim();
+      if (!snapshotPath) {
+        throw new NextcloudSyncError(
+          "snapshot-failed",
+          "Could not create a local database snapshot.",
+        );
+      }
+
+      const uploadToken = formatTimestampForFileName(new Date());
+      const tempRemotePath = `.upload-${uploadToken}.db`;
+      const tempRemotePhotoPath = buildSiblingPhotoArchivePath(tempRemotePath);
+      let localPhotoArchivePath = "";
+      try {
+        if (credentials.syncPictures) {
+          updateSyncProgress(progressToken, {
+            direction: "sync",
+            messageKey: "sync.progress_archive_photos",
+            percent: 28,
+          });
+          const photoArchive = await platformBridge.invoke(
+            "photo:createTemporaryArchive",
+            "nextcloud-photos",
+          );
+          localPhotoArchivePath = String(photoArchive?.path ?? "").trim();
+          if (!localPhotoArchivePath) {
+            throw new NextcloudSyncError(
+              "snapshot-failed",
+              "Could not create a temporary photo archive.",
+            );
+          }
+        }
+
+        updateSyncProgress(progressToken, {
+          direction: "upload",
+          messageKey: "sync.progress_upload_database",
+          percent: 44,
+        });
+        const uploadResponse = await this.uploadFile({
+          url: buildDavUrl(credentials, tempRemotePath),
+          sourcePath: snapshotPath,
+          method: "PUT",
+          headers: {
+            ...buildAuthHeaders(credentials),
+            "Content-Type": "application/octet-stream",
+          },
+        });
+
+        this.assertStatus(
+          uploadResponse,
+          [200, 201, 204],
+          "upload-failed",
+          "Could not upload the database to Nextcloud.",
+        );
+
+        if (localPhotoArchivePath) {
+          updateSyncProgress(progressToken, {
+            direction: "upload",
+            messageKey: "sync.progress_upload_photos",
+            percent: 58,
+          });
+          const photoUploadResponse = await this.uploadFile({
+            url: buildDavUrl(credentials, tempRemotePhotoPath),
+            sourcePath: localPhotoArchivePath,
+            method: "PUT",
+            headers: {
+              ...buildAuthHeaders(credentials),
+              "Content-Type": "application/zip",
+            },
+          });
+
+          this.assertStatus(
+            photoUploadResponse,
+            [200, 201, 204],
+            "upload-failed",
+            "Could not upload the photo archive to Nextcloud.",
+          );
+        }
+
+        if (existingRemoteFile.exists) {
+          updateSyncProgress(progressToken, {
+            direction: "sync",
+            messageKey: "sync.progress_backup_remote_database",
+            percent: 72,
+          });
+          await this.copyRemoteFile(
+            credentials,
+            REMOTE_DATABASE_FILE_NAME,
+            `${REMOTE_BACKUPS_DIRECTORY}/database-${uploadToken}.db`,
+          );
+        }
+
+        if (localPhotoArchivePath && existingRemotePhotoArchive?.exists) {
+          updateSyncProgress(progressToken, {
+            direction: "sync",
+            messageKey: "sync.progress_backup_remote_photos",
+            percent: 78,
+          });
+          await this.copyRemoteFile(
+            credentials,
+            REMOTE_PHOTO_ARCHIVE_FILE_NAME,
+            buildSiblingPhotoArchivePath(
+              `${REMOTE_BACKUPS_DIRECTORY}/database-${uploadToken}.db`,
+            ),
+          );
+        }
+
+        updateSyncProgress(progressToken, {
+          direction: "sync",
+          messageKey: "sync.progress_publish_remote",
+          percent: 86,
+        });
+        await this.moveRemoteFile(
+          credentials,
+          tempRemotePath,
+          REMOTE_DATABASE_FILE_NAME,
+        );
+
+        if (localPhotoArchivePath) {
+          await this.moveRemoteFile(
+            credentials,
+            tempRemotePhotoPath,
+            REMOTE_PHOTO_ARCHIVE_FILE_NAME,
+          );
+        }
+
+        const remoteFile = await this.getRemoteFileInfo(
+          credentials,
+          REMOTE_DATABASE_FILE_NAME,
+        );
+        const manifest = await buildManifestFromRemoteFile(remoteFile);
+
+        updateSyncProgress(progressToken, {
+          direction: "sync",
+          messageKey: "sync.progress_write_manifest",
+          percent: 94,
+        });
+        await this.writeRemoteManifest(credentials, manifest);
+
+        updateSyncProgress(progressToken, {
+          direction: "sync",
+          messageKey: "sync.progress_prune_backups",
+          percent: 98,
+        });
+        await this.pruneRemoteBackups(credentials);
+
+        clearSyncError();
+        clearSyncDirty();
+        saveSyncConfig({
+          dirty: false,
+          requiresSourceChoice: false,
+          lastUploadAt: manifest.uploadedAt,
+          lastAppliedRemoteAt: manifest.uploadedAt,
+          lastRemoteUploadedAt: manifest.uploadedAt,
+          lastRemoteEtag: manifest.etag,
+          lastSyncAt: new Date().toISOString(),
+        });
+
+        finishSyncProgress(progressToken);
+        progressFinished = true;
+        return manifest;
+      } finally {
+        await platformBridge.invoke("sync:deleteFile", snapshotPath);
+        if (localPhotoArchivePath) {
+          await platformBridge.invoke("sync:deleteFile", localPhotoArchivePath);
+        }
+        try {
+          await this.deleteRemoteFile(credentials, tempRemotePath);
+        } catch (error) {
+          console.warn("Failed to remove temporary Nextcloud upload", error);
+        }
+        if (localPhotoArchivePath) {
+          try {
+            await this.deleteRemoteFile(credentials, tempRemotePhotoPath);
+          } catch (error) {
+            console.warn(
+              "Failed to remove temporary Nextcloud photo upload",
+              error,
+            );
+          }
+        }
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Nextcloud sync failed.";
       setSyncError(message);
       throw error;
     } finally {
-      await platformBridge.invoke("sync:deleteFile", snapshotPath);
-      try {
-        await this.deleteRemoteFile(credentials, tempRemotePath);
-      } catch (error) {
-        console.warn("Failed to remove temporary Nextcloud upload", error);
+      if (!progressFinished) {
+        clearSyncProgress(progressToken);
       }
     }
   }

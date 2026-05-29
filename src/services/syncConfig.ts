@@ -5,6 +5,7 @@ export const DEFAULT_NEXTCLOUD_BACKUP_RETENTION = 3;
 
 export type SyncConfig = {
   enabled: boolean;
+  syncPictures: boolean;
   requiresSourceChoice: boolean;
   serverUrl: string;
   loginName: string;
@@ -49,6 +50,7 @@ const normalizeBackupRetention = (value: unknown): number => {
 
 const createDefaultSyncConfig = (): SyncConfig => ({
   enabled: false,
+  syncPictures: false,
   requiresSourceChoice: false,
   serverUrl: "",
   loginName: "",
@@ -74,6 +76,7 @@ const normalizeSyncConfig = (
   return {
     ...defaults,
     enabled: raw.enabled === true,
+    syncPictures: raw.syncPictures === true,
     requiresSourceChoice: raw.requiresSourceChoice === true,
     serverUrl: toStringOrEmpty(raw.serverUrl).trim(),
     loginName: toStringOrEmpty(raw.loginName).trim(),

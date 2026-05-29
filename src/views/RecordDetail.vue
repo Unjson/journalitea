@@ -6,10 +6,12 @@ import { getColorForRating } from '../models/colors';
 import RadarPlot from '../components/charts/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import StarRating from '../components/StarRating.vue';
+import ZoomablePhoto from '../components/ZoomablePhoto.vue';
 import { useI18n } from 'vue-i18n';
 import { aromaFieldLabels } from '../models/enums';
 import { formatPriceString } from '../models/teaStats';
 import { platformBridge } from '../services/platformBridge';
+import { photoService } from '../services/photoService';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,6 +21,7 @@ const record = ref<Record | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const currencyString = ref<string | null>(null);
+const photoPreviewUrl = ref('');
 
 const teaType = ref<string | null>(null);
 const preparationMethod = ref<string | null>(null);
@@ -56,6 +59,9 @@ const loadRecord = async () => {
     teaType.value = recordInstance.getTypeName();
     preparationMethod.value = t(recordInstance.getPreparationMethodName());
     currencyString.value =  formatPriceString(recordInstance.price, recordInstance.priceCurrency);
+    photoPreviewUrl.value = recordInstance.photo.trim()
+      ? await photoService.resolveUrl(recordInstance.photo)
+      : '';
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load record';
     console.error('Error loading record:', err);
@@ -105,6 +111,23 @@ onMounted(() => {
 
     <div v-else-if="record" class="bg-white border rounded-lg shadow-lg p-6">
       <h1 class="text-3xl font-bold mb-6">{{ record.name }}</h1>
+
+      <section v-if="photoPreviewUrl" class="mb-6">
+        <h2 class="text-xl font-semibold mb-3 border-b pb-2">{{ t('edit.photo_label') }}</h2>
+        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
+          <ZoomablePhoto
+            :src="photoPreviewUrl"
+            :alt="record.name || t('edit.photo_label')"
+            :aria-label="t('photo.open_viewer')"
+            class="relative aspect-4/3 bg-gray-100"
+            image-class="h-full w-full object-cover"
+          >
+            <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/55 to-transparent px-4 py-3 text-sm text-white">
+              {{ record.name || t('edit.photo_label') }}
+            </div>
+          </ZoomablePhoto>
+        </div>
+      </section>
 
       <!-- Data Block -->
       <section class="mb-6">
