@@ -1,7 +1,7 @@
 {
   "name": "journalitea",
   "description": "Personal Tea Journal",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "type": "module",
   "main": "dist-electron/main.js",
   "engines": {
