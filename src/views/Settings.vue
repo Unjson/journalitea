@@ -23,6 +23,7 @@ const showExportDialog = ref(false);
 const exportDialogTitle = ref('');
 const exportDialogMessage = ref('');
 const syncEnabled = ref(false);
+const syncPictures = ref(false);
 const syncServerUrl = ref('');
 const syncRemoteFolder = ref(DEFAULT_NEXTCLOUD_FOLDER);
 const syncBackupRetention = ref(DEFAULT_NEXTCLOUD_BACKUP_RETENTION);
@@ -101,6 +102,7 @@ const openSourceChoiceDialog = async (providedState?: PendingSourceChoiceState |
 const applySyncConfig = async () => {
 	const config = loadSyncConfig();
 	syncEnabled.value = config.enabled;
+	syncPictures.value = config.syncPictures;
 	syncSourceChoiceRequired.value = config.requiresSourceChoice;
 	syncServerUrl.value = config.serverUrl;
 	syncRemoteFolder.value = config.remoteFolder;
@@ -126,11 +128,13 @@ const applySyncConfig = async () => {
 const persistSyncConfig = () => {
 	const config = saveSyncConfig({
 		enabled: syncEnabled.value,
+		syncPictures: syncPictures.value,
 		serverUrl: syncServerUrl.value.trim(),
 		remoteFolder: syncRemoteFolder.value,
 		backupRetention: syncBackupRetention.value,
 	});
 	syncEnabled.value = config.enabled;
+	syncPictures.value = config.syncPictures;
 	syncServerUrl.value = config.serverUrl;
 	syncRemoteFolder.value = config.remoteFolder;
 	syncBackupRetention.value = config.backupRetention;
@@ -187,17 +191,56 @@ const onHistogramBucketsChanged = async () => {
 	}
 };
 
+const buildExportSuccessMessage = (result: any): string => {
+	const lines: string[] = [];
+	if (platformBridge.isCapacitor) {
+		lines.push(t('settings.database_export_success_cap'));
+	} else {
+		lines.push(`${t('settings.database_export_success')}:`);
+		if (result?.path) {
+			lines.push(String(result.path));
+		}
+	}
+
+	if (result?.photoArchivePath) {
+		lines.push(t('settings.database_export_photo_archive', {
+			path: String(result.photoArchivePath),
+		}));
+	}
+
+	return lines.join('\n');
+};
+
+const buildImportSuccessMessage = (
+	mode: 'append' | 'replace',
+	result: any,
+): string => {
+	const lines = [
+		t(
+			mode === 'append'
+				? 'settings.database_import_success_append'
+				: 'settings.database_import_success_replace',
+		),
+	];
+
+	if (result?.photoArchivePath) {
+		lines.push(t('settings.database_import_photos_restored', {
+			path: String(result.photoArchivePath),
+		}));
+	} else {
+		lines.push(t('settings.database_import_photos_missing'));
+	}
+
+	return lines.join('\n');
+};
+
 const onExportDatabase = async () => {
 	try {
 		const result = await platformBridge.invoke('db:exportDatabase');
 		if (result?.cancelled) return;
 		if (result?.success || result?.path) {
 			exportDialogTitle.value = t('settings.database_export_success_title');
-			if(platformBridge.isCapacitor){
-				exportDialogMessage.value = t('settings.database_export_success_cap');
-			} else {
-				exportDialogMessage.value = t('settings.database_export_success') + ':\n' + (result.path ?? '');
-			}
+			exportDialogMessage.value = buildExportSuccessMessage(result);
 			showExportDialog.value = true;
 			return;
 		}
@@ -240,7 +283,7 @@ const appendImport = async () => {
 			sourceName: pendingImportName.value,
 		});
 		if (result?.success) {
-			window.alert(t('settings.database_import_success_append'));
+			window.alert(buildImportSuccessMessage('append', result));
 		}
 	} catch (err) {
 		console.error('Error appending database:', err);
@@ -261,7 +304,7 @@ const replaceImport = async () => {
 			sourceName: pendingImportName.value,
 		});
 		if (result?.success) {
-			window.alert(t('settings.database_import_success_replace'));
+			window.alert(buildImportSuccessMessage('replace', result));
 		}
 	} catch (err) {
 		console.error('Error replacing database:', err);
@@ -289,6 +332,15 @@ const toggleSyncEnabled = () => {
 
 	syncEnabled.value = !syncEnabled.value;
 	onSyncEnabledChanged();
+};
+
+const toggleSyncPictures = () => {
+	if (syncBusy.value) {
+		return;
+	}
+
+	syncPictures.value = !syncPictures.value;
+	persistSyncConfig();
 };
 
 const onSyncServerChanged = () => {
@@ -575,6 +627,36 @@ onMounted(async() => {
 							:class="[
 								'inline-block h-6 w-6 rounded-full bg-white shadow transition-transform duration-200',
 								syncEnabled ? 'translate-x-7' : 'translate-x-1',
+							]"
+						></span>
+					</button>
+				</div>
+
+				<div class="mt-4 flex items-start justify-between gap-4 border-t border-gray-200 pt-4">
+					<div>
+						<div class="text-sm font-medium text-gray-700">
+							{{ t('sync.pictures_label') }}
+						</div>
+						<div class="mt-2 text-xs text-gray-500">
+							{{ t('sync.pictures_hint') }}
+						</div>
+					</div>
+					<button
+						type="button"
+						role="switch"
+						:aria-checked="syncPictures"
+						:aria-label="t('sync.pictures_label')"
+						:disabled="syncBusy"
+						:class="[
+							'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+							syncPictures ? 'bg-gray-800' : 'bg-gray-300',
+						]"
+						@click="toggleSyncPictures"
+					>
+						<span
+							:class="[
+								'inline-block h-6 w-6 rounded-full bg-white shadow transition-transform duration-200',
+								syncPictures ? 'translate-x-7' : 'translate-x-1',
 							]"
 						></span>
 					</button>

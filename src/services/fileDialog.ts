@@ -11,6 +11,17 @@ const fileFilters = [
   },
 ];
 
+const imageFilters = [
+  {
+    name: "Images",
+    extensions: ["jpg", "jpeg", "png", "gif", "webp", "bmp"],
+  },
+  {
+    name: "All Files",
+    extensions: ["*"],
+  },
+];
+
 export const pickSaveFilePath = async (): Promise<string | null> => {
   try {
     const { canceled, filePath } = await dialog.showSaveDialog({
@@ -33,6 +44,20 @@ export const pickOpenFilePath = async (): Promise<string | null> => {
       title: "Import database",
       buttonLabel: "Import",
       filters: fileFilters,
+      properties: ["openFile"],
+    });
+    return canceled ? null : (filePaths?.[0] ?? null);
+  } catch (error) {
+    return null;
+  }
+};
+
+export const pickImageFilePath = async (): Promise<string | null> => {
+  try {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: "Select photo",
+      buttonLabel: "Use photo",
+      filters: imageFilters,
       properties: ["openFile"],
     });
     return canceled ? null : (filePaths?.[0] ?? null);

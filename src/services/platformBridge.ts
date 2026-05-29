@@ -8,6 +8,21 @@ import { Preferences } from "@capacitor/preferences";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
 import translationsCsv from "./i18n/translations.csv?raw";
 import { capacitorDb } from "./capacitorDatabase";
+import {
+  captureAndStagePhoto,
+  clearAllPhotos,
+  commitSavedRecordPhoto,
+  createSiblingArchive,
+  createTemporaryArchive,
+  deleteRecordPhotos,
+  discardStagedPhotos,
+  finalizeRecordPhoto,
+  getSiblingArchive,
+  pickAndStagePhoto,
+  resolvePhotoUrl,
+  restoreArchive,
+  rewriteImportedPhotoRaw,
+} from "./capacitorPhotoStorage";
 import { markSyncDataDirty, SYNC_SECRET_STORAGE_KEY } from "./syncConfig";
 import type {
   SyncDownloadRequest,
@@ -181,8 +196,12 @@ const handleCapacitorInvoke = async (
       return capacitorDb.saveRecord(args[0]);
     case "db:updateRecord":
       return capacitorDb.updateRecord(args[0]);
-    case "db:deleteRecord":
-      return capacitorDb.deleteRecord(args[0]);
+    case "db:deleteRecord": {
+      const recordId = Number(args[0] ?? -1);
+      await capacitorDb.deleteRecord(recordId);
+      await deleteRecordPhotos(recordId);
+      return true;
+    }
     case "db:getSetting":
       return capacitorDb.getSettingsValue(args[0]);
     case "db:setSetting":
@@ -193,7 +212,14 @@ const handleCapacitorInvoke = async (
       );
     case "db:exportDatabase": {
       if (!isAndroid) return { cancelled: true };
-      return capacitorDb.exportDatabaseToDocuments();
+      const result = await capacitorDb.exportDatabaseToDocuments();
+      const photoArchive = await createSiblingArchive(result.path);
+      return {
+        ...result,
+        success: true,
+        photoArchivePath: photoArchive.path,
+        hasPhotos: photoArchive.hasPhotos,
+      };
     }
     case "db:pickDatabaseFile": {
       if (!isAndroid) return { cancelled: true };
@@ -226,11 +252,32 @@ const handleCapacitorInvoke = async (
       if (!payload) return { cancelled: true };
       if (payload.sourceData) {
         const json = decodeBase64(payload.sourceData);
-        await capacitorDb.importDatabaseFromJson(json, payload.mode);
+        let idMapEntries: any[] = [];
+        if (payload.mode === "append") {
+          idMapEntries = await capacitorDb.appendDatabaseFromJson(json);
+        } else {
+          await capacitorDb.importDatabaseFromJson(json, payload.mode);
+          await clearAllPhotos();
+        }
+
+        let photoArchivePath: string | null = null;
+        if (payload.sourcePath) {
+          const siblingArchive = await getSiblingArchive(payload.sourcePath);
+          photoArchivePath = siblingArchive.exists ? siblingArchive.path : null;
+          if (siblingArchive.exists) {
+            await restoreArchive(
+              siblingArchive.path,
+              payload.mode,
+              idMapEntries,
+            );
+          }
+        }
+
         return {
           success: true,
           mode: payload.mode,
           path: payload.sourcePath ?? null,
+          photoArchivePath,
         };
       }
       if (!payload.sourcePath) return { cancelled: true };
@@ -244,11 +291,23 @@ const handleCapacitorInvoke = async (
         });
         const jsonContent =
           typeof file.data === "string" ? file.data : await file.data.text();
-        await capacitorDb.importDatabaseFromJson(jsonContent, payload.mode);
+        let idMapEntries: any[] = [];
+        if (payload.mode === "append") {
+          idMapEntries = await capacitorDb.appendDatabaseFromJson(jsonContent);
+        } else {
+          await capacitorDb.importDatabaseFromJson(jsonContent, payload.mode);
+          await clearAllPhotos();
+        }
+
+        const siblingArchive = await getSiblingArchive(payload.sourcePath);
+        if (siblingArchive.exists) {
+          await restoreArchive(siblingArchive.path, payload.mode, idMapEntries);
+        }
         return {
           success: true,
           mode: payload.mode,
           path: payload.sourcePath,
+          photoArchivePath: siblingArchive.exists ? siblingArchive.path : null,
         };
       }
 
@@ -265,12 +324,56 @@ const handleCapacitorInvoke = async (
       const targetUrl = await capacitorDb.getDatabaseUrl();
       await capacitorDb.closeConnection();
       await copyFileWithPicker(payload.sourcePath, targetUrl, true);
+      await clearAllPhotos();
+      const siblingArchive = await getSiblingArchive(payload.sourcePath);
+      if (siblingArchive.exists) {
+        await restoreArchive(siblingArchive.path, "replace");
+      }
       return {
         success: true,
         mode: payload.mode,
         path: payload.sourcePath,
+        photoArchivePath: siblingArchive.exists ? siblingArchive.path : null,
       };
     }
+    case "photo:pickImage":
+      return pickAndStagePhoto();
+    case "photo:captureImage":
+      return captureAndStagePhoto();
+    case "photo:resolveUrl":
+      return resolvePhotoUrl(String(args[0] ?? ""));
+    case "photo:finalizeRecordPhoto":
+      return finalizeRecordPhoto(Number(args[0] ?? -1), String(args[1] ?? ""));
+    case "photo:commitSavedRecordPhoto":
+      return commitSavedRecordPhoto(
+        Number(args[0] ?? -1),
+        String(args[1] ?? ""),
+        String(args[2] ?? ""),
+      );
+    case "photo:discardStagedPhotos":
+      return discardStagedPhotos(String(args[0] ?? ""));
+    case "photo:deleteRecordPhotos":
+      return deleteRecordPhotos(Number(args[0] ?? -1));
+    case "photo:clearAllPhotos":
+      return clearAllPhotos();
+    case "photo:rewriteImportedPhotoRaw":
+      return rewriteImportedPhotoRaw(String(args[0] ?? ""), args[1] ?? []);
+    case "photo:createSiblingArchive":
+      return createSiblingArchive(String(args[0] ?? ""));
+    case "photo:createTemporaryArchive":
+      return createTemporaryArchive(String(args[0] ?? "journalitea-photos"));
+    case "photo:getSiblingArchive":
+      return getSiblingArchive(String(args[0] ?? ""));
+    case "photo:restoreArchive":
+      return restoreArchive(
+        String(args[0] ?? ""),
+        args[1] === "append"
+          ? "append"
+          : args[1] === "merge"
+            ? "merge"
+            : "replace",
+        args[2] ?? [],
+      );
     case "i18n:loadTranslations":
       return parseTranslationsFromCSVContent(translationsCsv);
     case "app:getVersion":

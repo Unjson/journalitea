@@ -12,6 +12,7 @@ import ConfirmDialog from './components/ConfirmDialog.vue';
 import { platformBridge } from './services/platformBridge';
 import { nextcloudSync, type RemoteUpdateCheck } from './services/nextcloudSync';
 import { loadSyncConfig } from './services/syncConfig';
+import { syncProgressState } from './services/syncProgress';
 import { markResetOnNextMainNav, resetHistoryStack } from './router';
 
 const { t, locale } = useI18n();
@@ -32,6 +33,10 @@ const startupPromptMessage = computed(() => {
 	}
 	return t('sync.startup_update_message');
 });
+
+const syncProgressLabel = computed(() =>
+	syncProgressState.messageKey ? t(syncProgressState.messageKey) : '',
+);
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -301,6 +306,21 @@ onBeforeUnmount(() => {
 		<!-- Main Content -->
 		<main class="main-content">
 			<Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :header-title="headerTitle" />
+			<div
+				v-if="syncProgressState.active"
+				class="sticky top-0 z-20 border-b border-blue-100 bg-white/95 px-6 py-3 shadow-sm backdrop-blur"
+			>
+				<div class="flex items-center justify-between gap-4 text-sm">
+					<div class="font-medium text-gray-800">{{ syncProgressLabel }}</div>
+					<div class="shrink-0 text-xs font-semibold text-blue-700">{{ syncProgressState.percent }}%</div>
+				</div>
+				<div class="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
+					<div
+						class="h-full rounded-full bg-blue-500 transition-all duration-300"
+						:style="{ width: `${syncProgressState.percent}%` }"
+					></div>
+				</div>
+			</div>
 			<div class="p-6">
 				<div v-if="startupSyncPending" class="py-10 text-center text-gray-500">
 					{{ startupSyncMessage || t('sync.startup_checking') }}
