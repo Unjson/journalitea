@@ -25,6 +25,7 @@ app.whenReady().then(() => {
   db.initialize();
   setupIpcHandlers();
   ipcMain.handle("sync:completeBeforeQuit", async () => {
+    if (!syncQuitInFlight) return false;
     finishQuitAfterSync();
     return true;
   });
@@ -77,6 +78,16 @@ const createWindow = (): void => {
       nodeIntegration: true,
       contextIsolation: false,
     },
+  });
+
+  mainWindow.on("close", (event) => {
+    if (allowQuitAfterSync || syncQuitInFlight) return;
+    event.preventDefault();
+    syncQuitInFlight = true;
+    syncQuitTimeout = setTimeout(() => {
+      finishQuitAfterSync();
+    }, 15000);
+    mainWindow!.webContents.send("sync:requestBeforeQuit");
   });
 
   if (isDev) {

@@ -665,7 +665,7 @@ class NextcloudSyncService {
       const hrefPath = decodeURIComponent(
         new URL(backup.href, credentials.serverUrl).pathname,
       );
-      const davPrefix = `/remote.php/dav/files/${encodeURIComponent(credentials.userId)}/`;
+      const davPrefix = `/remote.php/dav/files/${credentials.userId}/`;
       const relativePathFromRoot = hrefPath.startsWith(davPrefix)
         ? hrefPath.slice(davPrefix.length)
         : "";
