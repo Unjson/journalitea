@@ -80,6 +80,15 @@ class DatabaseService {
       .filter((year) => Number.isFinite(year));
   }
 
+  getRecordCount(): number {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const row = this.db
+      .prepare("SELECT COUNT(*) AS count FROM records")
+      .get() as { count?: number } | undefined;
+    return Number(row?.count ?? 0);
+  }
+
   getRecordById(id: number): Record | null {
     if (!this.db) throw new Error("Database not initialized");
 
