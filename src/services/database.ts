@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { app } from "electron";
-import { Record } from "../models/record.js";
+import { mapRecordPhotoPaths, Record } from "../models/record.js";
 import {
   APP_USER_FOLDER,
   DATABASE_NAME,
@@ -27,6 +27,32 @@ import {
   updateRecordSql,
   updateSettingSql,
 } from "./databaseQueries.js";
+import {
+  normalizePhotoRelativePath,
+  PHOTO_ROOT_FOLDER,
+  replacePhotoRecordId,
+} from "./photoStorageShared.js";
+import type { PhotoImportIdMapEntry } from "./photoTypes.js";
+
+const rewriteImportedPhotoRaw = (
+  photoRaw: string,
+  sourceId: number,
+  targetId: number,
+): string =>
+  mapRecordPhotoPaths(photoRaw, (photoPath) => {
+    const normalized = normalizePhotoRelativePath(photoPath);
+    const parts = normalized.split("/");
+    if (parts.length < 3 || parts[0] !== PHOTO_ROOT_FOLDER) {
+      return normalized;
+    }
+
+    const referencedId = Number(parts[1]);
+    if (!Number.isFinite(referencedId) || referencedId !== sourceId) {
+      return normalized;
+    }
+
+    return replacePhotoRecordId(normalized, targetId);
+  });
 
 class DatabaseService {
   private db: Database.Database | null = null;
@@ -78,6 +104,15 @@ class DatabaseService {
     return rows
       .map((row) => Number(row.year))
       .filter((year) => Number.isFinite(year));
+  }
+
+  getRecordCount(): number {
+    if (!this.db) throw new Error("Database not initialized");
+
+    const row = this.db
+      .prepare("SELECT COUNT(*) AS count FROM records")
+      .get() as { count?: number } | undefined;
+    return Number(row?.count ?? 0);
   }
 
   getRecordById(id: number): Record | null {
@@ -348,7 +383,7 @@ class DatabaseService {
     }
   }
 
-  appendDatabaseRecords(sourcePath: string): void {
+  appendDatabaseRecords(sourcePath: string): PhotoImportIdMapEntry[] {
     if (!this.db) throw new Error("Database not initialized");
 
     const sourceDb = new Database(sourcePath, { readonly: true });
@@ -356,7 +391,7 @@ class DatabaseService {
       const rows = sourceDb
         .prepare(
           `SELECT
-            name, type, sub_type, date_added, seller, origin, year, price, price_currency,
+            id, name, type, sub_type, date_added, seller, origin, year, price, price_currency,
             weight, weight_unit, preparation_method, preparation_notes, dry_leaves,
             wet_leaves, liquor, color, aroma_sweet, aroma_floral, aroma_nutty,
             aroma_spicy, aroma_fire, aroma_fruity, aroma_plants, aroma_earthy,
@@ -365,7 +400,7 @@ class DatabaseService {
         )
         .all();
 
-      if (rows.length === 0) return;
+      if (rows.length === 0) return [];
 
       const insertStmt = this.db.prepare(`
         INSERT INTO records (
@@ -380,9 +415,14 @@ class DatabaseService {
         )
       `);
 
+      const updatePhotoStmt = this.db.prepare(
+        "UPDATE records SET photo = ? WHERE id = ?",
+      );
+
       const insertMany = this.db.transaction((records: any[]) => {
+        const idMapEntries: PhotoImportIdMapEntry[] = [];
         for (const record of records) {
-          insertStmt.run(
+          const insertResult = insertStmt.run(
             record.name,
             record.type,
             record.sub_type,
@@ -412,12 +452,29 @@ class DatabaseService {
             record.aroma_marine,
             record.notes,
             record.rating,
-            record.photo,
+            "",
           );
+
+          const sourceId = Number(record.id ?? -1);
+          const targetId = Number(insertResult.lastInsertRowid ?? -1);
+          if (Number.isFinite(sourceId) && sourceId > 0) {
+            idMapEntries.push({ sourceId, targetId });
+          }
+
+          const rewrittenPhoto = rewriteImportedPhotoRaw(
+            String(record.photo ?? ""),
+            sourceId,
+            targetId,
+          );
+          if (rewrittenPhoto) {
+            updatePhotoStmt.run(rewrittenPhoto, targetId);
+          }
         }
+
+        return idMapEntries;
       });
 
-      insertMany(rows);
+      return insertMany(rows);
     } finally {
       sourceDb.close();
     }

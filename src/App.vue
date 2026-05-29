@@ -1,19 +1,42 @@
 <script lang="ts" setup>
-import { ref, onBeforeUnmount, onMounted } from 'vue';
+import { computed, ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
+import { App as CapacitorApp, type PluginListenerHandle } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
 import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
+import ConfirmDialog from './components/ConfirmDialog.vue';
 import { platformBridge } from './services/platformBridge';
+import { nextcloudSync, type RemoteUpdateCheck } from './services/nextcloudSync';
+import { loadSyncConfig } from './services/syncConfig';
+import { syncProgressState } from './services/syncProgress';
 import { markResetOnNextMainNav, resetHistoryStack } from './router';
 
 const { t, locale } = useI18n();
 const router = useRouter();
 const sidebarCollapsed = ref(true);
 const headerTitle = ref(t('app.title'));
+const startupSyncPending = ref(true);
+const startupSyncMessage = ref('');
+const showRemoteUpdatePrompt = ref(false);
+const pendingRemoteUpdate = ref<RemoteUpdateCheck | null>(null);
+const lifecycleSyncInFlight = ref(false);
+
+let appStateListener: PluginListenerHandle | null = null;
+
+const startupPromptMessage = computed(() => {
+	if (pendingRemoteUpdate.value?.hasConflict) {
+		return t('sync.startup_conflict_message');
+	}
+	return t('sync.startup_update_message');
+});
+
+const syncProgressLabel = computed(() =>
+	syncProgressState.messageKey ? t(syncProgressState.messageKey) : '',
+);
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -123,6 +146,78 @@ const handleDesktopBackspace = (event: KeyboardEvent) => {
 	handleBackNavigation();
 };
 
+const finishStartupSync = () => {
+	startupSyncPending.value = false;
+	showRemoteUpdatePrompt.value = false;
+	pendingRemoteUpdate.value = null;
+};
+
+const runLifecycleSync = async () => {
+	const syncConfig = loadSyncConfig();
+	if (
+		!syncConfig.enabled ||
+		syncConfig.requiresSourceChoice ||
+		!syncConfig.dirty ||
+		lifecycleSyncInFlight.value
+	) {
+		return;
+	}
+
+	lifecycleSyncInFlight.value = true;
+	try {
+		await nextcloudSync.syncNow();
+	} catch (error) {
+		console.error('Lifecycle Nextcloud sync failed:', error);
+	} finally {
+		lifecycleSyncInFlight.value = false;
+	}
+};
+
+const handleStartupSync = async () => {
+	startupSyncMessage.value = t('sync.startup_checking');
+	try {
+		const syncConfig = loadSyncConfig();
+		if (!syncConfig.enabled || syncConfig.requiresSourceChoice) {
+			finishStartupSync();
+			return;
+		}
+
+		const remoteUpdate = await nextcloudSync.getRemoteUpdateCheck();
+		if (remoteUpdate.newerThanLocal) {
+			pendingRemoteUpdate.value = remoteUpdate;
+			showRemoteUpdatePrompt.value = true;
+			return;
+		}
+	} catch (error) {
+		console.error('Error checking startup sync state:', error);
+	}
+
+	finishStartupSync();
+};
+
+const onApplyRemoteDatabase = async () => {
+	startupSyncMessage.value = t('sync.startup_restoring');
+	try {
+		await nextcloudSync.applyRemoteDatabase();
+	} catch (error) {
+		console.error('Error applying remote database update:', error);
+	} finally {
+		finishStartupSync();
+	}
+};
+
+const onKeepLocalDatabase = () => {
+	finishStartupSync();
+};
+
+const handleBeforeQuitSync = async () => {
+	try {
+		await runLifecycleSync();
+	} finally {
+		await platformBridge.invoke('sync:completeBeforeQuit');
+	}
+};
+
 onMounted(async() => {
 	if (platformBridge.isCapacitor) {
 		const platform = Capacitor.getPlatform();
@@ -134,10 +229,18 @@ onMounted(async() => {
 		platformBridge.onBackButton?.(() => {
 			handleBackNavigation();
 		});
+		appStateListener = await CapacitorApp.addListener('appStateChange', async ({ isActive }) => {
+			if (!isActive) {
+				await runLifecycleSync();
+			}
+		});
 	}
 
 	if (platformBridge.isElectron) {
 		window.addEventListener('keydown', handleDesktopBackspace);
+		platformBridge.on('sync:requestBeforeQuit', () => {
+			handleBeforeQuitSync();
+		});
 	}
 	
 	router.afterEach((to) => {
@@ -176,12 +279,15 @@ onMounted(async() => {
 		const newLocale = getLocaleFromLanguage(language.intVal);
 		locale.value = newLocale;
 	}
+
+	await handleStartupSync();
 });
 
 onBeforeUnmount(() => {
 	if (platformBridge.isElectron) {
 		window.removeEventListener('keydown', handleDesktopBackspace);
 	}
+	appStateListener?.remove();
 });
 </script>
 
@@ -200,10 +306,39 @@ onBeforeUnmount(() => {
 		<!-- Main Content -->
 		<main class="main-content">
 			<Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :header-title="headerTitle" />
+			<div
+				v-if="syncProgressState.active"
+				class="sticky top-0 z-20 border-b border-blue-100 bg-white/95 px-6 py-3 shadow-sm backdrop-blur"
+			>
+				<div class="flex items-center justify-between gap-4 text-sm">
+					<div class="font-medium text-gray-800">{{ syncProgressLabel }}</div>
+					<div class="shrink-0 text-xs font-semibold text-blue-700">{{ syncProgressState.percent }}%</div>
+				</div>
+				<div class="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
+					<div
+						class="h-full rounded-full bg-blue-500 transition-all duration-300"
+						:style="{ width: `${syncProgressState.percent}%` }"
+					></div>
+				</div>
+			</div>
 			<div class="p-6">
-				<router-view/>
+				<div v-if="startupSyncPending" class="py-10 text-center text-gray-500">
+					{{ startupSyncMessage || t('sync.startup_checking') }}
+				</div>
+				<router-view v-else/>
 			</div>
 		</main>
+
+		<ConfirmDialog
+			v-model="showRemoteUpdatePrompt"
+			:title="t('sync.startup_update_title')"
+			:message="startupPromptMessage"
+			:confirm-text="t('sync.startup_update_confirm')"
+			:cancel-text="t('sync.startup_update_cancel')"
+			:close-on-backdrop="false"
+			@confirm="onApplyRemoteDatabase"
+			@cancel="onKeepLocalDatabase"
+		/>
 	</div>
 </template>
 
@@ -226,9 +361,9 @@ onBeforeUnmount(() => {
 
 .main-content {
 	width: 100%;
-	/* 2 px extra to account for shadow (72+2) */
-	height: calc(100% - 74px); 
+	--app-header-offset: calc(74px + env(safe-area-inset-top));
+	height: calc(100% - var(--app-header-offset));
 	overflow: auto;
-	margin-top: 74px;
+	margin-top: var(--app-header-offset);
 }
 </style>

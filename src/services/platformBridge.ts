@@ -1,16 +1,73 @@
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
-import { Filesystem, Encoding } from "@capacitor/filesystem";
+import { FileTransfer } from "@capacitor/file-transfer";
+import { Filesystem, Encoding, Directory } from "@capacitor/filesystem";
+import { Preferences } from "@capacitor/preferences";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
 import translationsCsv from "./i18n/translations.csv?raw";
 import { capacitorDb } from "./capacitorDatabase";
+import {
+  captureAndStagePhoto,
+  clearAllPhotos,
+  commitSavedRecordPhoto,
+  createSiblingArchive,
+  createTemporaryArchive,
+  deleteManagedPath,
+  deleteRecordPhotos,
+  discardStagedPhotos,
+  finalizeRecordPhoto,
+  getSiblingArchive,
+  importSyncFile,
+  listSyncablePhotos,
+  pickAndStagePhoto,
+  resolvePhotoUrl,
+  restoreArchive,
+  rewriteImportedPhotoRaw,
+} from "./capacitorPhotoStorage";
+import { markSyncDataDirty, SYNC_SECRET_STORAGE_KEY } from "./syncConfig";
+import type {
+  SyncDownloadRequest,
+  SyncFileTransferResponse,
+  SyncHttpRequest,
+  SyncHttpResponse,
+  SyncUploadRequest,
+} from "./syncTypes";
 
 export type BridgeListener = (...args: any[]) => void;
 export type BackButtonListener = (event: { canGoBack: boolean }) => void;
 
 type InvokeResult = Promise<any>;
+
+type JournaliteaHttpPlugin = {
+  request(options: SyncHttpRequest): Promise<SyncHttpResponse>;
+};
+
+const shouldMarkDatabaseDirty = (channel: string, result: any): boolean => {
+  switch (channel) {
+    case "db:saveRecord":
+    case "db:updateRecord":
+    case "db:deleteRecord":
+    case "db:setSetting":
+      return true;
+    case "db:importDatabase":
+      return result?.success === true;
+    default:
+      return false;
+  }
+};
+
+const withDirtyTracking = async (
+  channel: string,
+  operation: InvokeResult,
+): InvokeResult => {
+  const result = await operation;
+  if (shouldMarkDatabaseDirty(channel, result)) {
+    markSyncDataDirty();
+  }
+  return result;
+};
 
 type ElectronIpc = {
   invoke: (channel: string, ...args: any[]) => Promise<any>;
@@ -30,6 +87,8 @@ const electronIpc: ElectronIpc | null = (() => {
 
 const isCapacitor = Capacitor.isNativePlatform();
 const isAndroid = Capacitor.getPlatform() === "android";
+const journaliteaHttp =
+  registerPlugin<JournaliteaHttpPlugin>("JournaliteaHttp");
 
 const isJsonFile = (pathOrName: string | null | undefined): boolean =>
   !!pathOrName && pathOrName.toLowerCase().endsWith(".json");
@@ -74,6 +133,67 @@ const decodeBase64 = (base64: string): string => {
   return base64;
 };
 
+let inMemorySyncSecret: string | null = null;
+let hasLoadedLegacySyncSecret = false;
+
+const getStoredSyncSecret = async (): Promise<string | null> => {
+  if (isCapacitor) {
+    if (!hasLoadedLegacySyncSecret) {
+      const { value } = await Preferences.get({ key: SYNC_SECRET_STORAGE_KEY });
+      const legacyValue =
+        value && value.trim().length > 0 ? value.trim() : null;
+      if (legacyValue) {
+        inMemorySyncSecret = legacyValue;
+      }
+      await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
+      hasLoadedLegacySyncSecret = true;
+    }
+    return inMemorySyncSecret;
+  }
+  const { value } = await Preferences.get({ key: SYNC_SECRET_STORAGE_KEY });
+  return value && value.trim().length > 0 ? value : null;
+};
+
+const setStoredSyncSecret = async (value: string): Promise<boolean> => {
+  const trimmed = String(value ?? "").trim();
+  if (isCapacitor) {
+    inMemorySyncSecret = trimmed || null;
+    await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
+    hasLoadedLegacySyncSecret = true;
+    return true;
+  }
+  if (!trimmed) {
+    await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
+    return true;
+  }
+  await Preferences.set({ key: SYNC_SECRET_STORAGE_KEY, value: trimmed });
+  return true;
+};
+
+const toNormalizedHttpResponse = (response: any): SyncHttpResponse => ({
+  status: Number(response?.status ?? 0),
+  ok:
+    response?.ok === true ||
+    (Number(response?.status ?? 0) >= 200 &&
+      Number(response?.status ?? 0) < 300),
+  headers:
+    typeof response?.headers === "object" && response.headers !== null
+      ? response.headers
+      : {},
+  data:
+    typeof response?.data === "string"
+      ? response.data
+      : JSON.stringify(response?.data ?? ""),
+});
+
+const createCacheFileUri = async (fileName: string): Promise<string> => {
+  const uriResult = await Filesystem.getUri({
+    path: fileName,
+    directory: Directory.Cache,
+  });
+  return uriResult.uri;
+};
+
 const handleCapacitorInvoke = async (
   channel: string,
   ...args: any[]
@@ -93,14 +213,22 @@ const handleCapacitorInvoke = async (
       return capacitorDb.listRecordsPage(args[0]);
     case "db:listRecordYears":
       return capacitorDb.listRecordYears();
+    case "db:getRecordCount":
+      return capacitorDb.getRecordCount();
     case "db:getRecordById":
       return capacitorDb.getRecordById(args[0]);
     case "db:saveRecord":
       return capacitorDb.saveRecord(args[0]);
     case "db:updateRecord":
       return capacitorDb.updateRecord(args[0]);
-    case "db:deleteRecord":
-      return capacitorDb.deleteRecord(args[0]);
+    case "db:deleteRecord": {
+      const recordId = Number(args[0] ?? -1);
+      await capacitorDb.deleteRecord(recordId);
+      if (Number.isInteger(recordId) && recordId > 0) {
+        await deleteRecordPhotos(recordId);
+      }
+      return true;
+    }
     case "db:getSetting":
       return capacitorDb.getSettingsValue(args[0]);
     case "db:setSetting":
@@ -111,7 +239,14 @@ const handleCapacitorInvoke = async (
       );
     case "db:exportDatabase": {
       if (!isAndroid) return { cancelled: true };
-      return capacitorDb.exportDatabaseToDocuments();
+      const result = await capacitorDb.exportDatabaseToDocuments();
+      const photoArchive = await createSiblingArchive(result.path);
+      return {
+        ...result,
+        success: true,
+        photoArchivePath: photoArchive.path,
+        hasPhotos: photoArchive.hasPhotos,
+      };
     }
     case "db:pickDatabaseFile": {
       if (!isAndroid) return { cancelled: true };
@@ -144,11 +279,32 @@ const handleCapacitorInvoke = async (
       if (!payload) return { cancelled: true };
       if (payload.sourceData) {
         const json = decodeBase64(payload.sourceData);
-        await capacitorDb.importDatabaseFromJson(json, payload.mode);
+        let idMapEntries: any[] = [];
+        if (payload.mode === "append") {
+          idMapEntries = await capacitorDb.appendDatabaseFromJson(json);
+        } else {
+          await capacitorDb.importDatabaseFromJson(json, payload.mode);
+          await clearAllPhotos();
+        }
+
+        let photoArchivePath: string | null = null;
+        if (payload.sourcePath) {
+          const siblingArchive = await getSiblingArchive(payload.sourcePath);
+          photoArchivePath = siblingArchive.exists ? siblingArchive.path : null;
+          if (siblingArchive.exists) {
+            await restoreArchive(
+              siblingArchive.path,
+              payload.mode,
+              idMapEntries,
+            );
+          }
+        }
+
         return {
           success: true,
           mode: payload.mode,
           path: payload.sourcePath ?? null,
+          photoArchivePath,
         };
       }
       if (!payload.sourcePath) return { cancelled: true };
@@ -162,11 +318,23 @@ const handleCapacitorInvoke = async (
         });
         const jsonContent =
           typeof file.data === "string" ? file.data : await file.data.text();
-        await capacitorDb.importDatabaseFromJson(jsonContent, payload.mode);
+        let idMapEntries: any[] = [];
+        if (payload.mode === "append") {
+          idMapEntries = await capacitorDb.appendDatabaseFromJson(jsonContent);
+        } else {
+          await capacitorDb.importDatabaseFromJson(jsonContent, payload.mode);
+          await clearAllPhotos();
+        }
+
+        const siblingArchive = await getSiblingArchive(payload.sourcePath);
+        if (siblingArchive.exists) {
+          await restoreArchive(siblingArchive.path, payload.mode, idMapEntries);
+        }
         return {
           success: true,
           mode: payload.mode,
           path: payload.sourcePath,
+          photoArchivePath: siblingArchive.exists ? siblingArchive.path : null,
         };
       }
 
@@ -183,17 +351,135 @@ const handleCapacitorInvoke = async (
       const targetUrl = await capacitorDb.getDatabaseUrl();
       await capacitorDb.closeConnection();
       await copyFileWithPicker(payload.sourcePath, targetUrl, true);
+      await clearAllPhotos();
+      const siblingArchive = await getSiblingArchive(payload.sourcePath);
+      if (siblingArchive.exists) {
+        await restoreArchive(siblingArchive.path, "replace");
+      }
       return {
         success: true,
         mode: payload.mode,
         path: payload.sourcePath,
+        photoArchivePath: siblingArchive.exists ? siblingArchive.path : null,
       };
     }
+    case "photo:pickImage":
+      return pickAndStagePhoto();
+    case "photo:captureImage":
+      return captureAndStagePhoto();
+    case "photo:resolveUrl":
+      return resolvePhotoUrl(String(args[0] ?? ""));
+    case "photo:finalizeRecordPhoto":
+      return finalizeRecordPhoto(Number(args[0] ?? -1), String(args[1] ?? ""));
+    case "photo:commitSavedRecordPhoto":
+      return commitSavedRecordPhoto(
+        Number(args[0] ?? -1),
+        String(args[1] ?? ""),
+        String(args[2] ?? ""),
+      );
+    case "photo:discardStagedPhotos":
+      return discardStagedPhotos(String(args[0] ?? ""));
+    case "photo:deleteRecordPhotos":
+      return deleteRecordPhotos(Number(args[0] ?? -1));
+    case "photo:clearAllPhotos":
+      return clearAllPhotos();
+    case "photo:rewriteImportedPhotoRaw":
+      return rewriteImportedPhotoRaw(String(args[0] ?? ""), args[1] ?? []);
+    case "photo:createSiblingArchive":
+      return createSiblingArchive(String(args[0] ?? ""));
+    case "photo:createTemporaryArchive":
+      return createTemporaryArchive(String(args[0] ?? "journalitea-photos"));
+    case "photo:getSiblingArchive":
+      return getSiblingArchive(String(args[0] ?? ""));
+    case "photo:restoreArchive":
+      return restoreArchive(
+        String(args[0] ?? ""),
+        args[1] === "append"
+          ? "append"
+          : args[1] === "merge"
+            ? "merge"
+            : "replace",
+        args[2] ?? [],
+      );
+    case "photo:listSyncablePhotos":
+      return listSyncablePhotos();
+    case "photo:importSyncFile":
+      return importSyncFile(String(args[0] ?? ""), String(args[1] ?? ""));
+    case "photo:deleteManagedPath":
+      return deleteManagedPath(String(args[0] ?? ""));
     case "i18n:loadTranslations":
       return parseTranslationsFromCSVContent(translationsCsv);
     case "app:getVersion":
       const appInfo = await CapacitorApp.getInfo();
       return appInfo.version;
+    case "sync:getSecret":
+      return getStoredSyncSecret();
+    case "sync:setSecret":
+      return setStoredSyncSecret(String(args[0] ?? ""));
+    case "sync:clearSecret":
+      return setStoredSyncSecret("");
+    case "sync:httpRequest": {
+      const payload = (args[0] ?? {}) as SyncHttpRequest;
+      const response = await journaliteaHttp.request({
+        url: payload.url,
+        method: payload.method ?? "GET",
+        headers: payload.headers,
+        body: payload.body,
+        responseType: payload.responseType ?? "text",
+      });
+      return toNormalizedHttpResponse(response);
+    }
+    case "sync:createDatabaseSnapshot":
+      return { path: await capacitorDb.createSyncSnapshot() };
+    case "sync:replaceDatabaseFromFile":
+      return capacitorDb.replaceDatabaseFromPath(String(args[0] ?? ""));
+    case "sync:uploadFile": {
+      const payload = (args[0] ?? {}) as SyncUploadRequest;
+      const result = await FileTransfer.uploadFile({
+        url: payload.url,
+        path: payload.sourcePath,
+        method: payload.method ?? "PUT",
+        headers: payload.headers,
+        chunkedMode: false,
+        progress: false,
+      });
+      const status = Number(result.responseCode ?? 0);
+      const response: SyncFileTransferResponse = {
+        status,
+        ok: status >= 200 && status < 300,
+        headers: result.headers ?? {},
+        data: result.response ?? "",
+        path: null,
+      };
+      return response;
+    }
+    case "sync:downloadFile": {
+      const payload = (args[0] ?? {}) as SyncDownloadRequest;
+      const fileName =
+        payload.fileName && payload.fileName.trim().length > 0
+          ? payload.fileName.trim()
+          : `journalitea-sync-${Date.now()}.db`;
+      const fileUri = await createCacheFileUri(fileName);
+      const result = await FileTransfer.downloadFile({
+        url: payload.url,
+        path: fileUri,
+        method: payload.method ?? "GET",
+        headers: payload.headers,
+        progress: false,
+      });
+      const response: SyncFileTransferResponse = {
+        status: 200,
+        ok: true,
+        headers: {},
+        data: "",
+        path: result.path ?? fileUri,
+      };
+      return response;
+    }
+    case "sync:deleteFile": {
+      await Filesystem.deleteFile({ path: String(args[0] ?? "") });
+      return true;
+    }
     default:
       throw new Error(`Unsupported channel: ${channel}`);
   }
@@ -233,10 +519,13 @@ export const platformBridge = {
   },
   invoke(channel: string, ...args: any[]): InvokeResult {
     if (electronIpc) {
-      return electronIpc.invoke(channel, ...args);
+      return withDirtyTracking(channel, electronIpc.invoke(channel, ...args));
     }
     if (isCapacitor) {
-      return handleCapacitorInvoke(channel, ...args);
+      return withDirtyTracking(
+        channel,
+        handleCapacitorInvoke(channel, ...args),
+      );
     }
     return Promise.reject(
       new Error(`Unsupported platform for channel: ${channel}`),

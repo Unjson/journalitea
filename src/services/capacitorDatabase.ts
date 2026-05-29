@@ -6,7 +6,7 @@ import {
 } from "@capacitor-community/sqlite";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { DEFAULT_PREFS, DATABASE_NAME, PREFS } from "../appSettings";
-import { Record } from "../models/record";
+import { mapRecordPhotoPaths, Record } from "../models/record";
 import {
   buildRecordPageQuery,
   createRecordsTableSql,
@@ -25,6 +25,12 @@ import {
   updateRecordSql,
   updateSettingSql,
 } from "./databaseQueries";
+import {
+  normalizePhotoRelativePath,
+  PHOTO_ROOT_FOLDER,
+  replacePhotoRecordId,
+} from "./photoStorageShared";
+import type { PhotoImportIdMapEntry } from "./photoTypes";
 
 const DATABASE_VERSION = 1;
 
@@ -35,6 +41,58 @@ const toIsoString = (value: unknown): string => {
     if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
   }
   return new Date().toISOString();
+};
+
+type ImportedJsonTable = {
+  name?: string;
+  schema?: Array<{ column?: string }>;
+  values?: any[][];
+};
+
+type ImportedJsonDatabase = {
+  tables?: ImportedJsonTable[];
+};
+
+const rewriteImportedPhotoRaw = (
+  photoRaw: string,
+  sourceId: number,
+  targetId: number,
+): string =>
+  mapRecordPhotoPaths(photoRaw, (photoPath) => {
+    const normalized = normalizePhotoRelativePath(photoPath);
+    const parts = normalized.split("/");
+    if (parts.length < 3 || parts[0] !== PHOTO_ROOT_FOLDER) {
+      return normalized;
+    }
+
+    const referencedId = Number(parts[1]);
+    if (!Number.isFinite(referencedId) || referencedId !== sourceId) {
+      return normalized;
+    }
+
+    return replacePhotoRecordId(normalized, targetId);
+  });
+
+const extractJsonTableRows = (
+  json: ImportedJsonDatabase,
+  tableName: string,
+): Array<{ [key: string]: unknown }> => {
+  const table = json.tables?.find((entry) => entry.name === tableName);
+  const columns = (table?.schema ?? [])
+    .map((column) => String(column.column ?? "").trim())
+    .filter((column) => column.length > 0);
+
+  if (!table?.values?.length || columns.length === 0) {
+    return [];
+  }
+
+  return table.values.map((rowValues) => {
+    const row: { [key: string]: unknown } = {};
+    for (let index = 0; index < columns.length; index += 1) {
+      row[columns[index]] = rowValues[index];
+    }
+    return row;
+  });
 };
 
 class CapacitorDatabaseService {
@@ -185,6 +243,15 @@ class CapacitorDatabaseService {
       .filter((year) => Number.isFinite(year));
   }
 
+  async getRecordCount(): Promise<number> {
+    await this.ensureReady();
+    const result = await this.db!.query(
+      "SELECT COUNT(*) AS count FROM records",
+    );
+    const row = result.values?.[0] as { count?: number } | undefined;
+    return Number(row?.count ?? 0);
+  }
+
   async getDatabaseUrl(): Promise<string> {
     await this.ensureReady();
     const result = await this.db!.getUrl();
@@ -292,6 +359,48 @@ class CapacitorDatabaseService {
     await this.db!.run(deleteRecordSql, [id]);
   }
 
+  async appendDatabaseFromJson(
+    jsonString: string,
+  ): Promise<PhotoImportIdMapEntry[]> {
+    await this.ensureReady();
+
+    let json: ImportedJsonDatabase;
+    try {
+      json = JSON.parse(jsonString) as ImportedJsonDatabase;
+    } catch {
+      throw new Error("Selected file is not valid JSON.");
+    }
+
+    const rows = extractJsonTableRows(json, "records");
+    const idMapEntries: PhotoImportIdMapEntry[] = [];
+
+    for (const row of rows) {
+      const sourceId = Number(row.id ?? -1);
+      const record = this.rowToRecord(row);
+      record.id = -1;
+      record.photo = "";
+
+      const targetId = await this.saveRecord(record);
+      const rewrittenPhoto = rewriteImportedPhotoRaw(
+        String(row.photo ?? ""),
+        sourceId,
+        targetId,
+      );
+
+      if (rewrittenPhoto) {
+        record.id = targetId;
+        record.photo = rewrittenPhoto;
+        await this.updateRecord(record);
+      }
+
+      if (Number.isFinite(sourceId) && sourceId > 0) {
+        idMapEntries.push({ sourceId, targetId });
+      }
+    }
+
+    return idMapEntries;
+  }
+
   async setSettingsValue(
     key: string,
     intVal: number | null,
@@ -337,6 +446,36 @@ class CapacitorDatabaseService {
     return { path: uriResult.uri, data };
   }
 
+  async createSyncSnapshot(): Promise<string> {
+    await this.ensureReady();
+    const sourceUrl = await this.getDatabaseUrl();
+    const fileName = `journalitea-sync-${Date.now()}.db`;
+
+    await this.closeConnection();
+    try {
+      await Filesystem.copy({
+        from: sourceUrl,
+        to: fileName,
+        directory: Directory.Cache,
+      });
+    } catch (error) {
+      const file = await Filesystem.readFile({ path: sourceUrl });
+      await Filesystem.writeFile({
+        path: fileName,
+        data: file.data,
+        directory: Directory.Cache,
+      });
+    } finally {
+      await this.ensureReady();
+    }
+
+    const uriResult = await Filesystem.getUri({
+      path: fileName,
+      directory: Directory.Cache,
+    });
+    return uriResult.uri;
+  }
+
   async exportDatabaseToDocuments(): Promise<{ path: string }> {
     await this.ensureReady();
     const sourceUrl = await this.getDatabaseUrl();
@@ -362,6 +501,27 @@ class CapacitorDatabaseService {
       directory: Directory.Documents,
     });
     return { path: uriResult.uri };
+  }
+
+  async replaceDatabaseFromPath(sourcePath: string): Promise<void> {
+    await this.ensureReady();
+    const targetUrl = await this.getDatabaseUrl();
+
+    await this.closeConnection();
+    try {
+      await Filesystem.copy({
+        from: sourcePath,
+        to: targetUrl,
+      });
+    } catch (error) {
+      const file = await Filesystem.readFile({ path: sourcePath });
+      await Filesystem.writeFile({
+        path: targetUrl,
+        data: file.data,
+      });
+    } finally {
+      await this.ensureReady();
+    }
   }
 
   async importDatabaseFromJson(

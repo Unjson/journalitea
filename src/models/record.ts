@@ -64,6 +64,16 @@ export const getRecordSpecificOrigin = (record: OriginSource): string => {
 export const getRecordOriginSummary = (record: OriginSource): string =>
   getNormalizedOrigin(record);
 
+export {
+  getPrimaryRecordPhoto,
+  getPrimaryRecordPhotoPath,
+  mapRecordPhotoPaths,
+  parseRecordPhotos,
+  serializeRecordPhotos,
+  setPrimaryRecordPhotoPath,
+  type RecordPhotoEntry,
+} from "./recordPhoto.js";
+
 export class Record {
   //Data Block
   id: number;

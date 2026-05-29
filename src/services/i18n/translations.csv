@@ -43,6 +43,18 @@ edit.liquor_label;Liquor;Aufguss
 edit.color_label;Color;Farbe
 edit.aromas_label;Aromas;Aromen
 edit.notes_rating_title;Notes & Rating;Notizen & Bewertung
+edit.photo_label;Photo;Foto
+edit.photo_hint;One photo per record for now. You can replace it at any time.;Vorerst ist pro Eintrag nur ein Foto moeglich. Sie koennen es jederzeit ersetzen.
+photo.open_viewer;Open photo fullscreen;Foto im Vollbild oeffnen
+photo.close_viewer;Close photo viewer;Fotoansicht schliessen
+photo.zoom_viewer;Zoom photo;Foto zoomen
+photo.image_error;The photo cannot be loaded.;Das Foto kann nicht geladen werden.
+edit.photo_add_button;Add photo;Foto hinzufuegen
+edit.photo_replace_button;Replace photo;Foto ersetzen
+edit.photo_take_button;Take photo;Foto aufnehmen
+edit.photo_remove_button;Remove photo;Foto entfernen
+edit.photo_empty;No photo selected yet.;Noch kein Foto ausgewaehlt.
+edit.photo_error_generic;Photo action failed.;Fotoaktion fehlgeschlagen.
 edit.notes_label;Notes;Notizen
 edit.rating_label;Rating;Bewertung
 edit.cancel_button;Cancel;Abbrechen
@@ -96,11 +108,12 @@ settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets
 settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl für die Statistik-Histogramme anpassen
 settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
 settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
-settings.database_title;Database;Datenbank
+settings.database_title;Local Database Import/Export;Lokaler Datenbank-Import/Export
 settings.database_export;Export database;Datenbank exportieren
 settings.database_import;Import database;Datenbank importieren
 settings.database_export_success_cap;Database export completed. You can find the exported file in your documents folder.;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie in Ihrem Dokumenten-Verzeichnis.
 settings.database_export_success;Database export completed. You can find the exported file at;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie unter
+settings.database_export_photo_archive;Photo archive: {path};Fotoarchiv: {path}
 settings.database_export_success_title;Export complete;Export abgeschlossen
 settings.database_export_error_title;Export failed;Export fehlgeschlagen
 settings.database_export_error;Database export failed.;Datenbank-Export fehlgeschlagen.
@@ -112,6 +125,70 @@ settings.database_import_replace;Replace database;Datenbank ersetzen
 settings.database_import_cancel;Cancel;Abbrechen
 settings.database_import_success_append;Database import completed (records appended).;Datenbankimport abgeschlossen (Einträge angefügt).
 settings.database_import_success_replace;Database import completed (database replaced).;Datenbankimport abgeschlossen (Datenbank ersetzt).
+settings.database_import_photos_restored;Sibling photo archive imported from: {path};Zugehöriges Fotoarchiv importiert von: {path}
+settings.database_import_photos_missing;No sibling photo archive was found.;Kein zugehöriges Fotoarchiv gefunden.
+sync.section_title;Nextcloud Sync;Nextcloud-Synchronisierung
+sync.enable_label;Enable Nextcloud sync;Nextcloud-Sync aktivieren
+sync.disable_hint;The app only checks and uploads when sync is enabled.;Die App prüft und lädt nur hoch, wenn die Synchronisierung aktiviert ist.
+sync.pictures_label;Sync pictures;Bilder synchronisieren
+sync.pictures_hint;Upload and download record photos together with the database. Already uploaded remote pictures stay untouched when disabled.;Fotos zusammen mit der Datenbank hoch- und herunterladen. Bereits hochgeladene Remote-Bilder bleiben beim Deaktivieren unverändert.
+sync.server_url;Server URL;Server-URL
+sync.folder_path;Remote folder;Remote-Ordner
+sync.backup_retention;Rolling backups;Rotierende Backups
+sync.connection_title;Connection;Verbindung
+sync.connect;Connect account;Konto verbinden
+sync.disconnect;Disconnect account;Konto trennen
+sync.disconnect_title;Disconnect Nextcloud;Nextcloud trennen
+sync.disconnect_message;Disconnect this Nextcloud account from Journalitea? The remote files will stay on the server.;Dieses Nextcloud-Konto von Journalitea trennen? Die Dateien auf dem Server bleiben erhalten.
+sync.disconnect_confirm;Disconnect;Trennen
+sync.sync_now;Sync now;Jetzt synchronisieren
+sync.status_not_connected;Not connected;Nicht verbunden
+sync.status_connected;Connected;Verbunden
+sync.status_waiting_browser;Waiting for browser approval...;Warte auf Freigabe im Browser...
+sync.status_syncing;Syncing database...;Datenbank wird synchronisiert...
+sync.status_source_choice_required;Choose which database should be used for sync before continuing.;Wählen Sie zuerst aus, welche Datenbank für die Synchronisierung verwendet werden soll.
+sync.status_last_sync_prefix;Last sync:;Letzte Synchronisierung:
+sync.status_dirty;Local changes are waiting to be uploaded.;Lokale Änderungen warten auf den Upload.
+sync.progress_prepare_sync;Preparing sync...;Synchronisierung wird vorbereitet...
+sync.progress_snapshot_database;Creating database snapshot...;Datenbank-Schnappschuss wird erstellt...
+sync.progress_archive_photos;Preparing photo archive...;Fotoarchiv wird vorbereitet...
+sync.progress_upload_database;Uploading database...;Datenbank wird hochgeladen...
+sync.progress_upload_photos;Uploading changed photos...;Geaenderte Fotos werden hochgeladen...
+sync.progress_backup_remote_database;Backing up remote database...;Remote-Datenbank wird gesichert...
+sync.progress_backup_remote_photos;Backing up remote photo archive...;Remote-Fotoarchiv wird gesichert...
+sync.progress_publish_remote;Finalizing remote sync...;Remote-Synchronisierung wird abgeschlossen...
+sync.progress_write_manifest;Updating sync manifest...;Synchronisationsmanifest wird aktualisiert...
+sync.progress_prune_backups;Cleaning up old backups...;Alte Backups werden bereinigt...
+sync.progress_download_database;Downloading database...;Datenbank wird heruntergeladen...
+sync.progress_restore_database;Restoring database...;Datenbank wird wiederhergestellt...
+sync.progress_download_photos;Downloading changed photos...;Geaenderte Fotos werden heruntergeladen...
+sync.progress_restore_photos;Applying synced photos...;Synchronisierte Fotos werden uebernommen...
+sync.progress_keep_local_photos;Keeping local photos because no remote synced photos were found.;Lokale Fotos bleiben erhalten, da keine synchronisierten Remote-Fotos gefunden wurden.
+sync.progress_restore_missing_photos;Restoring available local photo references...;Verfügbare lokale Fotoreferenzen werden wiederhergestellt...
+sync.progress_complete;Sync complete.;Synchronisierung abgeschlossen.
+sync.connected_account;Connected account;Verbundenes Konto
+sync.last_sync_never;Never;Nie
+sync.choose_source;Choose source database;Quelldatenbank wählen
+sync.source_choice_title;Choose sync source;Synchronisationsquelle wählen
+sync.source_choice_intro;Nextcloud already contains a database for this folder. Choose which database should become the source of truth for future syncs.;In diesem Nextcloud-Ordner existiert bereits eine Datenbank. Wählen Sie aus, welche Datenbank künftig die maßgebliche Quelle für die Synchronisierung sein soll.
+sync.source_choice_local_summary;Local database: {count} record(s).;Lokale Datenbank: {count} Einträge.
+sync.source_choice_remote_summary;Nextcloud database: existing file, last changed {date}.;Nextcloud-Datenbank: vorhandene Datei, zuletzt geändert am {date}.
+sync.source_choice_remote_unknown;unknown date;unbekanntes Datum
+sync.source_choice_use_local;Use local database;Lokale Datenbank verwenden
+sync.source_choice_use_remote;Use Nextcloud database;Nextcloud-Datenbank verwenden
+sync.source_choice_confirm_button;Confirm choice;Auswahl bestätigen
+sync.source_choice_confirm_local_title;Confirm local database;Lokale Datenbank bestätigen
+sync.source_choice_confirm_remote_title;Confirm Nextcloud database;Nextcloud-Datenbank bestätigen
+sync.source_choice_confirm_local_message;This will overwrite the current Nextcloud database and use your current local database as the source of truth for future syncs. Continue?;Dadurch wird die aktuelle Nextcloud-Datenbank überschrieben und Ihre lokale Datenbank wird künftig die maßgebliche Quelle für die Synchronisierung. Fortfahren?
+sync.source_choice_confirm_remote_message;This will replace your current local database with the Nextcloud database and use the Nextcloud copy as the source of truth for future syncs. Continue?;Dadurch wird Ihre lokale Datenbank durch die Nextcloud-Datenbank ersetzt und die Nextcloud-Kopie wird künftig die maßgebliche Quelle für die Synchronisierung. Fortfahren?
+sync.error_generic;Nextcloud sync failed.;Nextcloud-Synchronisierung fehlgeschlagen.
+sync.startup_checking;Checking Nextcloud sync...;Prüfe Nextcloud-Synchronisierung...
+sync.startup_restoring;Restoring database from Nextcloud...;Stelle Datenbank von Nextcloud wieder her...
+sync.startup_update_title;Remote database available;Remote-Datenbank verfügbar
+sync.startup_update_message;A newer database is available on Nextcloud. Replace your local database with the server copy?;Auf Nextcloud ist eine neuere Datenbank verfügbar. Möchten Sie Ihre lokale Datenbank durch die Serverkopie ersetzen?
+sync.startup_conflict_message;A newer database is available on Nextcloud, but you also have local changes that are not uploaded yet. Replace your local database with the server copy?;Auf Nextcloud ist eine neuere Datenbank verfügbar, aber Sie haben auch lokale Änderungen, die noch nicht hochgeladen wurden. Möchten Sie Ihre lokale Datenbank durch die Serverkopie ersetzen?
+sync.startup_update_confirm;Update from server;Vom Server aktualisieren
+sync.startup_update_cancel;Keep local database;Lokale Datenbank behalten
 detail.loading;Loading record...;Lade Eintrag...
 detail.error_prefix;Error:;Fehler:
 detail.details_title;Details;Details
