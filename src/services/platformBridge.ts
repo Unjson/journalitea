@@ -4,6 +4,7 @@ import { Browser } from "@capacitor/browser";
 import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { FileTransfer } from "@capacitor/file-transfer";
 import { Filesystem, Encoding, Directory } from "@capacitor/filesystem";
+import { Preferences } from "@capacitor/preferences";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
 import translationsCsv from "./i18n/translations.csv?raw";
 import { capacitorDb } from "./capacitorDatabase";
@@ -114,33 +115,18 @@ const decodeBase64 = (base64: string): string => {
   return base64;
 };
 
-const getStoredSyncSecret = (): string | null => {
-  if (
-    typeof window === "undefined" ||
-    typeof window.localStorage === "undefined"
-  ) {
-    return null;
-  }
-
-  const value = window.localStorage.getItem(SYNC_SECRET_STORAGE_KEY);
+const getStoredSyncSecret = async (): Promise<string | null> => {
+  const { value } = await Preferences.get({ key: SYNC_SECRET_STORAGE_KEY });
   return value && value.trim().length > 0 ? value : null;
 };
 
-const setStoredSyncSecret = (value: string): boolean => {
-  if (
-    typeof window === "undefined" ||
-    typeof window.localStorage === "undefined"
-  ) {
-    return false;
-  }
-
+const setStoredSyncSecret = async (value: string): Promise<boolean> => {
   const trimmed = String(value ?? "").trim();
   if (!trimmed) {
-    window.localStorage.removeItem(SYNC_SECRET_STORAGE_KEY);
+    await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
     return true;
   }
-
-  window.localStorage.setItem(SYNC_SECRET_STORAGE_KEY, trimmed);
+  await Preferences.set({ key: SYNC_SECRET_STORAGE_KEY, value: trimmed });
   return true;
 };
 
