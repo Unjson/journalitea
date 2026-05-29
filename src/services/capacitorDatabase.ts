@@ -185,6 +185,15 @@ class CapacitorDatabaseService {
       .filter((year) => Number.isFinite(year));
   }
 
+  async getRecordCount(): Promise<number> {
+    await this.ensureReady();
+    const result = await this.db!.query(
+      "SELECT COUNT(*) AS count FROM records",
+    );
+    const row = result.values?.[0] as { count?: number } | undefined;
+    return Number(row?.count ?? 0);
+  }
+
   async getDatabaseUrl(): Promise<string> {
     await this.ensureReady();
     const result = await this.db!.getUrl();
@@ -337,6 +346,36 @@ class CapacitorDatabaseService {
     return { path: uriResult.uri, data };
   }
 
+  async createSyncSnapshot(): Promise<string> {
+    await this.ensureReady();
+    const sourceUrl = await this.getDatabaseUrl();
+    const fileName = `journalitea-sync-${Date.now()}.db`;
+
+    await this.closeConnection();
+    try {
+      await Filesystem.copy({
+        from: sourceUrl,
+        to: fileName,
+        directory: Directory.Cache,
+      });
+    } catch (error) {
+      const file = await Filesystem.readFile({ path: sourceUrl });
+      await Filesystem.writeFile({
+        path: fileName,
+        data: file.data,
+        directory: Directory.Cache,
+      });
+    } finally {
+      await this.ensureReady();
+    }
+
+    const uriResult = await Filesystem.getUri({
+      path: fileName,
+      directory: Directory.Cache,
+    });
+    return uriResult.uri;
+  }
+
   async exportDatabaseToDocuments(): Promise<{ path: string }> {
     await this.ensureReady();
     const sourceUrl = await this.getDatabaseUrl();
@@ -362,6 +401,27 @@ class CapacitorDatabaseService {
       directory: Directory.Documents,
     });
     return { path: uriResult.uri };
+  }
+
+  async replaceDatabaseFromPath(sourcePath: string): Promise<void> {
+    await this.ensureReady();
+    const targetUrl = await this.getDatabaseUrl();
+
+    await this.closeConnection();
+    try {
+      await Filesystem.copy({
+        from: sourcePath,
+        to: targetUrl,
+      });
+    } catch (error) {
+      const file = await Filesystem.readFile({ path: sourcePath });
+      await Filesystem.writeFile({
+        path: targetUrl,
+        data: file.data,
+      });
+    } finally {
+      await this.ensureReady();
+    }
   }
 
   async importDatabaseFromJson(
