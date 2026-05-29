@@ -220,8 +220,13 @@ const saveRecord = async () => {
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }
   } catch (err) {
-    record.value.photo = preparedPhotoRaw;
-    photoPreviewUrl.value = preparedPhotoPreview;
+    try {
+      await photoService.commitSavedRecordPhoto(record.value.id, preparedPhotoRaw, initialPhotoRaw.value);
+    } catch (cleanupError) {
+      console.warn('Failed to rollback staged photo after save error', cleanupError);
+    }
+    record.value.photo = initialPhotoRaw.value;
+    await refreshPhotoPreview();
     error.value = err instanceof Error ? err.message : 'Failed to save record';
     console.error('Error saving record:', err);
   } finally {

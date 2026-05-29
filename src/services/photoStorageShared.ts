@@ -9,6 +9,17 @@ export const normalizePhotoRelativePath = (value: unknown): string =>
     .replace(/\\/g, "/")
     .replace(/^\/+/, "");
 
+export const isSafePhotoRelativePath = (value: unknown): boolean => {
+  const normalized = normalizePhotoRelativePath(value);
+  if (!normalized) {
+    return false;
+  }
+
+  return normalized
+    .split("/")
+    .every((segment) => segment.length > 0 && segment !== "." && segment !== "..");
+};
+
 export const buildPhotoPreviewUrl = (photoPath: string): string => {
   const normalized = normalizePhotoRelativePath(photoPath);
   if (!normalized) {

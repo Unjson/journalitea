@@ -130,13 +130,35 @@ const decodeBase64 = (base64: string): string => {
   return base64;
 };
 
+let inMemorySyncSecret: string | null = null;
+let hasLoadedLegacySyncSecret = false;
+
 const getStoredSyncSecret = async (): Promise<string | null> => {
+  if (isCapacitor) {
+    if (!hasLoadedLegacySyncSecret) {
+      const { value } = await Preferences.get({ key: SYNC_SECRET_STORAGE_KEY });
+      const legacyValue =
+        value && value.trim().length > 0 ? value.trim() : null;
+      if (legacyValue) {
+        inMemorySyncSecret = legacyValue;
+      }
+      await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
+      hasLoadedLegacySyncSecret = true;
+    }
+    return inMemorySyncSecret;
+  }
   const { value } = await Preferences.get({ key: SYNC_SECRET_STORAGE_KEY });
   return value && value.trim().length > 0 ? value : null;
 };
 
 const setStoredSyncSecret = async (value: string): Promise<boolean> => {
   const trimmed = String(value ?? "").trim();
+  if (isCapacitor) {
+    inMemorySyncSecret = trimmed || null;
+    await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
+    hasLoadedLegacySyncSecret = true;
+    return true;
+  }
   if (!trimmed) {
     await Preferences.remove({ key: SYNC_SECRET_STORAGE_KEY });
     return true;

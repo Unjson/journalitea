@@ -17,6 +17,7 @@ import {
   buildStagedPhotoDirectory,
   createTimestampPhotoFileName,
   isManagedPhotoPath,
+  isSafePhotoRelativePath,
   isStagedPhotoPath,
   normalizePhotoRelativePath,
   replacePhotoRecordId,
@@ -387,6 +388,9 @@ class PhotoStorageNodeService {
       if (!normalizedName.startsWith(`${PHOTO_ROOT_FOLDER}/`)) {
         continue;
       }
+      if (!isSafePhotoRelativePath(normalizedName)) {
+        continue;
+      }
       if (
         normalizedName.startsWith(
           `${PHOTO_ROOT_FOLDER}/${PHOTO_STAGING_FOLDER}/`,
@@ -405,6 +409,9 @@ class PhotoStorageNodeService {
         if (!targetRelativePath) {
           continue;
         }
+      }
+      if (!isSafePhotoRelativePath(targetRelativePath)) {
+        continue;
       }
 
       const targetAbsolutePath = this.ensureParentDirectory(targetRelativePath);

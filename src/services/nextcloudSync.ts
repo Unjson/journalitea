@@ -1212,6 +1212,32 @@ class NextcloudSyncService {
             REMOTE_PHOTO_ARCHIVE_FILE_NAME,
           )
         : null;
+      const currentConfig = loadSyncConfig();
+      const hasKnownRemoteState =
+        currentConfig.lastRemoteEtag.trim().length > 0 ||
+        currentConfig.lastRemoteUploadedAt.trim().length > 0;
+      if (hasKnownRemoteState) {
+        if (!existingRemoteFile.exists) {
+          throw new NextcloudSyncError(
+            "remote-changed",
+            "The remote database changed since your last sync. Download first to avoid overwriting newer changes.",
+          );
+        }
+
+        const hasRemoteVersionChanged =
+          (currentConfig.lastRemoteEtag.trim().length > 0 &&
+            existingRemoteFile.etag.trim().length > 0 &&
+            existingRemoteFile.etag !== currentConfig.lastRemoteEtag) ||
+          (toTimestamp(currentConfig.lastRemoteUploadedAt) > 0 &&
+            toTimestamp(existingRemoteFile.lastModified) >
+              toTimestamp(currentConfig.lastRemoteUploadedAt));
+        if (hasRemoteVersionChanged) {
+          throw new NextcloudSyncError(
+            "remote-changed",
+            "The remote database changed since your last sync. Download first to avoid overwriting newer changes.",
+          );
+        }
+      }
 
       updateSyncProgress(progressToken, {
         direction: "sync",

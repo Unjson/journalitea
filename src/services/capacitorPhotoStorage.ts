@@ -15,6 +15,7 @@ import {
   buildStagedPhotoDirectory,
   createTimestampPhotoFileName,
   isManagedPhotoPath,
+  isSafePhotoRelativePath,
   isStagedPhotoPath,
   normalizePhotoRelativePath,
   replacePhotoRecordId,
@@ -565,6 +566,9 @@ export const restoreArchive = async (
     if (!normalizedName.startsWith(`${PHOTO_ROOT_FOLDER}/`)) {
       continue;
     }
+    if (!isSafePhotoRelativePath(normalizedName)) {
+      continue;
+    }
     if (
       normalizedName.startsWith(`${PHOTO_ROOT_FOLDER}/${PHOTO_STAGING_FOLDER}/`)
     ) {
@@ -582,6 +586,9 @@ export const restoreArchive = async (
       if (!targetRelativePath) {
         continue;
       }
+    }
+    if (!isSafePhotoRelativePath(targetRelativePath)) {
+      continue;
     }
 
     const fileData = await entry.async("base64");
