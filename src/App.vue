@@ -11,6 +11,7 @@ import Header from './components/Header.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
 import { platformBridge } from './services/platformBridge';
 import { nextcloudSync, type RemoteUpdateCheck } from './services/nextcloudSync';
+import { closeActivePhotoViewer } from './services/photoViewerState';
 import { loadSyncConfig } from './services/syncConfig';
 import { syncProgressState } from './services/syncProgress';
 import { markResetOnNextMainNav, resetHistoryStack } from './router';
@@ -64,6 +65,10 @@ const canNavigateBack = () => {
 };
 
 const handleBackNavigation = () => {
+	if (closeActivePhotoViewer()) {
+		return;
+	}
+
 	const canGoBack = canNavigateBack();
 	const routeName = String(router.currentRoute.value.name ?? '');
 	if (

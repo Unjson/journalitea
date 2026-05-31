@@ -3,6 +3,10 @@ import { onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import PhotoSwipe from 'photoswipe';
 import 'photoswipe/style.css';
+import {
+	clearActivePhotoViewer,
+	registerActivePhotoViewer,
+} from '../services/photoViewerState';
 
 const FALLBACK_IMAGE_WIDTH = 1600;
 const FALLBACK_IMAGE_HEIGHT = 1200;
@@ -29,6 +33,10 @@ const naturalHeight = ref(0);
 
 let activeViewer: PhotoSwipe | null = null;
 let measurementToken = 0;
+
+const closeViewer = () => {
+	activeViewer?.close();
+};
 
 watch(
 	() => props.src,
@@ -113,13 +121,16 @@ const openViewer = async () => {
 		zoomTitle: t('photo.zoom_viewer'),
 		errorMsg: t('photo.image_error'),
 	});
+	registerActivePhotoViewer({ close: closeViewer });
 	activeViewer.on('destroy', () => {
+		clearActivePhotoViewer();
 		activeViewer = null;
 	});
 	activeViewer.init();
 };
 
 onBeforeUnmount(() => {
+	clearActivePhotoViewer();
 	activeViewer?.destroy();
 	activeViewer = null;
 });
