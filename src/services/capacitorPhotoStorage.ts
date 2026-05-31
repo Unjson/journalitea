@@ -348,69 +348,104 @@ const createContentHash = async (base64Data: string): Promise<string> => {
   ).join("");
 };
 
-export const pickAndStagePhoto = async (): Promise<PhotoSelectionResult> => {
-  const result = await FilePicker.pickFiles({
-    types: ["image/*"],
-    limit: 1,
-    readData: false,
-  });
-  const file = result.files?.[0];
-  if (!file?.path) {
-    return { cancelled: true };
-  }
+const isCancelledPhotoActionError = (error: unknown): boolean => {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : String((error as { message?: unknown })?.message ?? "");
+  const code = String((error as { code?: unknown })?.code ?? "").trim();
+  const normalizedMessage = message.trim().toLowerCase();
 
-  const token = createStagingToken();
-  const targetName = createTimestampPhotoFileName(
-    file.name || file.path,
-    ".jpg",
+  return (
+    code === "OS-PLUG-CAMR-0006" ||
+    code === "OS-PLUG-CAMR-0013" ||
+    code === "OS-PLUG-CAMR-0020" ||
+    normalizedMessage.includes("pickfiles canceled") ||
+    normalizedMessage.includes("pickfiles cancelled") ||
+    normalizedMessage.includes("user cancelled") ||
+    normalizedMessage.includes("user canceled")
   );
-  const targetRelativePath = `${buildStagedPhotoDirectory(token)}/${targetName}`;
-  await copyExternalFileToManagedPath(file.path, targetRelativePath);
-  return createPhotoAssetResult(targetRelativePath);
+};
+
+export const pickAndStagePhoto = async (): Promise<PhotoSelectionResult> => {
+  try {
+    const result = await FilePicker.pickFiles({
+      types: ["image/*"],
+      limit: 1,
+      readData: false,
+    });
+    const file = result.files?.[0];
+    if (!file?.path) {
+      return { cancelled: true };
+    }
+
+    const token = createStagingToken();
+    const targetName = createTimestampPhotoFileName(
+      file.name || file.path,
+      ".jpg",
+    );
+    const targetRelativePath = `${buildStagedPhotoDirectory(token)}/${targetName}`;
+    await copyExternalFileToManagedPath(file.path, targetRelativePath);
+    return createPhotoAssetResult(targetRelativePath);
+  } catch (error) {
+    if (isCancelledPhotoActionError(error)) {
+      return { cancelled: true };
+    }
+    throw error;
+  }
 };
 
 export const captureAndStagePhoto = async (): Promise<PhotoSelectionResult> => {
-  const photo = await Camera.getPhoto({
-    source: CameraSource.Camera,
-    resultType: CameraResultType.Uri,
-    quality: 85,
-    correctOrientation: true,
-    saveToGallery: false,
-  });
-
-  if (!photo.webPath && !photo.path) {
-    return { cancelled: true };
-  }
-
-  const token = createStagingToken();
-  const extension = photo.format ? `.${photo.format.toLowerCase()}` : ".jpg";
-  const targetName = createTimestampPhotoFileName(
-    photo.path || `captured${extension}`,
-    extension,
-  );
-  const targetRelativePath = `${buildStagedPhotoDirectory(token)}/${targetName}`;
-
-  if (photo.webPath) {
-    const response = await fetch(photo.webPath);
-    const blob = await response.blob();
-    const dataUrl = await blobToDataUrl(blob);
-    await Filesystem.writeFile({
-      path: targetRelativePath,
-      directory: PHOTO_DIRECTORY,
-      data: dataUrl,
-      recursive: true,
+  try {
+    const photo = await Camera.getPhoto({
+      source: CameraSource.Camera,
+      resultType: CameraResultType.Uri,
+      quality: 85,
+      correctOrientation: true,
+      saveToGallery: false,
     });
-  } else if (photo.path) {
-    const file = await Filesystem.readFile({ path: photo.path });
-    await Filesystem.writeFile({
-      path: targetRelativePath,
-      directory: PHOTO_DIRECTORY,
-      data: file.data,
-      recursive: true,
-    });
-  }
 
-  return createPhotoAssetResult(targetRelativePath);
+    if (!photo.webPath && !photo.path) {
+      return { cancelled: true };
+    }
+
+    const token = createStagingToken();
+    const extension = photo.format ? `.${photo.format.toLowerCase()}` : ".jpg";
+    const targetName = createTimestampPhotoFileName(
+      photo.path || `captured${extension}`,
+      extension,
+    );
+    const targetRelativePath = `${buildStagedPhotoDirectory(token)}/${targetName}`;
+
+    if (photo.webPath) {
+      const response = await fetch(photo.webPath);
+      const blob = await response.blob();
+      const dataUrl = await blobToDataUrl(blob);
+      await Filesystem.writeFile({
+        path: targetRelativePath,
+        directory: PHOTO_DIRECTORY,
+        data: dataUrl,
+        recursive: true,
+      });
+    } else if (photo.path) {
+      const file = await Filesystem.readFile({ path: photo.path });
+      await Filesystem.writeFile({
+        path: targetRelativePath,
+        directory: PHOTO_DIRECTORY,
+        data: file.data,
+        recursive: true,
+      });
+    }
+
+    return createPhotoAssetResult(targetRelativePath);
+  } catch (error) {
+    if (isCancelledPhotoActionError(error)) {
+      return { cancelled: true };
+    }
+    throw error;
+  }
 };
 
 export const resolvePhotoUrl = async (photoRaw: string): Promise<string> =>
