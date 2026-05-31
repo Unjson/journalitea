@@ -365,9 +365,7 @@ const isCancelledPhotoActionError = (error: unknown): boolean => {
     normalizedMessage.includes("pickfiles canceled") ||
     normalizedMessage.includes("pickfiles cancelled") ||
     normalizedMessage.includes("user cancelled") ||
-    normalizedMessage.includes("user canceled") ||
-    normalizedMessage.includes("cancelled") ||
-    normalizedMessage.includes("canceled")
+    normalizedMessage.includes("user canceled")
   );
 };
 
