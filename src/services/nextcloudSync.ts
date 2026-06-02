@@ -113,6 +113,90 @@ class NextcloudSyncError extends Error {
   }
 }
 
+const getRawErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message.trim();
+  }
+
+  if (typeof error === "string") {
+    return error.trim();
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message?: unknown }).message ?? "").trim();
+  }
+
+  return "";
+};
+
+const getRequestHostLabel = (url: string): string => {
+  try {
+    const parsed = new URL(String(url ?? ""));
+    return parsed.host || parsed.hostname || "";
+  } catch {
+    return "";
+  }
+};
+
+const buildTransportErrorMessage = (
+  error: unknown,
+  url: string,
+  fallbackMessage: string,
+): string => {
+  const rawMessage = getRawErrorMessage(error);
+  const normalizedMessage = rawMessage.toLowerCase();
+  const host = getRequestHostLabel(url);
+  const hostLabel = host ? ` \"${host}\"` : "";
+
+  if (
+    normalizedMessage.includes("unable to resolve host") ||
+    normalizedMessage.includes("no address associated with hostname") ||
+    normalizedMessage.includes("could not resolve host") ||
+    normalizedMessage.includes("enotfound") ||
+    normalizedMessage.includes("err_name_not_resolved") ||
+    normalizedMessage.includes("getaddrinfo")
+  ) {
+    return `Could not find Nextcloud server${hostLabel}. Check server URL, DNS, and internet connection.`;
+  }
+
+  if (
+    normalizedMessage.includes("failed to connect") ||
+    normalizedMessage.includes("connection refused") ||
+    normalizedMessage.includes("econnrefused") ||
+    normalizedMessage.includes("connectexception")
+  ) {
+    return `Could not connect to Nextcloud server${hostLabel}. Check that server is online and reachable.`;
+  }
+
+  if (
+    normalizedMessage.includes("timeout") ||
+    normalizedMessage.includes("timed out") ||
+    normalizedMessage.includes("etimedout") ||
+    normalizedMessage.includes("sockettimeoutexception")
+  ) {
+    return `Connection to Nextcloud server${hostLabel} timed out. Check server availability and internet connection.`;
+  }
+
+  if (
+    normalizedMessage.includes("ssl") ||
+    normalizedMessage.includes("tls") ||
+    normalizedMessage.includes("certificate") ||
+    normalizedMessage.includes("hostname not verified")
+  ) {
+    return `Secure connection to Nextcloud server${hostLabel} failed. Check server URL and TLS certificate.`;
+  }
+
+  return rawMessage || fallbackMessage;
+};
+
+export const getNextcloudSyncErrorMessage = (error: unknown): string => {
+  if (error instanceof NextcloudSyncError) {
+    return error.message;
+  }
+
+  return buildTransportErrorMessage(error, "", "Nextcloud sync failed.");
+};
+
 const wait = (delayMs: number): Promise<void> =>
   new Promise((resolve) => {
     window.setTimeout(resolve, delayMs);
@@ -419,9 +503,11 @@ class NextcloudSyncService {
     } catch (error) {
       throw new NextcloudSyncError(
         "network-error",
-        error instanceof Error
-          ? error.message
-          : "Could not reach the Nextcloud server.",
+        buildTransportErrorMessage(
+          error,
+          options.url,
+          "Could not reach the Nextcloud server.",
+        ),
       );
     }
   }
@@ -438,7 +524,11 @@ class NextcloudSyncService {
     } catch (error) {
       throw new NextcloudSyncError(
         "upload-failed",
-        error instanceof Error ? error.message : "Database upload failed.",
+        buildTransportErrorMessage(
+          error,
+          options.url,
+          "Database upload failed.",
+        ),
       );
     }
   }
@@ -458,7 +548,11 @@ class NextcloudSyncService {
     } catch (error) {
       throw new NextcloudSyncError(
         "download-failed",
-        error instanceof Error ? error.message : "Database download failed.",
+        buildTransportErrorMessage(
+          error,
+          options.url,
+          "Database download failed.",
+        ),
       );
     }
   }
@@ -2133,8 +2227,7 @@ class NextcloudSyncService {
         }
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Nextcloud sync failed.";
+      const message = getNextcloudSyncErrorMessage(error);
       setSyncError(message);
       throw error;
     } finally {

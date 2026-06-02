@@ -7,7 +7,7 @@ import { PREFS, DEFAULT_PREFS } from '../appSettings.js';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { platformBridge } from '../services/platformBridge';
-import { nextcloudSync, type PendingSourceChoiceState, type SyncConnectionResult, type SyncSourceChoice } from '../services/nextcloudSync';
+import { getNextcloudSyncErrorMessage, nextcloudSync, type PendingSourceChoiceState, type SyncConnectionResult, type SyncSourceChoice } from '../services/nextcloudSync';
 import { DEFAULT_NEXTCLOUD_BACKUP_RETENTION, DEFAULT_NEXTCLOUD_FOLDER, loadSyncConfig, normalizeRemoteFolder, saveSyncConfig, setSyncError } from '../services/syncConfig';
 const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
@@ -371,7 +371,7 @@ const onConnectNextcloud = async () => {
 		}
 		syncStatus.value = t('sync.status_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 	} finally {
@@ -387,7 +387,7 @@ const onDisconnectNextcloud = async () => {
 		await applySyncConfig();
 		syncStatus.value = t('sync.status_not_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 	} finally {
@@ -404,7 +404,7 @@ const onSyncNow = async () => {
 		await applySyncConfig();
 		syncStatus.value = t('sync.status_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 	} finally {
@@ -450,7 +450,7 @@ const onConfirmSourceChoice = async () => {
 		await applySyncConfig();
 		syncStatus.value = t('sync.status_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 		await applySyncConfig();
