@@ -15,6 +15,8 @@ import { platformBridge } from '../services/platformBridge';
 import { photoService } from '../services/photoService';
 import type { PhotoSelectionResult } from '../services/photoTypes';
 import { isStagedPhotoPath } from '../services/photoStorageShared';
+import { nextcloudSync } from '../services/nextcloudSync';
+import { loadSyncConfig } from '../services/syncConfig';
 
 const route = useRoute();
 const router = useRouter();
@@ -128,6 +130,17 @@ const preparePhotoForSave = async (recordId: number) => {
   };
 };
 
+const syncSavedRecord = () => {
+  const syncConfig = loadSyncConfig();
+  if (!syncConfig.enabled || syncConfig.requiresSourceChoice || !syncConfig.dirty) {
+    return;
+  }
+
+  void nextcloudSync.syncNow().catch((syncError) => {
+    console.error('Post-save Nextcloud sync failed:', syncError);
+  });
+};
+
 const loadRecord = async () => {
   const id = Number(route.params.id);
 
@@ -205,6 +218,7 @@ const saveRecord = async () => {
       record.value.photo = preparedPhotoRaw;
       photoPreviewUrl.value = preparedPhotoPreview;
       await syncInitialState();
+      syncSavedRecord();
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: newId } });
     } else {
@@ -216,6 +230,7 @@ const saveRecord = async () => {
       record.value.photo = preparedPhotoRaw;
       photoPreviewUrl.value = preparedPhotoPreview;
       await syncInitialState();
+      syncSavedRecord();
       allowNavigation.value = true;
       router.push({ name: 'record-detail', params: { id: record.value.id } });
     }

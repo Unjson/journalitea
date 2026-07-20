@@ -2,7 +2,6 @@
 import { computed, ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getLocaleFromLanguage } from './models/enums';
-import { App as CapacitorApp, type PluginListenerHandle } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
@@ -25,8 +24,6 @@ const startupSyncMessage = ref('');
 const showRemoteUpdatePrompt = ref(false);
 const pendingRemoteUpdate = ref<RemoteUpdateCheck | null>(null);
 const lifecycleSyncInFlight = ref(false);
-
-let appStateListener: PluginListenerHandle | null = null;
 
 const startupPromptMessage = computed(() => {
 	if (pendingRemoteUpdate.value?.hasConflict) {
@@ -234,11 +231,6 @@ onMounted(async() => {
 		platformBridge.onBackButton?.(() => {
 			handleBackNavigation();
 		});
-		appStateListener = await CapacitorApp.addListener('appStateChange', async ({ isActive }) => {
-			if (!isActive) {
-				await runLifecycleSync();
-			}
-		});
 	}
 
 	if (platformBridge.isElectron) {
@@ -292,7 +284,6 @@ onBeforeUnmount(() => {
 	if (platformBridge.isElectron) {
 		window.removeEventListener('keydown', handleDesktopBackspace);
 	}
-	appStateListener?.remove();
 });
 </script>
 
