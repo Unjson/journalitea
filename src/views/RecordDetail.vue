@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Record, getRecordOriginCountry, getRecordSpecificOrigin } from '../models/record';
+import { Record, getRecordOriginCountry, getRecordOriginSummary, getRecordSpecificOrigin } from '../models/record';
 import { getColorForRating } from '../models/colors';
 import RadarPlot from '../components/charts/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
@@ -12,6 +12,7 @@ import { aromaFieldLabels } from '../models/enums';
 import { formatPriceString } from '../models/teaStats';
 import { platformBridge } from '../services/platformBridge';
 import { photoService } from '../services/photoService';
+import { DEFAULT_PREFS, PREFS } from '../appSettings';
 
 const route = useRoute();
 const router = useRouter();
@@ -30,6 +31,8 @@ const aromaOpen = ref(false);
 const aromaPlotVersion = ref(0);
 const originCountry = computed(() => record.value ? getRecordOriginCountry(record.value) : '');
 const specificOrigin = computed(() => record.value ? getRecordSpecificOrigin(record.value) : '');
+const originSummary = computed(() => record.value ? getRecordOriginSummary(record.value) : '');
+const showOriginCountry = ref(DEFAULT_PREFS.ORIGIN_COUNTRY_DISPLAY);
 
 const aromaDataPoints = computed(() => {
   if (!record.value) return [];
@@ -55,6 +58,11 @@ const loadRecord = async () => {
     // Convert plain object to Record instance
     const recordInstance = Object.assign(new Record(), data);
     record.value = recordInstance;
+
+    const originCountryDisplaySetting = await platformBridge.invoke('db:getSetting', PREFS.ORIGIN_COUNTRY_DISPLAY);
+    if (originCountryDisplaySetting.intVal !== -1) {
+      showOriginCountry.value = originCountryDisplaySetting.intVal === 1;
+    }
     
     teaType.value = recordInstance.getTypeName();
     preparationMethod.value = t(recordInstance.getPreparationMethodName());
@@ -142,8 +150,11 @@ onMounted(() => {
         <div class="grid grid-cols-2 gap-4">
           <div><span class="font-medium text-gray-700">{{ t('detail.type_label') }}</span> {{ teaType }}</div>
           <div v-if="record.subtype"><span class="font-medium text-gray-700">{{ t('detail.subtype_label') }}</span> {{ record.subtype }}</div>
-          <div v-if="originCountry"><span class="font-medium text-gray-700">{{ t('detail.origin_country_label') }}</span> {{ originCountry }}</div>
-          <div v-if="specificOrigin"><span class="font-medium text-gray-700">{{ t('detail.origin_detail_label') }}</span> {{ specificOrigin }}</div>
+          <template v-if="showOriginCountry">
+            <div v-if="originCountry"><span class="font-medium text-gray-700">{{ t('detail.origin_country_label') }}</span> {{ originCountry }}</div>
+            <div v-if="specificOrigin"><span class="font-medium text-gray-700">{{ t('detail.origin_detail_label') }}</span> {{ specificOrigin }}</div>
+          </template>
+          <div v-else-if="originSummary"><span class="font-medium text-gray-700">{{ t('detail.origin_detail_label') }}</span> {{ originSummary }}</div>
           <div v-if="record.year"><span class="font-medium text-gray-700">{{ t('detail.year_label') }}</span> {{ record.year }}</div>
           <div v-if="record.seller"><span class="font-medium text-gray-700">{{ t('detail.seller_label') }}</span> {{ record.seller }}</div>
           <div><span class="font-medium text-gray-700">{{ t('detail.date_added_label') }}</span> {{ new Date(record.dateAdded).toLocaleDateString() }}</div>

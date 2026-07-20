@@ -104,6 +104,8 @@ enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+settings.origin_country_display_title;Display origin country separately;Herkunftsland getrennt anzeigen
+settings.origin_country_display_hint;When enabled, the last comma-separated entry is extracted as the origin country.;Wenn aktiviert, wird der letzte durch Kommas getrennte Eintrag als Herkunftsland verwendet.
 settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets
 settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl für die Statistik-Histogramme anpassen
 settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol

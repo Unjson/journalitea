@@ -111,8 +111,8 @@ const separatorLines = computed<SeparatorLine[]>(() => {
 
 <template>
 	<div>
-		<h2 v-if="title" class="text-2xl font-semibold mb-4">{{ title }}</h2>
-		<div v-if="pieChartData.length > 0" class="flex flex-col md:flex-row items-center justify-left gap-8">
+		<h2 v-if="title" class="text-2xl font-semibold mb-4 text-center">{{ title }}</h2>
+		<div v-if="pieChartData.length > 0" class="flex flex-col md:flex-row items-center justify-center gap-8">
 			<div>
 				<svg width="300" height="300" viewBox="0 0 300 300">
 					<g v-for="slice in pieChartData" :key="slice.label">

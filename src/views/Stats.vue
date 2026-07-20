@@ -295,11 +295,18 @@ onActivated(loadStats);
 			</div>
 
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-				<div class="mb-4">
+				<PieChart
+					:valuesByType="pieValuesByType"
+					:labelMap="teaTypeLabels"
+					:title="t('stats.tea_collection_by_type_title')"
+					:value-decimals="pieValueDecimals"
+					:value-suffix="pieValueSuffix"
+				/>
+				<div class="mt-4 flex flex-col items-center">
 					<div class="text-sm font-medium text-gray-600 mb-2">
 						{{ t('stats.tea_collection_metric_label') }}
 					</div>
-					<div class="flex flex-wrap gap-2">
+					<div class="flex flex-wrap justify-center gap-2">
 						<button
 							type="button"
 							class="shrink-0 px-4 py-2 rounded-full border text-sm transition"
@@ -326,13 +333,6 @@ onActivated(loadStats);
 						</button>
 					</div>
 				</div>
-				<PieChart
-					:valuesByType="pieValuesByType"
-					:labelMap="teaTypeLabels"
-					:title="t('stats.tea_collection_by_type_title')"
-					:value-decimals="pieValueDecimals"
-					:value-suffix="pieValueSuffix"
-				/>
 			</div>
 
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

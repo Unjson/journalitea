@@ -14,6 +14,7 @@ const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
+const showOriginCountry = ref(DEFAULT_PREFS.ORIGIN_COUNTRY_DISPLAY);
 const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate: 1.0 });
 const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
@@ -188,6 +189,18 @@ const onHistogramBucketsChanged = async () => {
 	await platformBridge.invoke('db:setSetting', PREFS.HISTOGRAM_BUCKETS, histogramBuckets.value);
 	} catch (err) {
 	console.error('Error saving histogram bucket setting:', err);
+	}
+};
+
+const onOriginCountryDisplayChanged = async () => {
+	try {
+		await platformBridge.invoke(
+			'db:setSetting',
+			PREFS.ORIGIN_COUNTRY_DISPLAY,
+			Number(showOriginCountry.value),
+		);
+	} catch (err) {
+		console.error('Error saving origin country display setting:', err);
 	}
 };
 
@@ -477,6 +490,10 @@ onMounted(async() => {
 	if(histogramBucketSetting.intVal != -1){
 		histogramBuckets.value = Math.min(50, Math.max(5, histogramBucketSetting.intVal));
 	}
+	const originCountryDisplaySetting = await platformBridge.invoke('db:getSetting', PREFS.ORIGIN_COUNTRY_DISPLAY);
+	if(originCountryDisplaySetting.intVal != -1){
+		showOriginCountry.value = originCountryDisplaySetting.intVal === 1;
+	}
 	const customCurrencySetting = await platformBridge.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
 	if(customCurrencySetting.strVal){
 		try{
@@ -568,6 +585,37 @@ onMounted(async() => {
 				:aria-label="t('settings.weightunit_title')"
 				@update:model-value="onWeightUnitChanged"
 			/>
+		</div>
+
+		<div class="mb-6">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<div class="text-gray-700 font-bold">
+						{{ t('settings.origin_country_display_title') }}
+					</div>
+					<div class="mt-1 text-xs text-gray-500">
+						{{ t('settings.origin_country_display_hint') }}
+					</div>
+				</div>
+				<button
+					type="button"
+					role="switch"
+					:aria-checked="showOriginCountry"
+					:aria-label="t('settings.origin_country_display_title')"
+					:class="[
+						'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2',
+						showOriginCountry ? 'bg-gray-800' : 'bg-gray-300',
+					]"
+					@click="showOriginCountry = !showOriginCountry; onOriginCountryDisplayChanged()"
+				>
+					<span
+						:class="[
+							'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200',
+							showOriginCountry ? 'translate-x-7' : 'translate-x-1',
+						]"
+					></span>
+				</button>
+			</div>
 		</div>
 
 		<div class="mb-6">
