@@ -146,7 +146,7 @@ const buildTransportErrorMessage = (
   const rawMessage = getRawErrorMessage(error);
   const normalizedMessage = rawMessage.toLowerCase();
   const host = getRequestHostLabel(url);
-  const hostLabel = host ? ` \"${host}\"` : "";
+  const hostLabel = host ? ` "${host}"` : "";
 
   if (
     normalizedMessage.includes("unable to resolve host") ||

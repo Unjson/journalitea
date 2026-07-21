@@ -59,9 +59,13 @@ const loadRecord = async () => {
     const recordInstance = Object.assign(new Record(), data);
     record.value = recordInstance;
 
-    const originCountryDisplaySetting = await platformBridge.invoke('db:getSetting', PREFS.ORIGIN_COUNTRY_DISPLAY);
-    if (originCountryDisplaySetting.intVal !== -1) {
-      showOriginCountry.value = originCountryDisplaySetting.intVal === 1;
+    try {
+      const originCountryDisplaySetting = await platformBridge.invoke('db:getSetting', PREFS.ORIGIN_COUNTRY_DISPLAY);
+      if (originCountryDisplaySetting.intVal !== -1) {
+        showOriginCountry.value = originCountryDisplaySetting.intVal === 1;
+      }
+    } catch (settingError) {
+      console.error('Error loading origin country display setting:', settingError);
     }
     
     teaType.value = recordInstance.getTypeName();
