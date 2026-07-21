@@ -372,7 +372,7 @@ onBeforeUnmount(() => {
 
 .main-content {
 	width: 100%;
-	--app-header-offset: calc(74px + env(safe-area-inset-top));
+	--app-header-offset: calc(4.25rem + env(safe-area-inset-top));
 	height: calc(100% - var(--app-header-offset));
 	overflow: auto;
 	margin-top: var(--app-header-offset);
