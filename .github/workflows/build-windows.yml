@@ -4,12 +4,10 @@ on:
   push:
     branches:
       - main
-    
+
 jobs:
   build-windows:
     runs-on: windows-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
       - name: Checkout
@@ -25,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Build Windows artifacts
-        run: npm run app:dist:win
+        run: npm run build && npx electron-builder --win --x64 --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
