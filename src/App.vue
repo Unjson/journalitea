@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getLocaleFromLanguage } from './models/enums';
-import { App as CapacitorApp, type PluginListenerHandle } from '@capacitor/app';
+import { getLocaleFromLanguage, setCustomCurrency } from './models/enums';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
@@ -15,6 +14,7 @@ import { closeActivePhotoViewer } from './services/photoViewerState';
 import { loadSyncConfig } from './services/syncConfig';
 import { syncProgressState } from './services/syncProgress';
 import { markResetOnNextMainNav, resetHistoryStack } from './router';
+import { PREFS } from './appSettings.js';
 
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -25,8 +25,6 @@ const startupSyncMessage = ref('');
 const showRemoteUpdatePrompt = ref(false);
 const pendingRemoteUpdate = ref<RemoteUpdateCheck | null>(null);
 const lifecycleSyncInFlight = ref(false);
-
-let appStateListener: PluginListenerHandle | null = null;
 
 const startupPromptMessage = computed(() => {
 	if (pendingRemoteUpdate.value?.hasConflict) {
@@ -234,11 +232,6 @@ onMounted(async() => {
 		platformBridge.onBackButton?.(() => {
 			handleBackNavigation();
 		});
-		appStateListener = await CapacitorApp.addListener('appStateChange', async ({ isActive }) => {
-			if (!isActive) {
-				await runLifecycleSync();
-			}
-		});
 	}
 
 	if (platformBridge.isElectron) {
@@ -285,6 +278,20 @@ onMounted(async() => {
 		locale.value = newLocale;
 	}
 
+	const customCurrencySetting = await platformBridge.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
+	if (customCurrencySetting.strVal) {
+		try {
+			const parsed = JSON.parse(customCurrencySetting.strVal);
+			setCustomCurrency(
+				typeof parsed?.symbol === 'string' ? parsed.symbol : '',
+				typeof parsed?.rate === 'number' ? parsed.rate : 1,
+				typeof parsed?.name === 'string' ? parsed.name : '',
+			);
+		} catch (error) {
+			console.error('Error parsing custom currency setting:', error);
+		}
+	}
+
 	await handleStartupSync();
 });
 
@@ -292,7 +299,6 @@ onBeforeUnmount(() => {
 	if (platformBridge.isElectron) {
 		window.removeEventListener('keydown', handleDesktopBackspace);
 	}
-	appStateListener?.remove();
 });
 </script>
 
@@ -366,7 +372,7 @@ onBeforeUnmount(() => {
 
 .main-content {
 	width: 100%;
-	--app-header-offset: calc(74px + env(safe-area-inset-top));
+	--app-header-offset: calc(4.25rem + env(safe-area-inset-top));
 	height: calc(100% - var(--app-header-offset));
 	overflow: auto;
 	margin-top: var(--app-header-offset);

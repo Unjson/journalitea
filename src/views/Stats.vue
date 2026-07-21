@@ -22,10 +22,33 @@ const exchangeRates = ref<Record<CurrencyType, number>>(EMPTY_EXCHANGE_RATES);
 const records = ref<TeaRecord[]>([]);
 const cumulativeStats = ref<any>(null);
 const activeTab = ref<'summary' | 'histograms' | 'aromas' | 'origins'>('summary');
+const teaCollectionMetric = ref<'absolute' | 'weight'>('absolute');
 const showAllSpecificOrigins = ref(false);
 const years = ref<number[]>([]);
 const selectedYear = ref<number | null>(null);
 const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
+
+const pieValuesByType = computed<Record<string, number> | undefined>(() => {
+	if (!cumulativeStats.value) {
+		return undefined;
+	}
+
+	if (teaCollectionMetric.value === 'weight') {
+		return cumulativeStats.value.teaWeightByType;
+	}
+
+	return cumulativeStats.value.teaCountByType;
+});
+
+const pieValueDecimals = computed(() => (teaCollectionMetric.value === 'weight' ? 2 : 0));
+
+const pieValueSuffix = computed(() => {
+	if (teaCollectionMetric.value !== 'weight') {
+		return undefined;
+	}
+
+	return weightUnitSymbols[preferredWeightUnit.value].symbol || undefined;
+});
 
 const ratingCounts = computed(() => {
 	const counts = Array.from({ length: 6 }, () => 0);
@@ -273,10 +296,43 @@ onActivated(loadStats);
 
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
 				<PieChart
-					:teaCountByType="cumulativeStats.teaCountByType"
+					:valuesByType="pieValuesByType"
 					:labelMap="teaTypeLabels"
 					:title="t('stats.tea_collection_by_type_title')"
+					:value-decimals="pieValueDecimals"
+					:value-suffix="pieValueSuffix"
 				/>
+				<div class="mt-4 flex flex-col items-center">
+					<div class="text-sm font-medium text-gray-600 mb-2">
+						{{ t('stats.tea_collection_metric_label') }}
+					</div>
+					<div class="flex flex-wrap justify-center gap-2">
+						<button
+							type="button"
+							class="shrink-0 px-4 py-2 rounded-full border text-sm transition"
+							:class="
+								teaCollectionMetric === 'absolute'
+									? 'bg-blue-500 text-white border-blue-500'
+									: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+							"
+							@click="teaCollectionMetric = 'absolute'"
+						>
+							{{ t('stats.tea_collection_metric_absolute') }}
+						</button>
+						<button
+							type="button"
+							class="shrink-0 px-4 py-2 rounded-full border text-sm transition"
+							:class="
+								teaCollectionMetric === 'weight'
+									? 'bg-blue-500 text-white border-blue-500'
+									: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+							"
+							@click="teaCollectionMetric = 'weight'"
+						>
+							{{ t('stats.tea_collection_metric_weight') }}
+						</button>
+					</div>
+				</div>
 			</div>
 
 			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">

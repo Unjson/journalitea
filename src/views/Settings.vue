@@ -7,14 +7,15 @@ import { PREFS, DEFAULT_PREFS } from '../appSettings.js';
 import SelectDropdown from '../components/SelectDropdown.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { platformBridge } from '../services/platformBridge';
-import { nextcloudSync, type PendingSourceChoiceState, type SyncConnectionResult, type SyncSourceChoice } from '../services/nextcloudSync';
+import { getNextcloudSyncErrorMessage, nextcloudSync, type PendingSourceChoiceState, type SyncConnectionResult, type SyncSourceChoice } from '../services/nextcloudSync';
 import { DEFAULT_NEXTCLOUD_BACKUP_RETENTION, DEFAULT_NEXTCLOUD_FOLDER, loadSyncConfig, normalizeRemoteFolder, saveSyncConfig, setSyncError } from '../services/syncConfig';
 const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
-const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate: 1.0 });
+const showOriginCountry = ref(DEFAULT_PREFS.ORIGIN_COUNTRY_DISPLAY);
+const customCurrency = ref<{ name: string; symbol: string; rate: number }>({ name: '', symbol: '', rate: 1.0 });
 const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
 const pendingImportData = ref<string | null>(null);
@@ -158,7 +159,11 @@ const onCurrencyChanged = async () => {
 const onCustomCurrencyChanged = async () => {
   try {
 	const sanitizedRate = Number.isFinite(customCurrency.value.rate) ? customCurrency.value.rate : 1;
-	const customCurrencyValue = setCustomCurrency(customCurrency.value.symbol.trim(), sanitizedRate);
+	const customCurrencyValue = setCustomCurrency(
+		customCurrency.value.symbol.trim(),
+		sanitizedRate,
+		customCurrency.value.name.trim(),
+	);
 	await platformBridge.invoke('db:setSetting', PREFS.CUSTOM_CURRENCY, -1, JSON.stringify(customCurrencyValue));
   } catch (err) {
 	console.error('Error saving custom currency:', err);
@@ -188,6 +193,18 @@ const onHistogramBucketsChanged = async () => {
 	await platformBridge.invoke('db:setSetting', PREFS.HISTOGRAM_BUCKETS, histogramBuckets.value);
 	} catch (err) {
 	console.error('Error saving histogram bucket setting:', err);
+	}
+};
+
+const onOriginCountryDisplayChanged = async () => {
+	try {
+		await platformBridge.invoke(
+			'db:setSetting',
+			PREFS.ORIGIN_COUNTRY_DISPLAY,
+			Number(showOriginCountry.value),
+		);
+	} catch (err) {
+		console.error('Error saving origin country display setting:', err);
 	}
 };
 
@@ -371,7 +388,7 @@ const onConnectNextcloud = async () => {
 		}
 		syncStatus.value = t('sync.status_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 	} finally {
@@ -387,7 +404,7 @@ const onDisconnectNextcloud = async () => {
 		await applySyncConfig();
 		syncStatus.value = t('sync.status_not_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 	} finally {
@@ -404,7 +421,7 @@ const onSyncNow = async () => {
 		await applySyncConfig();
 		syncStatus.value = t('sync.status_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 	} finally {
@@ -450,7 +467,7 @@ const onConfirmSourceChoice = async () => {
 		await applySyncConfig();
 		syncStatus.value = t('sync.status_connected');
 	} catch (err) {
-		const message = err instanceof Error ? err.message : t('sync.error_generic');
+		const message = getNextcloudSyncErrorMessage(err);
 		syncError.value = message;
 		setSyncError(message);
 		await applySyncConfig();
@@ -477,17 +494,24 @@ onMounted(async() => {
 	if(histogramBucketSetting.intVal != -1){
 		histogramBuckets.value = Math.min(50, Math.max(5, histogramBucketSetting.intVal));
 	}
+	const originCountryDisplaySetting = await platformBridge.invoke('db:getSetting', PREFS.ORIGIN_COUNTRY_DISPLAY);
+	if(originCountryDisplaySetting.intVal != -1){
+		showOriginCountry.value = originCountryDisplaySetting.intVal === 1;
+	}
 	const customCurrencySetting = await platformBridge.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
 	if(customCurrencySetting.strVal){
 		try{
 			const parsed = JSON.parse(customCurrencySetting.strVal);
+			if(typeof parsed?.name === 'string'){
+				customCurrency.value.name = parsed.name;
+			}
 			if(parsed?.symbol !== undefined){
 				customCurrency.value.symbol = parsed.symbol;
 			}
 			if(parsed?.rate !== undefined){
 				customCurrency.value.rate = parsed.rate;
 			}
-			setCustomCurrency(customCurrency.value.symbol, customCurrency.value.rate);
+			setCustomCurrency(customCurrency.value.symbol, customCurrency.value.rate, customCurrency.value.name);
 		} catch (err) {
 			console.error('Error parsing custom currency setting:', err);
 		}
@@ -515,7 +539,9 @@ onMounted(async() => {
 			/>
 		</div>
 
-		<div class="mb-4">
+		<div class="mb-6">
+			<h2 class="text-xl font-bold mb-3">{{ t('settings.currency_settings_title') }}</h2>
+			<div class="rounded-lg border border-gray-200 p-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
 				{{ t('settings.currency_title') }}
 			</label>
@@ -525,36 +551,64 @@ onMounted(async() => {
 				:aria-label="t('settings.currency_title')"
 				@update:model-value="onCurrencyChanged"
 			/>
-		</div>
 
-		<div v-if="preferredCurrency === CurrencyType.OTHER" class="mb-2 flex flex-row gap-4">
-			<div class="mb-3 flex-1">
-				<label class="block text-gray-700 font-regular mb-1" for="customCurrencySymbol">
+			<div class="mt-4">
+				<div>
+					<label
+						class="block truncate text-gray-700 font-regular mb-1"
+						for="customCurrencyName"
+						:title="t('settings.custom_currency_name')"
+					>
+						{{ t('settings.custom_currency_name') }}
+					</label>
+					<input
+						id="customCurrencyName"
+						v-model="customCurrency.name"
+						class="h-8 w-full max-w-full rounded border border-gray-300 px-3 py-2"
+						type="text"
+						:placeholder="t('settings.custom_currency_name_placeholder')"
+						@input="onCustomCurrencyChanged"
+					/>
+				</div>
+				<div class="mt-4 grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-4">
+				<div class="min-w-0">
+				<label
+					class="block truncate text-gray-700 font-regular mb-1"
+					for="customCurrencySymbol"
+					:title="t('settings.custom_currency_symbol')"
+				>
 					{{ t('settings.custom_currency_symbol') }}
 				</label>
 				<input
 					id="customCurrencySymbol"
 					v-model="customCurrency.symbol"
-					class="w-full h-8 rounded border border-gray-300 px-3 py-2"
+					class="h-8 w-full min-w-0 max-w-full rounded border border-gray-300 px-3 py-2"
 					type="text"
-					:placeholder="t('settings.custom_currency_symbol')"
+					:placeholder="t('settings.custom_currency_symbol_placeholder')"
 					@input="onCustomCurrencyChanged"
 				/>
 			</div>
-			<div class="flex-1">
-				<label class="block text-gray-700 font-regular mb-1" for="customCurrencyRate">
+				<div class="min-w-0">
+				<label
+					class="block truncate text-gray-700 font-regular mb-1"
+					for="customCurrencyRate"
+					:title="t('settings.custom_currency_rate')"
+				>
 					{{ t('settings.custom_currency_rate') }}
 				</label>
 				<input
 					id="customCurrencyRate"
 					v-model.number="customCurrency.rate"
-					class="w-full h-8 rounded border border-gray-300 px-3 py-2"
+					class="h-8 w-full min-w-0 max-w-full rounded border border-gray-300 px-3 py-2"
 					type="number"
 					step="0.0001"
 					min="0"
-					:placeholder="t('settings.custom_currency_rate')"
+					:placeholder="t('settings.custom_currency_rate_placeholder')"
 					@input="onCustomCurrencyChanged"
 				/>
+			</div>
+			</div>
+			</div>
 			</div>
 		</div>
 
@@ -568,6 +622,37 @@ onMounted(async() => {
 				:aria-label="t('settings.weightunit_title')"
 				@update:model-value="onWeightUnitChanged"
 			/>
+		</div>
+
+		<div class="mb-6">
+			<div class="flex items-start justify-between gap-4">
+				<div>
+					<div class="text-gray-700 font-bold">
+						{{ t('settings.origin_country_display_title') }}
+					</div>
+					<div class="mt-1 text-xs text-gray-500">
+						{{ t('settings.origin_country_display_hint') }}
+					</div>
+				</div>
+				<button
+					type="button"
+					role="switch"
+					:aria-checked="showOriginCountry"
+					:aria-label="t('settings.origin_country_display_title')"
+					:class="[
+						'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2',
+						showOriginCountry ? 'bg-gray-800' : 'bg-gray-300',
+					]"
+					@click="showOriginCountry = !showOriginCountry; onOriginCountryDisplayChanged()"
+				>
+					<span
+						:class="[
+							'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200',
+							showOriginCountry ? 'translate-x-7' : 'translate-x-1',
+						]"
+					></span>
+				</button>
+			</div>
 		</div>
 
 		<div class="mb-6">
@@ -776,20 +861,21 @@ onMounted(async() => {
 
 		<div class="mt-6">
 			<h2 class="text-xl font-bold mb-3">{{ t('settings.database_title') }}</h2>
-			<div class="flex flex-col gap-3 sm:flex-row">
-				<button
-					class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
-					@click="onImportDatabase"
-				>
-					{{ t('settings.database_import') }}
-				</button>
-				<button
-					class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
-					@click="onExportDatabase"
-				>
-					{{ t('settings.database_export') }}
-				</button>
-
+			<div class="rounded-lg border border-gray-200 p-4">
+				<div class="flex flex-col gap-3 sm:flex-row">
+					<button
+						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+						@click="onImportDatabase"
+					>
+						{{ t('settings.database_import') }}
+					</button>
+					<button
+						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+						@click="onExportDatabase"
+					>
+						{{ t('settings.database_export') }}
+					</button>
+				</div>
 			</div>
 		</div>
 	

@@ -23,6 +23,7 @@ export function getCumulativeStats(
   mostExpensiveTea: TeaRecord | null;
   mostExpensivePerWeightTea: TeaRecord | null;
   teaCountByType: Record<TeaType, number>;
+  teaWeightByType: Record<TeaType, number>;
 } {
   let totalMoneySpent = 0.0;
   let totalWeight = 0.0;
@@ -31,6 +32,17 @@ export function getCumulativeStats(
   let highestPricePerWeight = 0.0;
   let mostexpensivePrice = 0.0;
   const teaCountByType: Record<TeaType, number> = {
+    [TeaType.GREEN]: 0,
+    [TeaType.BLACK]: 0,
+    [TeaType.OOLONG]: 0,
+    [TeaType.WHITE]: 0,
+    [TeaType.DARK]: 0,
+    [TeaType.YELLOW]: 0,
+    [TeaType.PUER]: 0,
+    [TeaType.HERBAL]: 0,
+    [TeaType.OTHER]: 0,
+  };
+  const teaWeightByType: Record<TeaType, number> = {
     [TeaType.GREEN]: 0,
     [TeaType.BLACK]: 0,
     [TeaType.OOLONG]: 0,
@@ -72,6 +84,7 @@ export function getCumulativeStats(
     );
     totalWeight += weightInDesiredUnit;
     teaCountByType[record.type] += 1;
+    teaWeightByType[record.type] += weightInDesiredUnit;
   }
 
   return {
@@ -81,6 +94,7 @@ export function getCumulativeStats(
     mostExpensiveTea: mostExpensiveTea,
     mostExpensivePerWeightTea: mostExpensivePerWeightTea,
     teaCountByType: teaCountByType,
+    teaWeightByType: teaWeightByType,
   };
 }
 

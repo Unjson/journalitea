@@ -156,6 +156,11 @@ class CapacitorDatabaseService {
         strVal: null,
       },
       {
+        key: PREFS.ORIGIN_COUNTRY_DISPLAY,
+        intVal: Number(DEFAULT_PREFS.ORIGIN_COUNTRY_DISPLAY),
+        strVal: null,
+      },
+      {
         key: PREFS.CUSTOM_CURRENCY,
         intVal: null,
         strVal: JSON.stringify(DEFAULT_PREFS.CUSTOM_CURRENCY),

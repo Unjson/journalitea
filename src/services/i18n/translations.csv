@@ -102,12 +102,19 @@ enum.currency_inr;Indian Rupee (₹);Indische Rupie (₹)
 enum.currency_hkd;Hong Kong Dollar (HK$);Hongkong-Dollar (HK$)
 enum.currency_other;Other;Andere Währung
 settings.language_title;Language;Sprache
+settings.currency_settings_title;Currency Settings;Währungseinstellungen
 settings.currency_title;Preferred Currency;Hauptwährung
 settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
+settings.origin_country_display_title;Display origin country separately;Herkunftsland getrennt anzeigen
+settings.origin_country_display_hint;When enabled, the last comma-separated entry is extracted as the origin country.;Wenn aktiviert, wird der letzte durch Kommas getrennte Eintrag als Herkunftsland verwendet.
 settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets
 settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl für die Statistik-Histogramme anpassen
+settings.custom_currency_name;Custom currency name;Name der benutzerdefinierten Währung
+settings.custom_currency_name_placeholder;e.g. Tea Token;z. B. Tee-Taler
 settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
+settings.custom_currency_symbol_placeholder;e.g. TT;z. B. TT
 settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
+settings.custom_currency_rate_placeholder;e.g. 1.25;z. B. 1,25
 settings.database_title;Local Database Import/Export;Lokaler Datenbank-Import/Export
 settings.database_export;Export database;Datenbank exportieren
 settings.database_import;Import database;Datenbank importieren
@@ -244,6 +251,9 @@ stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
 stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
 stats.no_data;No data;Keine Daten
 stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
+stats.tea_collection_metric_label;Slice size by;Segmentgroesse nach
+stats.tea_collection_metric_absolute;Absolute records;Absolute Eintraege
+stats.tea_collection_metric_weight;Tea weight;Teemenge
 stats.average_rating_label;Average Rating;Durchschnittsbewertung
 stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung
 stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar

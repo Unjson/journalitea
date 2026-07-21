@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { Record, getRecordOriginCountry, getRecordSpecificOrigin } from '../models/record';
+import { Record, getRecordOriginCountry, getRecordOriginSummary, getRecordSpecificOrigin } from '../models/record';
 import { useI18n } from 'vue-i18n';
 import { photoService } from '../services/photoService';
+import { DEFAULT_PREFS, PREFS } from '../appSettings';
+import { platformBridge } from '../services/platformBridge';
 
 interface Props {
   record: Record;
@@ -16,6 +18,8 @@ const photoPreviewUrl = ref('');
 const { t } = useI18n();
 const originCountry = computed(() => getRecordOriginCountry(props.record));
 const specificOrigin = computed(() => getRecordSpecificOrigin(props.record));
+const originSummary = computed(() => getRecordOriginSummary(props.record));
+const showOriginCountry = ref(DEFAULT_PREFS.ORIGIN_COUNTRY_DISPLAY);
 let latestPhotoRequestId = 0;
 
 const escapeCssUrl = (value: string): string => value.replace(/["\\)]/g, '\\$&');
@@ -59,9 +63,17 @@ const refreshPhotoPreview = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
 	const recordInstance = Object.assign(new Record(), props.record);
   	teaType.value = recordInstance.getTypeName();
+  try {
+    const setting = await platformBridge.invoke('db:getSetting', PREFS.ORIGIN_COUNTRY_DISPLAY);
+    if (setting.intVal !== -1) {
+      showOriginCountry.value = setting.intVal === 1;
+    }
+  } catch (err) {
+    console.error('Error loading origin country display setting:', err);
+  }
 });
 
 watch(
@@ -90,8 +102,11 @@ watch(
         <div class="grid grid-cols-2 gap-2 text-sm text-gray-700">
           <div><span class="font-medium">{{ t('record.type_label') }}</span> {{ teaType }}</div>
           <div v-if="record.subtype"><span class="font-medium">{{ t('record.subtype_label') }}</span> {{ record.subtype }}</div>
-          <div v-if="originCountry"><span class="font-medium">{{ t('record.origin_country_label') }}</span> {{ originCountry }}</div>
-          <div v-if="specificOrigin"><span class="font-medium">{{ t('record.origin_detail_label') }}</span> {{ specificOrigin }}</div>
+          <template v-if="showOriginCountry">
+            <div v-if="originCountry"><span class="font-medium">{{ t('record.origin_country_label') }}</span> {{ originCountry }}</div>
+            <div v-if="specificOrigin"><span class="font-medium">{{ t('record.origin_detail_label') }}</span> {{ specificOrigin }}</div>
+          </template>
+          <div v-else-if="originSummary"><span class="font-medium">{{ t('record.origin_detail_label') }}</span> {{ originSummary }}</div>
           <div v-if="record.year"><span class="font-medium">{{ t('record.year_label') }}</span> {{ record.year }}</div>
           <div v-if="record.seller"><span class="font-medium">{{ t('record.seller_label') }}</span> {{ record.seller }}</div>
           <div v-if="record.rating"><span class="font-medium">{{ t('record.rating_label') }}</span> {{ record.rating }}/5</div>
