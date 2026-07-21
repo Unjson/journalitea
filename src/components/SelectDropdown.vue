@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 type SelectOption = {
   value: string | number;
   label: string;
+  displayLabel?: string;
   iconUrl?: string;
 };
 
@@ -30,6 +31,9 @@ const root = ref<HTMLElement | null>(null);
 const selectedOption = computed(() =>
   props.options.find(option => option.value === props.modelValue)
 );
+
+const optionLabel = (option?: SelectOption) =>
+  option?.displayLabel ?? (option ? t(option.label) : '');
 
 const toggleOpen = () => {
   if (props.disabled) return;
@@ -75,7 +79,7 @@ onBeforeUnmount(() => {
         :src="selectedOption.iconUrl"
         alt=""
       />
-      <span class="select-label">{{ t(selectedOption?.label) ?? '' }}</span>
+      <span class="select-label">{{ optionLabel(selectedOption) }}</span>
       <span class="select-caret">▾</span>
     </button>
 
@@ -88,7 +92,7 @@ onBeforeUnmount(() => {
             :src="option.iconUrl"
             alt=""
           />
-          <span>{{ t(option.label) }}</span>
+          <span>{{ optionLabel(option) }}</span>
         </button>
       </li>
     </ul>

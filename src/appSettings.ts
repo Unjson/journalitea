@@ -19,6 +19,7 @@ export const DEFAULT_PREFS = {
   HISTOGRAM_BUCKETS: 17,
   ORIGIN_COUNTRY_DISPLAY: true,
   CUSTOM_CURRENCY: {
+    name: "",
     symbol: "",
     rate: 1.0,
   },

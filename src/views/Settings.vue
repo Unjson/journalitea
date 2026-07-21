@@ -15,7 +15,7 @@ const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
 const preferredWeightUnit = ref<WeightUnit>(WeightUnit.METRIC_GRAM);
 const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
 const showOriginCountry = ref(DEFAULT_PREFS.ORIGIN_COUNTRY_DISPLAY);
-const customCurrency = ref<{ symbol: string; rate: number }>({ symbol: '', rate: 1.0 });
+const customCurrency = ref<{ name: string; symbol: string; rate: number }>({ name: '', symbol: '', rate: 1.0 });
 const showImportConfirm = ref(false);
 const pendingImportPath = ref<string | null>(null);
 const pendingImportData = ref<string | null>(null);
@@ -159,7 +159,11 @@ const onCurrencyChanged = async () => {
 const onCustomCurrencyChanged = async () => {
   try {
 	const sanitizedRate = Number.isFinite(customCurrency.value.rate) ? customCurrency.value.rate : 1;
-	const customCurrencyValue = setCustomCurrency(customCurrency.value.symbol.trim(), sanitizedRate);
+	const customCurrencyValue = setCustomCurrency(
+		customCurrency.value.symbol.trim(),
+		sanitizedRate,
+		customCurrency.value.name.trim(),
+	);
 	await platformBridge.invoke('db:setSetting', PREFS.CUSTOM_CURRENCY, -1, JSON.stringify(customCurrencyValue));
   } catch (err) {
 	console.error('Error saving custom currency:', err);
@@ -498,13 +502,16 @@ onMounted(async() => {
 	if(customCurrencySetting.strVal){
 		try{
 			const parsed = JSON.parse(customCurrencySetting.strVal);
+			if(typeof parsed?.name === 'string'){
+				customCurrency.value.name = parsed.name;
+			}
 			if(parsed?.symbol !== undefined){
 				customCurrency.value.symbol = parsed.symbol;
 			}
 			if(parsed?.rate !== undefined){
 				customCurrency.value.rate = parsed.rate;
 			}
-			setCustomCurrency(customCurrency.value.symbol, customCurrency.value.rate);
+			setCustomCurrency(customCurrency.value.symbol, customCurrency.value.rate, customCurrency.value.name);
 		} catch (err) {
 			console.error('Error parsing custom currency setting:', err);
 		}
@@ -532,7 +539,9 @@ onMounted(async() => {
 			/>
 		</div>
 
-		<div class="mb-4">
+		<div class="mb-6">
+			<h2 class="text-xl font-bold mb-3">{{ t('settings.currency_settings_title') }}</h2>
+			<div class="rounded-lg border border-gray-200 p-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
 				{{ t('settings.currency_title') }}
 			</label>
@@ -542,36 +551,64 @@ onMounted(async() => {
 				:aria-label="t('settings.currency_title')"
 				@update:model-value="onCurrencyChanged"
 			/>
-		</div>
 
-		<div v-if="preferredCurrency === CurrencyType.OTHER" class="mb-2 flex flex-row gap-4">
-			<div class="mb-3 flex-1">
-				<label class="block text-gray-700 font-regular mb-1" for="customCurrencySymbol">
+			<div class="mt-4">
+				<div>
+					<label
+						class="block truncate text-gray-700 font-regular mb-1"
+						for="customCurrencyName"
+						:title="t('settings.custom_currency_name')"
+					>
+						{{ t('settings.custom_currency_name') }}
+					</label>
+					<input
+						id="customCurrencyName"
+						v-model="customCurrency.name"
+						class="h-8 w-full max-w-full rounded border border-gray-300 px-3 py-2"
+						type="text"
+						:placeholder="t('settings.custom_currency_name_placeholder')"
+						@input="onCustomCurrencyChanged"
+					/>
+				</div>
+				<div class="mt-4 grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-4">
+				<div class="min-w-0">
+				<label
+					class="block truncate text-gray-700 font-regular mb-1"
+					for="customCurrencySymbol"
+					:title="t('settings.custom_currency_symbol')"
+				>
 					{{ t('settings.custom_currency_symbol') }}
 				</label>
 				<input
 					id="customCurrencySymbol"
 					v-model="customCurrency.symbol"
-					class="w-full h-8 rounded border border-gray-300 px-3 py-2"
+					class="h-8 w-full min-w-0 max-w-full rounded border border-gray-300 px-3 py-2"
 					type="text"
-					:placeholder="t('settings.custom_currency_symbol')"
+					:placeholder="t('settings.custom_currency_symbol_placeholder')"
 					@input="onCustomCurrencyChanged"
 				/>
 			</div>
-			<div class="flex-1">
-				<label class="block text-gray-700 font-regular mb-1" for="customCurrencyRate">
+				<div class="min-w-0">
+				<label
+					class="block truncate text-gray-700 font-regular mb-1"
+					for="customCurrencyRate"
+					:title="t('settings.custom_currency_rate')"
+				>
 					{{ t('settings.custom_currency_rate') }}
 				</label>
 				<input
 					id="customCurrencyRate"
 					v-model.number="customCurrency.rate"
-					class="w-full h-8 rounded border border-gray-300 px-3 py-2"
+					class="h-8 w-full min-w-0 max-w-full rounded border border-gray-300 px-3 py-2"
 					type="number"
 					step="0.0001"
 					min="0"
-					:placeholder="t('settings.custom_currency_rate')"
+					:placeholder="t('settings.custom_currency_rate_placeholder')"
 					@input="onCustomCurrencyChanged"
 				/>
+			</div>
+			</div>
+			</div>
 			</div>
 		</div>
 

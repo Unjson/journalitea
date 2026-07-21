@@ -53,10 +53,13 @@ export enum CurrencyType {
   OTHER = 7,
 }
 
-export let customCurrency = {
+import { computed, reactive } from "vue";
+
+export const customCurrency = reactive({
+  name: "",
   symbol: "",
   rate: 1.0,
-};
+});
 
 export enum WeightUnit {
   METRIC_GRAM = 0,
@@ -82,9 +85,12 @@ export function getLocaleFromLanguage(lang: Language): string {
 export function setCustomCurrency(
   symbol: string,
   rate: number,
-): { symbol: string; rate: number } {
+  name = "",
+): { name: string; symbol: string; rate: number } {
+  customCurrency.name = name;
   customCurrency.symbol = symbol;
   customCurrency.rate = rate;
+  currencySymbols[CurrencyType.OTHER].symbol = symbol;
   return customCurrency;
 }
 
@@ -189,7 +195,7 @@ export const preparationMethodLabels = [
   { value: PreparationMethod.OTHER, label: "enum.preparation_other" },
 ];
 
-export const currencyLabels = [
+export const currencyLabels = computed(() => [
   { value: CurrencyType.USD, label: "enum.currency_usd" },
   { value: CurrencyType.EUR, label: "enum.currency_eur" },
   { value: CurrencyType.GBP, label: "enum.currency_gbp" },
@@ -197,8 +203,14 @@ export const currencyLabels = [
   { value: CurrencyType.JPY, label: "enum.currency_jpy" },
   { value: CurrencyType.INR, label: "enum.currency_inr" },
   { value: CurrencyType.HKD, label: "enum.currency_hkd" },
-  { value: CurrencyType.OTHER, label: "enum.currency_other" },
-];
+  customCurrency.name && customCurrency.symbol
+    ? {
+        value: CurrencyType.OTHER,
+        label: "enum.currency_other",
+        displayLabel: `${customCurrency.name} (${customCurrency.symbol})`,
+      }
+    : { value: CurrencyType.OTHER, label: "enum.currency_other" },
+]);
 
 export const currencySymbols = [
   { value: CurrencyType.USD, symbol: "$" },
