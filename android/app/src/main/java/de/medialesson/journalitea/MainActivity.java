@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		registerPlugin(CapacitorSQLitePlugin.class);
 		registerPlugin(JournaliteaHttpPlugin.class);
+		registerPlugin(JournaliteaFilesPlugin.class);
 		super.onCreate(savedInstanceState);
 	}
 }

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, nextTick } from 'vue';
 import { Language, CurrencyType, WeightUnit, languageLabels, currencyLabels, weightUnitLabels, getLocaleFromLanguage, setCustomCurrency } from '../models/enums';
 import { lookUpExchangeRates } from '../models/teaStats';
 import { useI18n } from 'vue-i18n';
@@ -23,6 +23,12 @@ const pendingImportName = ref<string | null>(null);
 const showExportDialog = ref(false);
 const exportDialogTitle = ref('');
 const exportDialogMessage = ref('');
+const exportBusy = ref(false);
+const exportProgress = ref<number | undefined>(undefined);
+const pendingAndroidExport = ref<{
+	path: string;
+	photoArchivePath: string;
+} | null>(null);
 const syncEnabled = ref(false);
 const syncPictures = ref(false);
 const syncServerUrl = ref('');
@@ -219,7 +225,7 @@ const buildExportSuccessMessage = (result: any): string => {
 		}
 	}
 
-	if (result?.photoArchivePath) {
+	if (!platformBridge.isCapacitor && result?.photoArchivePath) {
 		lines.push(t('settings.database_export_photo_archive', {
 			path: String(result.photoArchivePath),
 		}));
@@ -252,27 +258,82 @@ const buildImportSuccessMessage = (
 };
 
 const onExportDatabase = async () => {
+	showExportDialog.value = true;
+	exportBusy.value = true;
+	exportProgress.value = 10;
+	pendingAndroidExport.value = null;
+	exportDialogTitle.value = t('settings.database_export_progress_title');
+	exportDialogMessage.value = t('settings.database_export_progress_preparing');
+	await nextTick();
+
 	try {
-		const result = await platformBridge.invoke('db:exportDatabase');
-		if (result?.cancelled) return;
+		let result;
+		if (platformBridge.isAndroid) {
+			result = await platformBridge.invoke('db:prepareDatabaseExport');
+			result.success = true;
+			pendingAndroidExport.value = {
+				path: result.path,
+				photoArchivePath: result.photoArchivePath,
+			};
+		} else {
+			result = await platformBridge.invoke('db:exportDatabase');
+		}
+
+		if (result?.cancelled) {
+			showExportDialog.value = false;
+			return;
+		}
 		if (result?.success || result?.path) {
+			exportProgress.value = 100;
 			exportDialogTitle.value = t('settings.database_export_success_title');
 			exportDialogMessage.value = buildExportSuccessMessage(result);
-			showExportDialog.value = true;
 			return;
 		}
 
+		exportProgress.value = 100;
 		exportDialogTitle.value = t('settings.database_export_error_title');
 		exportDialogMessage.value = t('settings.database_export_error');
-		showExportDialog.value = true;
 	} catch (err) {
+		exportProgress.value = 100;
 		exportDialogTitle.value = t('settings.database_export_error_title');
 		exportDialogMessage.value =
 			err instanceof Error 
 			? t('settings.database_export_error') + ': \n' + err.message 
 			: t('settings.database_export_error');
-		showExportDialog.value = true;
 		console.error('Error exporting database:', err);
+	} finally {
+		exportBusy.value = false;
+	}
+};
+
+const onShareDatabaseExport = async () => {
+	const result = pendingAndroidExport.value;
+	if (!result) return;
+
+	try {
+		await platformBridge.invoke(
+			'db:shareDatabaseExportFile',
+			result.path,
+			t('settings.database_export_share_database'),
+		);
+		await platformBridge.invoke(
+			'db:shareDatabaseExportFile',
+			result.photoArchivePath,
+			t('settings.database_export_share_photos'),
+		);
+	} catch (err) {
+		if (/share canceled/i.test(err instanceof Error ? err.message : String(err))) {
+			showExportDialog.value = true;
+			return;
+		}
+
+		exportDialogTitle.value = t('settings.database_export_error_title');
+		exportDialogMessage.value =
+			err instanceof Error
+				? t('settings.database_export_error') + ': \n' + err.message
+				: t('settings.database_export_error');
+		showExportDialog.value = true;
+		console.error('Error sharing database export:', err);
 	}
 };
 
@@ -525,6 +586,7 @@ onMounted(async() => {
 </script>
 
 <template>
+	<div class="pb-[calc(6rem+env(safe-area-inset-bottom))]">
 	<h1 class="text-3xl font-bold">Settings Page</h1>
 	<div class="mt-6">
 		<div class="mb-4">
@@ -870,7 +932,8 @@ onMounted(async() => {
 						{{ t('settings.database_import') }}
 					</button>
 					<button
-						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+						:disabled="exportBusy"
 						@click="onExportDatabase"
 					>
 						{{ t('settings.database_export') }}
@@ -879,6 +942,7 @@ onMounted(async() => {
 			</div>
 		</div>
 	
+	</div>
 	</div>
 
 	<ConfirmDialog
@@ -897,8 +961,14 @@ onMounted(async() => {
 		v-model="showExportDialog"
 		:title="exportDialogTitle"
 		:message="exportDialogMessage"
-		:confirm-text="t('settings.dialog_ok')"
+		:confirm-text="t('settings.dialog_close')"
 		:show-cancel="false"
+		:show-confirm="!exportBusy"
+		:confirm-neutral="true"
+		:secondary-text="!exportBusy && pendingAndroidExport ? t('settings.database_export_share_ready') : undefined"
+		:close-on-backdrop="false"
+		:progress="exportProgress"
+		@secondary="onShareDatabaseExport"
 	/>
 
 	<ConfirmDialog

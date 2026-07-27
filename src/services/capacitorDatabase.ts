@@ -486,11 +486,12 @@ class CapacitorDatabaseService {
     const sourceUrl = await this.getDatabaseUrl();
     const fileName = `journalitea-export-${new Date().toISOString().replace(/[:.]/g, "-")}.db`;
 
+    await this.closeConnection();
     try {
       await Filesystem.copy({
         from: sourceUrl,
         to: fileName,
-        directory: Directory.Documents,
+        toDirectory: Directory.Documents,
       });
     } catch (error) {
       const file = await Filesystem.readFile({ path: sourceUrl });
@@ -499,6 +500,8 @@ class CapacitorDatabaseService {
         data: file.data,
         directory: Directory.Documents,
       });
+    } finally {
+      await this.ensureReady();
     }
 
     const uriResult = await Filesystem.getUri({

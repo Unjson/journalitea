@@ -34,9 +34,14 @@ const props = defineProps<{
 	title?: string;
 	valueDecimals?: number;
 	valueSuffix?: string;
+	valueFormatter?: (value: number) => string;
 }>();
 
 const formatValue = (value: number): string => {
+	if (props.valueFormatter) {
+		return props.valueFormatter(value);
+	}
+
 	const decimals = Math.max(0, props.valueDecimals ?? 0);
 	const formatted = value.toFixed(decimals);
 	return props.valueSuffix ? `${formatted} ${props.valueSuffix}` : formatted;
