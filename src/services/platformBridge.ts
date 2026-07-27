@@ -254,12 +254,15 @@ const prepareAndroidDatabaseExport = async () => {
   const fileName = archivePath.split("/").pop();
   if (!fileName) throw new Error("Could not determine photo archive name.");
   const photoArchive = await journaliteaFiles.createPhotoArchive({ fileName });
-  await Filesystem.copy({
-    from: photoArchive.path,
-    to: fileName,
-    toDirectory: Directory.Documents,
-  });
-  await Filesystem.deleteFile({ path: photoArchive.path }).catch(() => {});
+  try {
+    await Filesystem.copy({
+      from: photoArchive.path,
+      to: fileName,
+      toDirectory: Directory.Documents,
+    });
+  } finally {
+    await Filesystem.deleteFile({ path: photoArchive.path }).catch(() => {});
+  }
   const publishedArchive = await Filesystem.getUri({
     path: fileName,
     directory: Directory.Documents,
