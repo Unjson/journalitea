@@ -7,6 +7,8 @@ const props = withDefaults(
 		confirmText?: string;
 		cancelText?: string;
 		secondaryText?: string;
+		progress?: number;
+		confirmNeutral?: boolean;
 		closeOnBackdrop?: boolean;
 		showCancel?: boolean;
 		showConfirm?: boolean;
@@ -62,6 +64,24 @@ const isSingleAction = () =>
 				<p class="mb-6 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">
 					{{ message ?? 'Are you sure?' }}
 				</p>
+				<div
+					v-if="progress !== undefined"
+					class="mb-6"
+					role="progressbar"
+					aria-valuemin="0"
+					aria-valuemax="100"
+					:aria-valuenow="progress"
+				>
+					<div class="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+						<div
+							class="h-full rounded-full bg-blue-600 transition-[width] duration-300"
+							:style="{ width: `${Math.min(100, Math.max(0, progress))}%` }"
+						></div>
+					</div>
+					<div class="mt-2 text-right text-xs font-semibold text-gray-600 dark:text-gray-300">
+						{{ Math.round(progress) }}%
+					</div>
+				</div>
 				<div class="flex justify-end gap-3">
 					<button
 						v-if="showCancel"
@@ -81,7 +101,7 @@ const isSingleAction = () =>
 						v-if="showConfirm"
 						:class="[
 							'px-4 py-2 rounded-lg text-white',
-							isSingleAction()
+							confirmNeutral || isSingleAction()
 								? 'dialog-button-neutral'
 								: 'dialog-button-danger',
 						]"

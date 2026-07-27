@@ -5,6 +5,7 @@ import { FilePicker } from "@capawesome/capacitor-file-picker";
 import { FileTransfer } from "@capacitor/file-transfer";
 import { Filesystem, Encoding, Directory } from "@capacitor/filesystem";
 import { Preferences } from "@capacitor/preferences";
+import { Share } from "@capacitor/share";
 import { parseTranslationsFromCSVContent } from "./i18n/csvParser";
 import translationsCsv from "./i18n/translations.csv?raw";
 import { capacitorDb } from "./capacitorDatabase";
@@ -34,6 +35,7 @@ import type {
   SyncHttpResponse,
   SyncUploadRequest,
 } from "./syncTypes";
+import { buildSiblingPhotoArchivePath } from "./photoStorageShared";
 
 export type BridgeListener = (...args: any[]) => void;
 export type BackButtonListener = (event: { canGoBack: boolean }) => void;
@@ -42,6 +44,14 @@ type InvokeResult = Promise<any>;
 
 type JournaliteaHttpPlugin = {
   request(options: SyncHttpRequest): Promise<SyncHttpResponse>;
+};
+
+type JournaliteaFilesPlugin = {
+  createPhotoArchive(options: { fileName: string }): Promise<{
+    path: string;
+    hasPhotos: boolean;
+    exists: boolean;
+  }>;
 };
 
 const shouldMarkDatabaseDirty = (channel: string, result: any): boolean => {
@@ -89,6 +99,8 @@ const isCapacitor = Capacitor.isNativePlatform();
 const isAndroid = Capacitor.getPlatform() === "android";
 const journaliteaHttp =
   registerPlugin<JournaliteaHttpPlugin>("JournaliteaHttp");
+const journaliteaFiles =
+  registerPlugin<JournaliteaFilesPlugin>("JournaliteaFiles");
 
 const isJsonFile = (pathOrName: string | null | undefined): boolean =>
   !!pathOrName && pathOrName.toLowerCase().endsWith(".json");
@@ -236,6 +248,39 @@ const createCacheFileUri = async (fileName: string): Promise<string> => {
   return uriResult.uri;
 };
 
+const prepareAndroidDatabaseExport = async () => {
+  const result = await capacitorDb.exportDatabaseToDocuments();
+  const archivePath = buildSiblingPhotoArchivePath(result.path);
+  const fileName = archivePath.split("/").pop();
+  if (!fileName) throw new Error("Could not determine photo archive name.");
+  const photoArchive = await journaliteaFiles.createPhotoArchive({ fileName });
+  await Filesystem.copy({
+    from: photoArchive.path,
+    to: fileName,
+    toDirectory: Directory.Documents,
+  });
+  await Filesystem.deleteFile({ path: photoArchive.path }).catch(() => {});
+  const publishedArchive = await Filesystem.getUri({
+    path: fileName,
+    directory: Directory.Documents,
+  });
+  return {
+    ...result,
+    photoArchivePath: publishedArchive.uri,
+    hasPhotos: photoArchive.hasPhotos,
+  };
+};
+
+const shareAndroidExportFile = async (
+  path: string,
+  dialogTitle: string,
+): Promise<void> => {
+  await Share.share({
+    files: [path],
+    dialogTitle,
+  });
+};
+
 const handleCapacitorInvoke = async (
   channel: string,
   ...args: any[]
@@ -281,14 +326,22 @@ const handleCapacitorInvoke = async (
       );
     case "db:exportDatabase": {
       if (!isAndroid) return { cancelled: true };
-      const result = await capacitorDb.exportDatabaseToDocuments();
-      const photoArchive = await createSiblingArchive(result.path);
+      const result = await prepareAndroidDatabaseExport();
       return {
         ...result,
         success: true,
-        photoArchivePath: photoArchive.path,
-        hasPhotos: photoArchive.hasPhotos,
       };
+    }
+    case "db:prepareDatabaseExport": {
+      if (!isAndroid) return { cancelled: true };
+      return prepareAndroidDatabaseExport();
+    }
+    case "db:shareDatabaseExportFile": {
+      if (!isAndroid) return { cancelled: true };
+      const path = String(args[0] ?? "").trim();
+      if (!path) throw new Error("Export file path is missing.");
+      await shareAndroidExportFile(path, String(args[1] ?? "Export file"));
+      return { success: true };
     }
     case "db:pickDatabaseFile": {
       if (!isAndroid) return { cancelled: true };
