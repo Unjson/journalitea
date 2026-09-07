@@ -1,6 +1,7 @@
 import { platformBridge } from "./platformBridge";
 import { APP_NAME } from "../appSettings";
 import { parseRecordPhotos } from "../models/record";
+import { refreshAppSettings } from "./appSettingsRefresh";
 import type { SyncablePhotoFile } from "./photoTypes";
 import {
   buildSiblingPhotoArchivePath,
@@ -2005,6 +2006,7 @@ class NextcloudSyncService {
         lastRemoteEtag: remoteFile.etag,
         lastSyncAt: new Date().toISOString(),
       });
+      await refreshAppSettings();
       finishSyncProgress(progressToken);
       progressFinished = true;
       return nextConfig;

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref, onBeforeUnmount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getLocaleFromLanguage, setCustomCurrency } from './models/enums';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { useI18n } from 'vue-i18n';
 import { Capacitor } from '@capacitor/core';
@@ -9,14 +8,14 @@ import Sidebar from './components/Sidebar.vue';
 import Header from './components/Header.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
 import { platformBridge } from './services/platformBridge';
+import { refreshAppSettings } from './services/appSettingsRefresh';
 import { nextcloudSync, type RemoteUpdateCheck } from './services/nextcloudSync';
 import { closeActivePhotoViewer } from './services/photoViewerState';
 import { loadSyncConfig } from './services/syncConfig';
 import { syncProgressState } from './services/syncProgress';
 import { markResetOnNextMainNav, resetHistoryStack } from './router';
-import { PREFS } from './appSettings.js';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const router = useRouter();
 const sidebarCollapsed = ref(true);
 const headerTitle = ref(t('app.title'));
@@ -272,25 +271,7 @@ onMounted(async() => {
 		}
 	});
 
-	const language = await platformBridge.invoke('db:getSetting', 'language');
-	if(language.intVal != -1){
-		const newLocale = getLocaleFromLanguage(language.intVal);
-		locale.value = newLocale;
-	}
-
-	const customCurrencySetting = await platformBridge.invoke('db:getSetting', PREFS.CUSTOM_CURRENCY);
-	if (customCurrencySetting.strVal) {
-		try {
-			const parsed = JSON.parse(customCurrencySetting.strVal);
-			setCustomCurrency(
-				typeof parsed?.symbol === 'string' ? parsed.symbol : '',
-				typeof parsed?.rate === 'number' ? parsed.rate : 1,
-				typeof parsed?.name === 'string' ? parsed.name : '',
-			);
-		} catch (error) {
-			console.error('Error parsing custom currency setting:', error);
-		}
-	}
+	await refreshAppSettings();
 
 	await handleStartupSync();
 });
