@@ -12,13 +12,11 @@ import { DEFAULT_NEXTCLOUD_BACKUP_RETENTION, DEFAULT_NEXTCLOUD_FOLDER, loadSyncC
 
 const syncAfterImport = () => {
 	const syncConfig = loadSyncConfig();
-	if (!syncConfig.enabled || syncConfig.requiresSourceChoice || !syncConfig.dirty) {
+	if (syncBusy.value || !syncConfig.enabled || syncConfig.requiresSourceChoice || !syncConfig.dirty) {
 		return;
 	}
 
-	void nextcloudSync.syncNow().catch((syncError) => {
-		console.error('Post-import Nextcloud sync failed:', syncError);
-	});
+	void onSyncNow();
 };
 const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
@@ -487,6 +485,10 @@ const onDisconnectNextcloud = async () => {
 };
 
 const onSyncNow = async () => {
+	if (syncBusy.value) {
+		return;
+	}
+
 	syncBusy.value = true;
 	syncError.value = null;
 	syncStatus.value = t('sync.status_syncing');

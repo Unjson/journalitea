@@ -986,14 +986,9 @@ class NextcloudSyncService {
 
       if (!manifestEntry) {
         if (localPhoto && remotePhoto) {
-          // No manifest baseline (e.g. after a database import): keep the
-          // remote copy when the byte sizes match instead of re-uploading.
-          if (
-            remotePhoto.byteSize <= 0 ||
-            remotePhoto.byteSize !== localPhoto.byteSize
-          ) {
-            conflicts.add(relativePath);
-          }
+          // Without a baseline (e.g. after a database import), the copies
+          // cannot be proven identical.
+          conflicts.add(relativePath);
         } else if (localPhoto) {
           if (mayUpload(relativePath)) {
             uploadPaths.add(relativePath);
@@ -1998,6 +1993,8 @@ class NextcloudSyncService {
       clearSyncDirty();
       const nextConfig = saveSyncConfig({
         dirty: false,
+        dirtyPhotoPaths: [],
+        fullPhotoSyncPending: false,
         requiresSourceChoice: false,
         lastAppliedRemoteAt:
           remoteFile.lastModified || new Date().toISOString(),
