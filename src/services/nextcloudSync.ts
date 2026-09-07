@@ -17,9 +17,11 @@ import {
   updateSyncProgress,
 } from "./syncProgress";
 import {
+  clearFullPhotoSyncPending,
   clearSyncConfig,
   clearSyncDirty,
   clearSyncError,
+  clearSyncPhotosDirty,
   loadSyncConfig,
   saveSyncConfig,
   setSyncError,
@@ -89,10 +91,16 @@ type RemoteFileInfo = {
   lastModified: string;
   isCollection: boolean;
   href: string;
+  byteSize: number;
 };
 
 type RemoteMirrorPhotoFile = RemoteFileInfo & {
   relativePath: string;
+};
+
+type MirrorPhotoSyncScope = {
+  full: boolean;
+  dirtyPaths?: ReadonlySet<string>;
 };
 
 type MirrorPhotoSyncPlan = {
@@ -379,6 +387,9 @@ const parseDavResponse = (responseBody: string): RemoteFileInfo[] => {
         "resourcetype",
       )[0];
       const href = getElementText(responseNode, "href");
+      const parsedByteSize = Number(
+        propNode ? getElementText(propNode, "getcontentlength") : "",
+      );
       return {
         exists: true,
         etag: propNode ? getElementText(propNode, "getetag") : "",
@@ -390,6 +401,9 @@ const parseDavResponse = (responseBody: string): RemoteFileInfo[] => {
           "collection",
         )[0],
         href,
+        byteSize: Number.isFinite(parsedByteSize)
+          ? Math.max(0, parsedByteSize)
+          : 0,
       };
     },
   );
@@ -753,6 +767,7 @@ class NextcloudSyncService {
   <d:prop>
     <d:getetag />
     <d:getlastmodified />
+    <d:getcontentlength />
     <d:resourcetype />
   </d:prop>
 </d:propfind>`,
@@ -940,11 +955,14 @@ class NextcloudSyncService {
     remotePhotos: ReadonlyMap<string, RemoteMirrorPhotoFile>,
     manifest: SyncManifest | null,
     referencedPaths: ReadonlySet<string>,
+    scope: MirrorPhotoSyncScope,
   ): MirrorPhotoSyncPlan {
     const uploadPaths = new Set<string>();
     const downloadPaths = new Set<string>();
     const deleteRemotePaths = new Set<string>();
     const conflicts = new Set<string>();
+    const mayUpload = (relativePath: string): boolean =>
+      scope.full || scope.dirtyPaths?.has(relativePath) === true;
     const manifestEntries = manifest?.photoEntries ?? {};
     const candidatePaths = new Set<string>([
       ...Object.keys(manifestEntries),
@@ -966,8 +984,19 @@ class NextcloudSyncService {
       }
 
       if (!manifestEntry) {
-        if (localPhoto) {
-          uploadPaths.add(relativePath);
+        if (localPhoto && remotePhoto) {
+          // No manifest baseline (e.g. after a database import): keep the
+          // remote copy when the byte sizes match instead of re-uploading.
+          if (
+            remotePhoto.byteSize <= 0 ||
+            remotePhoto.byteSize !== localPhoto.byteSize
+          ) {
+            conflicts.add(relativePath);
+          }
+        } else if (localPhoto) {
+          if (mayUpload(relativePath)) {
+            uploadPaths.add(relativePath);
+          }
         } else if (remotePhoto) {
           downloadPaths.add(relativePath);
         }
@@ -985,7 +1014,9 @@ class NextcloudSyncService {
       }
 
       if (localPhoto && !remotePhoto) {
-        uploadPaths.add(relativePath);
+        if (mayUpload(relativePath)) {
+          uploadPaths.add(relativePath);
+        }
         continue;
       }
 
@@ -999,7 +1030,9 @@ class NextcloudSyncService {
       }
 
       if (localChanged) {
-        uploadPaths.add(relativePath);
+        if (mayUpload(relativePath)) {
+          uploadPaths.add(relativePath);
+        }
         continue;
       }
 
@@ -1019,6 +1052,7 @@ class NextcloudSyncService {
   private buildMirrorPhotoManifestEntries(
     localPhotos: ReadonlyMap<string, SyncablePhotoFile>,
     remotePhotos: ReadonlyMap<string, RemoteMirrorPhotoFile>,
+    previousEntries: Record<string, SyncManifestPhotoEntry> = {},
   ): Record<string, SyncManifestPhotoEntry> {
     const photoEntries: Record<string, SyncManifestPhotoEntry> = {};
     const candidatePaths = new Set<string>([
@@ -1030,6 +1064,18 @@ class NextcloudSyncService {
       const localPhoto = localPhotos.get(relativePath);
       const remotePhoto = remotePhotos.get(relativePath);
       if (!localPhoto || !remotePhoto) {
+        continue;
+      }
+
+      // Keep the proven baseline for photos we intentionally did not touch
+      // (e.g. not in the dirty set) so later syncs can still detect drift.
+      const previousEntry = previousEntries[relativePath];
+      if (
+        previousEntry &&
+        previousEntry.contentHash === localPhoto.contentHash &&
+        previousEntry.remoteEtag === remotePhoto.etag
+      ) {
+        photoEntries[relativePath] = previousEntry;
         continue;
       }
 
@@ -1048,11 +1094,17 @@ class NextcloudSyncService {
     manifest: SyncManifest | null,
     referencedPaths: ReadonlySet<string>,
     progressToken: number,
+    scope: MirrorPhotoSyncScope,
   ): Promise<Record<string, SyncManifestPhotoEntry>> {
     await this.ensureRemoteFolderExists(
       credentials,
       `${credentials.remoteFolder}/${REMOTE_PHOTO_DIRECTORY_NAME}`,
     );
+    updateSyncProgress(progressToken, {
+      direction: "sync",
+      messageKey: "sync.progress_check_photos",
+      percent: 28,
+    });
     const localPhotos = await this.listLocalSyncablePhotos();
     const remotePhotos = await this.listRemoteMirrorPhotos(credentials);
     const plan = this.createMirrorPhotoSyncPlan(
@@ -1060,6 +1112,7 @@ class NextcloudSyncService {
       remotePhotos,
       manifest,
       referencedPaths,
+      scope,
     );
 
     if (plan.conflicts.length > 0) {
@@ -1106,7 +1159,7 @@ class NextcloudSyncService {
     if (plan.deleteRemotePaths.length > 0) {
       updateSyncProgress(progressToken, {
         direction: "sync",
-        messageKey: "sync.progress_upload_photos",
+        messageKey: "sync.progress_cleanup_photos",
         percent: 72,
       });
       for (const relativePath of plan.deleteRemotePaths) {
@@ -1119,6 +1172,7 @@ class NextcloudSyncService {
     return this.buildMirrorPhotoManifestEntries(
       nextLocalPhotos,
       nextRemotePhotos,
+      manifest?.photoEntries,
     );
   }
 
@@ -1272,6 +1326,7 @@ class NextcloudSyncService {
         lastModified: "",
         isCollection: false,
         href: "",
+        byteSize: 0,
       };
     }
 
@@ -1290,6 +1345,7 @@ class NextcloudSyncService {
         lastModified: "",
         isCollection: false,
         href: "",
+        byteSize: 0,
       }
     );
   }
@@ -1311,6 +1367,7 @@ class NextcloudSyncService {
   <d:prop>
     <d:getetag />
     <d:getlastmodified />
+    <d:getcontentlength />
     <d:resourcetype />
   </d:prop>
 </d:propfind>`,
@@ -1985,9 +2042,6 @@ class NextcloudSyncService {
         existingManifest,
         existingRemotePhotoArchive,
       );
-      const referencedPhotoPaths = credentials.syncPictures
-        ? await this.getLocalReferencedPhotoPaths()
-        : new Set<string>();
       const currentConfig = loadSyncConfig();
       const hasKnownRemoteState =
         currentConfig.lastRemoteEtag.trim().length > 0 ||
@@ -2039,6 +2093,8 @@ class NextcloudSyncService {
         remotePhotoMode === "mirror"
           ? (existingManifest?.photoEntries ?? {})
           : {};
+      let dirtyPhotoPathsAtSyncStart: string[] = [];
+      let isFullPhotoSync = false;
       try {
         if (credentials.syncPictures) {
           if (remotePhotoMode === "archive") {
@@ -2059,17 +2115,32 @@ class NextcloudSyncService {
               );
             }
           } else {
-            updateSyncProgress(progressToken, {
-              direction: "sync",
-              messageKey: "sync.progress_upload_photos",
-              percent: 28,
-            });
-            nextPhotoEntries = await this.syncMirrorPhotos(
-              credentials,
-              existingManifest,
-              referencedPhotoPaths,
-              progressToken,
-            );
+            // A missing manifest means this sync root has never been
+            // reconciled; treat it as a full photo sync.
+            isFullPhotoSync =
+              currentConfig.fullPhotoSyncPending || !existingManifest;
+            dirtyPhotoPathsAtSyncStart = currentConfig.dirtyPhotoPaths;
+            // Skip the remote photo lookup entirely when no photos are
+            // dirty: remote photo changes from other devices always
+            // arrive together with a remote database change, which is
+            // handled by the download branch instead.
+            if (isFullPhotoSync || dirtyPhotoPathsAtSyncStart.length > 0) {
+              const photoScope: MirrorPhotoSyncScope = isFullPhotoSync
+                ? { full: true }
+                : {
+                    full: false,
+                    dirtyPaths: new Set(dirtyPhotoPathsAtSyncStart),
+                  };
+              const referencedPhotoPaths =
+                await this.getLocalReferencedPhotoPaths();
+              nextPhotoEntries = await this.syncMirrorPhotos(
+                credentials,
+                existingManifest,
+                referencedPhotoPaths,
+                progressToken,
+                photoScope,
+              );
+            }
           }
         }
 
@@ -2192,6 +2263,10 @@ class NextcloudSyncService {
 
         clearSyncError();
         clearSyncDirty();
+        clearSyncPhotosDirty(dirtyPhotoPathsAtSyncStart);
+        if (isFullPhotoSync) {
+          clearFullPhotoSyncPending();
+        }
         saveSyncConfig({
           dirty: false,
           requiresSourceChoice: false,

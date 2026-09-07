@@ -9,6 +9,17 @@ import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { platformBridge } from '../services/platformBridge';
 import { getNextcloudSyncErrorMessage, nextcloudSync, type PendingSourceChoiceState, type SyncConnectionResult, type SyncSourceChoice } from '../services/nextcloudSync';
 import { DEFAULT_NEXTCLOUD_BACKUP_RETENTION, DEFAULT_NEXTCLOUD_FOLDER, loadSyncConfig, normalizeRemoteFolder, saveSyncConfig, setSyncError } from '../services/syncConfig';
+
+const syncAfterImport = () => {
+	const syncConfig = loadSyncConfig();
+	if (!syncConfig.enabled || syncConfig.requiresSourceChoice || !syncConfig.dirty) {
+		return;
+	}
+
+	void nextcloudSync.syncNow().catch((syncError) => {
+		console.error('Post-import Nextcloud sync failed:', syncError);
+	});
+};
 const { t, locale } = useI18n();
 const languageSetting = ref<Language>(Language.ENGLISH);
 const preferredCurrency = ref<CurrencyType>(CurrencyType.USD);
@@ -362,6 +373,7 @@ const appendImport = async () => {
 		});
 		if (result?.success) {
 			window.alert(buildImportSuccessMessage('append', result));
+			syncAfterImport();
 		}
 	} catch (err) {
 		console.error('Error appending database:', err);
@@ -383,6 +395,7 @@ const replaceImport = async () => {
 		});
 		if (result?.success) {
 			window.alert(buildImportSuccessMessage('replace', result));
+			syncAfterImport();
 		}
 	} catch (err) {
 		console.error('Error replacing database:', err);

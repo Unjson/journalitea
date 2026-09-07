@@ -13,6 +13,8 @@ export type SyncConfig = {
   remoteFolder: string;
   backupRetention: number;
   dirty: boolean;
+  dirtyPhotoPaths: string[];
+  fullPhotoSyncPending: boolean;
   lastSyncAt: string;
   lastUploadAt: string;
   lastAppliedRemoteAt: string;
@@ -58,6 +60,8 @@ const createDefaultSyncConfig = (): SyncConfig => ({
   remoteFolder: DEFAULT_NEXTCLOUD_FOLDER,
   backupRetention: DEFAULT_NEXTCLOUD_BACKUP_RETENTION,
   dirty: false,
+  dirtyPhotoPaths: [],
+  fullPhotoSyncPending: false,
   lastSyncAt: "",
   lastUploadAt: "",
   lastAppliedRemoteAt: "",
@@ -66,6 +70,21 @@ const createDefaultSyncConfig = (): SyncConfig => ({
   lastError: "",
   lastErrorAt: "",
 });
+
+const normalizeDirtyPhotoPaths = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const normalized = new Set<string>();
+  for (const entry of value) {
+    const path = toStringOrEmpty(entry).trim();
+    if (path) {
+      normalized.add(path);
+    }
+  }
+  return Array.from(normalized).sort();
+};
 
 const normalizeSyncConfig = (
   value: Partial<SyncConfig> | null | undefined,
@@ -88,6 +107,8 @@ const normalizeSyncConfig = (
       raw.backupRetention ?? defaults.backupRetention,
     ),
     dirty: raw.dirty === true,
+    dirtyPhotoPaths: normalizeDirtyPhotoPaths(raw.dirtyPhotoPaths),
+    fullPhotoSyncPending: raw.fullPhotoSyncPending === true,
     lastSyncAt: toStringOrEmpty(raw.lastSyncAt),
     lastUploadAt: toStringOrEmpty(raw.lastUploadAt),
     lastAppliedRemoteAt: toStringOrEmpty(raw.lastAppliedRemoteAt),
@@ -158,6 +179,33 @@ export const markSyncDataDirty = (): SyncConfig =>
 
 export const clearSyncDirty = (): SyncConfig =>
   updateSyncConfig(() => ({ dirty: false }));
+
+export const markSyncPhotosDirty = (paths: readonly string[]): SyncConfig =>
+  updateSyncConfig((current) => ({
+    dirtyPhotoPaths: normalizeDirtyPhotoPaths([
+      ...current.dirtyPhotoPaths,
+      ...paths,
+    ]),
+  }));
+
+export const clearSyncPhotosDirty = (paths: readonly string[]): SyncConfig => {
+  const toClear = new Set(normalizeDirtyPhotoPaths(paths));
+  if (toClear.size === 0) {
+    return loadSyncConfig();
+  }
+
+  return updateSyncConfig((current) => ({
+    dirtyPhotoPaths: current.dirtyPhotoPaths.filter(
+      (path) => !toClear.has(path),
+    ),
+  }));
+};
+
+export const markFullPhotoSyncPending = (): SyncConfig =>
+  updateSyncConfig(() => ({ fullPhotoSyncPending: true }));
+
+export const clearFullPhotoSyncPending = (): SyncConfig =>
+  updateSyncConfig(() => ({ fullPhotoSyncPending: false }));
 
 export const setSyncError = (message: string): SyncConfig =>
   updateSyncConfig(() => ({
