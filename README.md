@@ -9,7 +9,7 @@ Personal tea journal app
 - Stats for your tea collection (e.g. average price per gram, price histograms, cumulative aroma statistics etc.)
 - Convenient Tea timer function
 - Sync your database across multiple devices using Nextcloud!
-- Works on all platforms (Electron for desktop, Ionic Capacitor for Android)
+- Works on *some* platforms! (Electron for desktop, Ionic Capacitor for Android)
 - 100% Free and Open Source Software, licensed under GPLv3
 
 ## Installing

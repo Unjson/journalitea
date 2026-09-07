@@ -27,7 +27,11 @@ import {
   restoreArchive,
   rewriteImportedPhotoRaw,
 } from "./capacitorPhotoStorage";
-import { markSyncDataDirty, SYNC_SECRET_STORAGE_KEY } from "./syncConfig";
+import {
+  markFullPhotoSyncPending,
+  markSyncDataDirty,
+  SYNC_SECRET_STORAGE_KEY,
+} from "./syncConfig";
 import type {
   SyncDownloadRequest,
   SyncFileTransferResponse,
@@ -75,6 +79,9 @@ const withDirtyTracking = async (
   const result = await operation;
   if (shouldMarkDatabaseDirty(channel, result)) {
     markSyncDataDirty();
+    if (channel === "db:importDatabase") {
+      markFullPhotoSyncPending();
+    }
   }
   return result;
 };

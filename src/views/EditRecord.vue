@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-import { getPrimaryRecordPhotoPath, Record } from '../models/record';
+import { getPrimaryRecordPhotoPath, parseRecordPhotos, Record } from '../models/record';
 import { aromaFieldLabels, teaTypeLabels, currencyLabels, weightUnitLabels, preparationMethodLabels } from '../models/enums';
 import { useI18n } from 'vue-i18n';
 import ColorSlider from '../components/ColorSlider.vue';
@@ -14,9 +14,9 @@ import { PREFS } from '../appSettings.js';
 import { platformBridge } from '../services/platformBridge';
 import { photoService } from '../services/photoService';
 import type { PhotoSelectionResult } from '../services/photoTypes';
-import { isStagedPhotoPath } from '../services/photoStorageShared';
+import { isManagedPhotoPath, isStagedPhotoPath, normalizePhotoRelativePath } from '../services/photoStorageShared';
 import { nextcloudSync } from '../services/nextcloudSync';
-import { loadSyncConfig } from '../services/syncConfig';
+import { loadSyncConfig, markSyncPhotosDirty } from '../services/syncConfig';
 
 const route = useRoute();
 const router = useRouter();
@@ -141,6 +141,41 @@ const syncSavedRecord = () => {
   });
 };
 
+const collectChangedPhotoPaths = (previousRaw: string, nextRaw: string): string[] => {
+  const toPaths = (raw: string): Set<string> => {
+    const paths = new Set<string>();
+    for (const entry of parseRecordPhotos(raw)) {
+      const relativePath = normalizePhotoRelativePath(entry.path);
+      if (
+        relativePath &&
+        isManagedPhotoPath(relativePath) &&
+        !isStagedPhotoPath(relativePath)
+      ) {
+        paths.add(relativePath);
+      }
+    }
+    return paths;
+  };
+
+  const previousPaths = toPaths(previousRaw);
+  const nextPaths = toPaths(nextRaw);
+  if (
+    previousPaths.size === nextPaths.size &&
+    Array.from(previousPaths).every((path) => nextPaths.has(path))
+  ) {
+    return [];
+  }
+
+  return Array.from(new Set([...previousPaths, ...nextPaths])).sort();
+};
+
+const markChangedPhotosDirty = (previousRaw: string, nextRaw: string) => {
+  const changedPaths = collectChangedPhotoPaths(previousRaw, nextRaw);
+  if (changedPaths.length > 0) {
+    markSyncPhotosDirty(changedPaths);
+  }
+};
+
 const loadRecord = async () => {
   const id = Number(route.params.id);
 
@@ -217,6 +252,7 @@ const saveRecord = async () => {
       await photoService.commitSavedRecordPhoto(newId, initialPhotoRaw.value, preparedPhotoRaw);
       record.value.photo = preparedPhotoRaw;
       photoPreviewUrl.value = preparedPhotoPreview;
+      markChangedPhotosDirty(initialPhotoRaw.value, preparedPhotoRaw);
       await syncInitialState();
       syncSavedRecord();
       allowNavigation.value = true;
@@ -229,6 +265,7 @@ const saveRecord = async () => {
       await photoService.commitSavedRecordPhoto(record.value.id, initialPhotoRaw.value, preparedPhotoRaw);
       record.value.photo = preparedPhotoRaw;
       photoPreviewUrl.value = preparedPhotoPreview;
+      markChangedPhotosDirty(initialPhotoRaw.value, preparedPhotoRaw);
       await syncInitialState();
       syncSavedRecord();
       allowNavigation.value = true;
