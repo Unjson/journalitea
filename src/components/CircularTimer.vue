@@ -29,9 +29,9 @@ const ringState = ref<'normal' | 'paused' | 'complete'>(props.paused ? 'paused' 
 let completeTimeout: number | null = null;
 
 const ringColor = computed(() => {
-	if (ringState.value === 'complete') return '#22c55e';
-	if (ringState.value === 'paused') return '#f59e0b';
-	return '#3b82f6';
+	if (ringState.value === 'complete') return 'var(--color-chart-tea-green)';
+	if (ringState.value === 'paused') return 'var(--color-chart-tea-yellow)';
+	return 'var(--color-primary)';
 });
 
 const emit = defineEmits<{
@@ -90,7 +90,7 @@ onBeforeUnmount(() => {
 				:cx="radius"
 				:cy="radius"
 				:r="normalizedRadius"
-				stroke="#e5e7eb"
+				stroke="var(--color-primary-soft)"
 				:stroke-width="stroke"
 				fill="transparent"
 			/>
