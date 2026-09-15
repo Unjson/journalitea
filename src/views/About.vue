@@ -32,8 +32,7 @@ onMounted(async() => {
 		</div>
 
 		<div class="mt-4">
-			Code: <b>Jonas Hundertmark</b><br />
-			Design: <b>Roewna Strack</b>
+			{{ t('about.developedBy') }}: <b>Jonas Hundertmark</b><br />
 		</div>
 
 		<div class="mt-4">
