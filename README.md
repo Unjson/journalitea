@@ -16,6 +16,19 @@ Personal tea journal app
 - Head to [releases](https://github.com/Unjson/journalitea/releases) and grab the latest version for your operating system of choice.
 -  You can import your collection from an existing database via the settings menu
 
+## Releasing
+The **Create release** GitHub Actions workflow is started manually. It reads the version from `package.json`, builds Windows, Linux, and macOS Electron packages plus a signed Android APK, then creates the `v<version>` GitHub release. GitHub automatically provides source-code ZIP and TAR archives for the release tag.
+
+Before its first run, create a local signing keystore and configure the repository secrets. In Git Bash, run:
+
+```bash
+npm run android:keystore
+cp android/keystore.properties.example android/keystore.properties
+base64 -w 0 android/app/journalitea-release.jks
+```
+
+Enter the passwords chosen during `npm run android:keystore` in `android/keystore.properties` for local signed builds. Keep both the `.jks` file and this properties file private; they are ignored by Git. Add the base64 output and the credentials as repository secrets named `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD`. The generated alias defaults to `journalitea`.
+
 ## Roadmap
 - iOS support (If i can be bothered. Mobile dev is hard, and I don't have an iPhone/Mac at hand...)
 
