@@ -65,6 +65,12 @@ android {
     }
 }
 
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.allTasks.any { task -> task.name.toLowerCase().contains('release') } && !hasReleaseSigning) {
+        throw new GradleException('Release builds require complete Journalitea signing credentials.')
+    }
+}
+
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'

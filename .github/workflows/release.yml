@@ -46,7 +46,7 @@ jobs:
 
   build-macos:
     name: Build macOS disk image
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -121,4 +121,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          gh release create "v$VERSION" release-assets/windows-installer/*.exe release-assets/linux-packages/* release-assets/macos-disk-image/* release-assets/android-apk/*.apk --title "Journalitea $VERSION" --generate-notes
+          gh release create "v$VERSION" release-assets/windows-installer/*.exe release-assets/linux-packages/* release-assets/macos-disk-image/* release-assets/android-apk/*.apk --target "$GITHUB_SHA" --title "Journalitea $VERSION" --generate-notes
