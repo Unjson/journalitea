@@ -145,7 +145,7 @@ const zeroLine = computed(() => {
         :key="`grid-${i}`"
         :d="level"
         fill="none"
-        stroke="#e5e7eb"
+        stroke="var(--color-chart-grid)"
         stroke-width="1"
       />
       
@@ -153,7 +153,7 @@ const zeroLine = computed(() => {
       <path
         :d="zeroLine"
         fill="none"
-        stroke="#d1d5db"
+        stroke="var(--color-chart-axis)"
         stroke-width="1"
         stroke-dasharray="3,3"
       />
@@ -166,15 +166,15 @@ const zeroLine = computed(() => {
         :y1="line.y1"
         :x2="line.x2"
         :y2="line.y2"
-        stroke="#d1d5db"
+        stroke="var(--color-chart-axis)"
         stroke-width="1"
       />
       
       <!-- Data polygon -->
       <path
         :d="dataPath"
-        fill="rgba(59, 130, 246, 0.3)"
-        stroke="rgb(59, 130, 246)"
+        fill="color-mix(in srgb, var(--color-chart-primary) 28%, transparent)"
+        stroke="var(--color-chart-primary)"
         stroke-width="2"
         class="data-polygon"
       />
@@ -186,7 +186,7 @@ const zeroLine = computed(() => {
         :cx="getPoint(i, point.value).x"
         :cy="getPoint(i, point.value).y"
         r="4"
-        fill="rgb(59, 130, 246)"
+        fill="var(--color-chart-primary)"
         class="data-point"
         :style="{
           '--start-x': `${center}px`,

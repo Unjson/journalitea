@@ -30,7 +30,7 @@ const cardBackgroundStyle = computed(() => {
   }
 
   return {
-    backgroundImage: `linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.82) 52%, rgba(255,255,255,0.94) 100%), url("${escapeCssUrl(photoPreviewUrl.value)}")`,
+    backgroundImage: `url("${escapeCssUrl(photoPreviewUrl.value)}")`,
     backgroundPosition: 'center',
     backgroundSize: 'cover',
   };
@@ -89,17 +89,18 @@ watch(
 <template>
   <div 
     @click="openDetail"
-    class="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
+    class="record-card relative overflow-hidden p-4 cursor-pointer"
+    :class="{ 'record-card--with-photo': cardBackgroundStyle }"
   >
     <div
       v-if="cardBackgroundStyle"
-      class="absolute inset-0"
+      class="card-photo absolute inset-0"
       :style="cardBackgroundStyle"
     ></div>
     <div class="relative flex justify-between items-start gap-4">
       <div class="flex-1">
-        <h3 class="mb-2 text-xl font-semibold text-gray-900">{{ record.name }}</h3>
-        <div class="grid grid-cols-2 gap-2 text-sm text-gray-700">
+        <h3 class="mb-2 text-xl font-semibold">{{ record.name }}</h3>
+        <div class="grid grid-cols-2 gap-2 text-sm record-details">
           <div><span class="font-medium">{{ t('record.type_label') }}</span> {{ teaType }}</div>
           <div v-if="record.subtype"><span class="font-medium">{{ t('record.subtype_label') }}</span> {{ record.subtype }}</div>
           <template v-if="showOriginCountry">
@@ -111,13 +112,40 @@ watch(
           <div v-if="record.seller"><span class="font-medium">{{ t('record.seller_label') }}</span> {{ record.seller }}</div>
           <div v-if="record.rating"><span class="font-medium">{{ t('record.rating_label') }}</span> {{ record.rating }}/5</div>
         </div>
-        <div v-if="record.notes" class="mt-2 text-sm text-gray-800">
+        <div v-if="record.notes" class="mt-2 text-sm">
           <span class="font-medium">{{ t('record.notes_label') }}</span> {{ record.notes }}
         </div>
       </div>
-      <div class="ml-4 text-xs text-gray-500">
+      <div class="ml-4 text-xs record-date">
         {{ new Date(record.dateAdded).toLocaleDateString() }}
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.record-card {
+  background-color: var(--color-record-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-surface);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.record-card:hover {
+  background-color: var(--color-record-card-hover);
+  border-color: var(--color-border-strong);
+}
+
+.card-photo {
+  opacity: 0.1;
+}
+
+.record-details {
+  color: var(--color-ink-muted);
+}
+
+.record-date {
+  color: var(--color-ink-muted);
+}
+</style>

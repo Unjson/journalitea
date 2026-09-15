@@ -220,35 +220,35 @@ onActivated(loadStats);
 </script>
 
 <template>
-	<div class="min-h-screen flex flex-col p-6">
+	<div class="stats-screen min-h-screen flex flex-col p-6">
 		<h1 class="text-3xl font-bold mb-6">{{ t('stats.title') }}</h1>
 
 		<div v-if="cumulativeStats" class="space-y-8 flex-1">
 			<div class="flex flex-wrap gap-2">
 				<button
-					class="px-4 py-2 rounded-lg border"
-					:class="activeTab === 'summary' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
+					class="ui-button px-4 py-2"
+					:class="activeTab === 'summary' ? 'ui-button--selected' : ''"
 					@click="activeTab = 'summary'"
 				>
 					{{ t('stats.tab_summary') }}
 				</button>
 				<button
-					class="px-4 py-2 rounded-lg border"
-					:class="activeTab === 'histograms' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
+					class="ui-button px-4 py-2"
+					:class="activeTab === 'histograms' ? 'ui-button--selected' : ''"
 					@click="activeTab = 'histograms'"
 				>
 					{{ t('stats.tab_histograms') }}
 				</button>
 				<button
-					class="px-4 py-2 rounded-lg border"
-					:class="activeTab === 'aromas' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
+					class="ui-button px-4 py-2"
+					:class="activeTab === 'aromas' ? 'ui-button--selected' : ''"
 					@click="activeTab = 'aromas'"
 				>
 					{{ t('stats.tab_aromas') }}
 				</button>
 				<button
-					class="px-4 py-2 rounded-lg border"
-					:class="activeTab === 'origins' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-gray-800'"
+					class="ui-button px-4 py-2"
+					:class="activeTab === 'origins' ? 'ui-button--selected' : ''"
 					@click="activeTab = 'origins'"
 				>
 					{{ t('stats.tab_origins') }}
@@ -256,7 +256,7 @@ onActivated(loadStats);
 			</div>
 
 			<div v-if="activeTab === 'summary'" class="space-y-8">
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div class="ui-surface p-6">
 				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.cumulative_title') }}</h2>
 				<div class="space-y-3">
 					<div class="border-b pb-2">
@@ -305,7 +305,7 @@ onActivated(loadStats);
 				</div>
 			</div>
 
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div class="ui-surface p-6">
 				<PieChart
 					:valuesByType="pieValuesByType"
 					:labelMap="teaTypeLabels"
@@ -321,11 +321,11 @@ onActivated(loadStats);
 					<div class="flex flex-wrap justify-center gap-2">
 						<button
 							type="button"
-							class="shrink-0 px-4 py-2 rounded-full border text-sm transition"
+							class="ui-button shrink-0 px-4 py-2 text-sm transition"
 							:class="
 								teaCollectionMetric === 'absolute'
-									? 'bg-blue-500 text-white border-blue-500'
-									: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+									? 'ui-button--selected'
+									: ''
 							"
 							@click="teaCollectionMetric = 'absolute'"
 						>
@@ -333,11 +333,11 @@ onActivated(loadStats);
 						</button>
 						<button
 							type="button"
-							class="shrink-0 px-4 py-2 rounded-full border text-sm transition"
+							class="ui-button shrink-0 px-4 py-2 text-sm transition"
 							:class="
 								teaCollectionMetric === 'weight'
-									? 'bg-blue-500 text-white border-blue-500'
-									: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+									? 'ui-button--selected'
+									: ''
 							"
 							@click="teaCollectionMetric = 'weight'"
 						>
@@ -345,11 +345,11 @@ onActivated(loadStats);
 						</button>
 						<button
 							type="button"
-							class="shrink-0 px-4 py-2 rounded-full border text-sm transition"
+							class="ui-button shrink-0 px-4 py-2 text-sm transition"
 							:class="
 								teaCollectionMetric === 'spending'
-									? 'bg-blue-500 text-white border-blue-500'
-									: 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+									? 'ui-button--selected'
+									: ''
 							"
 							@click="teaCollectionMetric = 'spending'"
 						>
@@ -359,7 +359,7 @@ onActivated(loadStats);
 				</div>
 			</div>
 
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div class="ui-surface p-6">
 				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.average_rating_label') }}</h2>
 				<div v-if="ratedRecordCount > 0" class="flex items-center gap-4">
 					<StarRating :model-value="averageRating" :max="5" :disabled="true" :aria-label="t('stats.average_rating_label')" />
@@ -368,7 +368,7 @@ onActivated(loadStats);
 				<div v-else class="text-gray-500">{{ t('stats.rating_distribution_no_data') }}</div>
 			</div>
 
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div class="ui-surface p-6">
 				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.rating_distribution_title') }}</h2>
 				<div v-if="maxRatingCount > 0" class="w-full">
 					<svg class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
@@ -378,7 +378,7 @@ onActivated(loadStats);
 								:y="220 - (count / (maxRatingCount || 1)) * 200"
 								:width="(600 / ratingCounts.length) - 6"
 								:height="(count / (maxRatingCount || 1)) * 200"
-								fill="#6366f1"
+								fill="var(--color-chart-primary)"
 								opacity="0.85"
 							/>
 						</g>
@@ -406,7 +406,7 @@ onActivated(loadStats);
 			</div>
 			</div>
 
-			<div v-else-if="activeTab === 'histograms'" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div v-else-if="activeTab === 'histograms'" class="ui-surface p-6">
 				<BarChart
 					:records="records"
 					:preferredCurrency="preferredCurrency"
@@ -416,14 +416,14 @@ onActivated(loadStats);
 				/>
 			</div>
 
-			<div v-else-if="activeTab === 'aromas'" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div v-else-if="activeTab === 'aromas'" class="ui-surface p-6">
 				<AromaStats
 					:records="records"
 					:labelMap="teaTypeLabels"
 				/>
 			</div>
 
-			<div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+			<div v-else class="ui-surface p-6">
 				<h2 class="text-2xl font-semibold mb-4">{{ t('stats.origins_title') }}</h2>
 				<div class="space-y-8">
 					<section>
@@ -431,9 +431,9 @@ onActivated(loadStats);
 						<div v-if="originCountries.length > 0" class="space-y-3">
 							<div v-for="entry in originCountries" :key="entry.country" class="flex items-center gap-3">
 								<div class="w-32 shrink-0 text-sm font-medium text-gray-700">{{ entry.country }}</div>
-								<div class="h-4 flex-1 overflow-hidden rounded-full bg-gray-200">
+								<div class="stats-progress-track h-4 flex-1 overflow-hidden rounded-full">
 									<div
-										class="h-full rounded-full bg-blue-500"
+										class="stats-progress-value h-full rounded-full"
 										:style="{ width: `${(entry.count / (maxOriginCountryCount || 1)) * 100}%` }"
 									></div>
 								</div>
@@ -453,7 +453,7 @@ onActivated(loadStats);
 						<button
 							v-if="hasHiddenSpecificOrigins"
 							type="button"
-							class="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+							class="stats-link mt-4 text-sm font-medium"
 							@click="showAllSpecificOrigins = !showAllSpecificOrigins"
 						>
 							{{ showAllSpecificOrigins ? t('stats.origin_details_show_less') : t('stats.origin_details_show_more') }}
@@ -477,3 +477,29 @@ onActivated(loadStats);
 		/>
 	</div>
 </template>
+
+<style scoped>
+.stats-screen :is(.text-gray-500, .text-gray-600, .text-gray-700) {
+	color: var(--color-ink-muted);
+}
+
+.stats-screen .border-b {
+	border-color: var(--color-border);
+}
+
+.stats-progress-track {
+	background-color: var(--color-primary-soft);
+}
+
+.stats-progress-value {
+	background-color: var(--color-primary);
+}
+
+.stats-link {
+	color: var(--color-primary-hover);
+}
+
+.stats-link:hover {
+	color: var(--color-primary);
+}
+</style>

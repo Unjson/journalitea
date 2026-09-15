@@ -139,7 +139,7 @@ onBeforeUnmount(() => {
 <template>
 	<button
 		type="button"
-		class="group block w-full cursor-zoom-in overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-default"
+		class="photo-trigger group block w-full cursor-zoom-in overflow-hidden text-left disabled:cursor-default"
 		:aria-label="ariaLabel || t('photo.open_viewer')"
 		:disabled="disabled || !src.trim()"
 		@click="openViewer"
@@ -155,6 +155,11 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
+.photo-trigger:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: 2px;
+}
+
 .journalitea-photo-viewer .pswp__top-bar {
 	box-sizing: border-box;
 	height: calc(60px + env(safe-area-inset-top) + 0.5rem);

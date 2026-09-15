@@ -154,6 +154,18 @@ const finishStartupSync = () => {
 	pendingRemoteUpdate.value = null;
 };
 
+const loadTitleFont = async () => {
+	if (!('fonts' in document)) {
+		return;
+	}
+
+	try {
+		await document.fonts.load('400 1em Ahellya');
+	} catch (error) {
+		console.warn('Failed to load Ahellya before startup sync:', error);
+	}
+};
+
 const runLifecycleSync = async () => {
 	const syncConfig = loadSyncConfig();
 	if (
@@ -226,7 +238,7 @@ onMounted(async() => {
 		if (platform === 'android' || platform === 'ios') {
 			document.documentElement.classList.add('mobile-ui-scale');
 			await StatusBar.setStyle({ style: Style.Dark });
-			await StatusBar.setBackgroundColor({ color: '#ffffff' });
+			await StatusBar.setBackgroundColor({ color: '#e8f0ee' });
 		}
 		platformBridge.onBackButton?.(() => {
 			handleBackNavigation();
@@ -273,6 +285,7 @@ onMounted(async() => {
 
 	await refreshAppSettings();
 
+	await loadTitleFont();
 	await handleStartupSync();
 });
 
@@ -300,21 +313,21 @@ onBeforeUnmount(() => {
 			<Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :header-title="headerTitle" />
 			<div
 				v-if="syncProgressState.active"
-				class="sticky top-0 z-20 border-b border-blue-100 bg-white/95 px-6 py-3 shadow-sm backdrop-blur"
+				class="sync-ribbon sticky top-0 z-20 px-6 py-3"
 			>
 				<div class="flex items-center justify-between gap-4 text-sm">
-					<div class="font-medium text-gray-800">{{ syncProgressLabel }}</div>
-					<div class="shrink-0 text-xs font-semibold text-blue-700">{{ syncProgressState.percent }}%</div>
+					<div class="font-medium">{{ syncProgressLabel }}</div>
+					<div class="sync-progress-label shrink-0 text-xs font-semibold">{{ syncProgressState.percent }}%</div>
 				</div>
-				<div class="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
+				<div class="sync-progress-track mt-2 h-2 overflow-hidden rounded-full">
 					<div
-						class="h-full rounded-full bg-blue-500 transition-all duration-300"
+						class="sync-progress-value h-full rounded-full transition-all duration-300"
 						:style="{ width: `${syncProgressState.percent}%` }"
 					></div>
 				</div>
 			</div>
 			<div class="p-6">
-				<div v-if="startupSyncPending" class="py-10 text-center text-gray-500">
+				<div v-if="startupSyncPending" class="ui-muted py-10 text-center">
 					{{ startupSyncMessage || t('sync.startup_checking') }}
 				</div>
 				<router-view v-else/>
@@ -357,5 +370,24 @@ onBeforeUnmount(() => {
 	height: calc(100% - var(--app-header-offset));
 	overflow: auto;
 	margin-top: var(--app-header-offset);
+}
+
+.sync-ribbon {
+	background-color: color-mix(in srgb, var(--color-surface) 94%, transparent);
+	border-bottom: 1px solid var(--color-border);
+	box-shadow: var(--shadow-surface);
+	backdrop-filter: blur(8px);
+}
+
+.sync-progress-label {
+	color: var(--color-primary-hover);
+}
+
+.sync-progress-track {
+	background-color: var(--color-primary-soft);
+}
+
+.sync-progress-value {
+	background-color: var(--color-primary);
 }
 </style>

@@ -14,10 +14,10 @@ const emit = defineEmits<{
 </script>
 
 <template>
-	<header class="app-header bg-white shadow p-4 flex items-center gap-4 fixed top-0 inset-x-0 z-50">
+	<header class="app-header p-4 flex items-center gap-4 fixed top-0 inset-x-0 z-50">
 		<button 
 			@click="emit('toggleSidebar')"
-			class="p-2 hover:bg-gray-100 rounded transition-colors"
+			class="menu-trigger p-2 transition-colors"
 			:title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
 		>
 			<span class="text-xl">☰</span>
@@ -30,11 +30,24 @@ const emit = defineEmits<{
 .app-header {
 	padding-top: calc(1rem + env(safe-area-inset-top));
 	min-height: calc(4rem + env(safe-area-inset-top));
+	background-color: var(--color-chrome);
+	border-bottom: 1px solid var(--color-border);
+	box-shadow: var(--shadow-surface);
 }
 
 button {
 	cursor: pointer;
 	border: none;
 	background: transparent;
+}
+
+.menu-trigger {
+	color: var(--color-ink);
+	border: 1px solid transparent;
+}
+
+.menu-trigger:hover {
+	background-color: var(--color-chrome-hover);
+	border-color: var(--color-border);
 }
 </style>

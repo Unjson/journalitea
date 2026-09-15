@@ -120,28 +120,28 @@ onMounted(() => {
 
 <template>
   <div class="px-0.5 py-4">
-    <div v-if="loading" class="text-center py-8 text-gray-500">
+    <div v-if="loading" class="ui-muted text-center py-8">
       {{ t('detail.loading') }}
     </div>
 
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    <div v-else-if="error" class="ui-error px-4 py-3">
       {{ t('detail.error_prefix') }} {{ error }}
     </div>
 
-    <div v-else-if="record" class="bg-white border rounded-lg shadow-lg p-6">
+    <div v-else-if="record" class="record-detail ui-surface p-6">
       <h1 class="text-3xl font-bold mb-6">{{ record.name }}</h1>
 
       <section v-if="photoPreviewUrl" class="mb-6">
         <h2 class="text-xl font-semibold mb-3 border-b pb-2">{{ t('edit.photo_label') }}</h2>
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
+        <div class="photo-well overflow-hidden rounded-2xl">
           <ZoomablePhoto
             :src="photoPreviewUrl"
             :alt="record.name || t('edit.photo_label')"
             :aria-label="t('photo.open_viewer')"
-            class="relative aspect-4/3 bg-gray-100"
+            class="relative aspect-4/3"
             image-class="h-full w-full object-cover"
           >
-            <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/55 to-transparent px-4 py-3 text-sm text-white">
+            <div class="photo-caption absolute inset-x-0 bottom-0 px-4 py-3 text-sm text-white">
               {{ record.name || t('edit.photo_label') }}
             </div>
           </ZoomablePhoto>
@@ -242,20 +242,20 @@ onMounted(() => {
       <div class="mt-6 pt-6 gap-4 border-t flex items-center flex-wrap-reverse justify-between">
         <button
           @click="showDeleteConfirm = true"
-          class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+          class="ui-button ui-button--danger px-6 py-2 font-semibold"
         >
           {{ t('detail.delete_button') }}
         </button>
       <span class="flex-1"></span>
 			<button 
 		      	@click="$router.push('/')" 
-		      	class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          	class="ui-button px-6 py-2"
 	    	>
         	← {{ t('detail.back_button') }}
 	    	</button>
           <button
 	          	@click="$router.push({ name: 'record-edit', params: { id: record.id } })"
-	          	class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+            	class="ui-button ui-button--primary px-6 py-2 font-semibold"
 	          >
             {{ t('detail.edit_button') }}
           </button>
@@ -272,3 +272,22 @@ onMounted(() => {
     @confirm="deleteRecord"
   />
 </template>
+
+<style scoped>
+.record-detail :is(.border-t, .border-b, details) {
+  border-color: var(--color-border);
+}
+
+.record-detail :is(.text-gray-700, .text-gray-600, .text-gray-500) {
+  color: var(--color-ink-muted);
+}
+
+.photo-well {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-green);
+}
+
+.photo-caption {
+  background-color: rgb(41 51 42 / 0.72);
+}
+</style>

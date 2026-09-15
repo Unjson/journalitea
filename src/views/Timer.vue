@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
 	<div class="p-6">
 		<h1 class="text-3xl font-bold mb-6">{{ t('timer.title') }}</h1>
 
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+		<div class="ui-surface p-6 space-y-6">
 			<div>
 				<h2 class="text-lg font-semibold mb-3">{{ t('timer.presets_title') }}</h2>
 				<div class="flex flex-wrap justify-center md:justify-start gap-2">
@@ -107,8 +107,8 @@ onBeforeUnmount(() => {
 						v-for="preset in presets"
 						:key="preset.id"
 						type="button"
-						class="px-3 py-2 rounded-lg border text-sm transition-colors"
-						:class="preset.id === activePresetId ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'"
+						class="ui-button px-3 py-2 text-sm"
+						:class="preset.id === activePresetId ? 'ui-button--selected' : ''"
 						@click="setPreset(preset)"
 					>
 						{{ t(preset.labelKey) }}
@@ -132,28 +132,28 @@ onBeforeUnmount(() => {
 			<div class="flex flex-wrap items-center md:items-start justify-center md:justify-start gap-2">
 				<button
 					type="button"
-					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					class="ui-button px-3 py-2 text-sm"
 					@click="adjustTime(activePresetId === 'gongfu' ? -5 : -60)"
 				>
 					{{ activePresetId === 'gongfu' ? '-5s' : '-1m' }}
 				</button>
 				<button
 					type="button"
-					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					class="ui-button px-3 py-2 text-sm"
 					@click="adjustTime(activePresetId === 'gongfu' ? -1 : -15)"
 				>
 					{{ activePresetId === 'gongfu' ? '-1s' : '-15s' }}
 				</button>
 				<button
 					type="button"
-					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					class="ui-button px-3 py-2 text-sm"
 					@click="adjustTime(activePresetId === 'gongfu' ? 1 : 15)"
 				>
 					{{ activePresetId === 'gongfu' ? '+1s' : '+15s' }}
 				</button>
 				<button
 					type="button"
-					class="px-3 py-2 rounded-lg border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					class="ui-button px-3 py-2 text-sm"
 					@click="adjustTime(activePresetId === 'gongfu' ? 5 : 60)"
 				>
 					{{ activePresetId === 'gongfu' ? '+5s' : '+1m' }}
@@ -163,14 +163,14 @@ onBeforeUnmount(() => {
 			<div class="flex flex-wrap justify-center md:justify-start items-center gap-3">
 				<button
 					type="button"
-					class="px-4 py-2 rounded-lg border bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+					class="ui-button ui-button--primary px-4 py-2"
 					@click="toggleTimer"
 				>
 					{{ isRunning ? t('timer.pause_button') : t('timer.start_button') }}
 				</button>
 				<button
 					type="button"
-					class="px-4 py-2 rounded-lg border bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+					class="ui-button px-4 py-2"
 					@click="stopTimer"
 				>
 					{{ t('timer.reset_button') }}
