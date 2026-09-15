@@ -237,7 +237,7 @@ onMounted(async() => {
 		const platform = Capacitor.getPlatform();
 		if (platform === 'android' || platform === 'ios') {
 			document.documentElement.classList.add('mobile-ui-scale');
-			await StatusBar.setStyle({ style: Style.Dark });
+			await StatusBar.setStyle({ style: Style.Light });
 			await StatusBar.setBackgroundColor({ color: '#e8f0ee' });
 		}
 		platformBridge.onBackButton?.(() => {
