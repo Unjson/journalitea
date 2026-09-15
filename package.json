@@ -1,7 +1,7 @@
 {
   "name": "journalitea",
   "description": "Personal Tea Journal",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "main": "dist-electron/main.js",
   "engines": {
@@ -17,9 +17,11 @@
     "dev": "concurrently \"npm run watch:electron\" \"wait-on dist-electron/main.js && cross-env NODE_ENV=development vite\" \"wait-on dist-electron/main.js && wait-on http://localhost:5173 && cross-env NODE_ENV=development nodemon --watch dist-electron --exec electron .\"",
     "build": "npm run compile:electron && vite build && node scripts/copyAssets.mjs",
     "start": "npm run build && electron .",
-    "app:dir": "npm run build && electron-builder --dir",
     "app:dist": "npm run build && electron-builder",
     "app:dist:win": "npm run build && electron-builder --win --x64",
+    "app:dist:linux": "npm run build && electron-builder --linux --x64",
+    "app:dist:mac": "npm run build && electron-builder --mac --x64",
+    "android:keystore": "node scripts/createAndroidKeystore.mjs",
     "postinstall": "electron-builder install-app-deps && patch-package"
   },
   "dependencies": {
