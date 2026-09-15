@@ -69,6 +69,8 @@ export enum WeightUnit {
 export enum Language {
   ENGLISH = 0,
   GERMAN = 1,
+  FRENCH = 2,
+  SPANISH = 3,
 }
 
 export function getLocaleFromLanguage(lang: Language): string {
@@ -77,6 +79,10 @@ export function getLocaleFromLanguage(lang: Language): string {
       return "en";
     case Language.GERMAN:
       return "de";
+    case Language.FRENCH:
+      return "fr";
+    case Language.SPANISH:
+      return "es";
     default:
       return "en";
   }
@@ -148,6 +154,16 @@ export const languageLabels = [
     value: Language.GERMAN,
     label: "enum.language_german",
     iconUrl: new URL("../img/flag-de.svg", import.meta.url).toString(),
+  },
+  {
+    value: Language.FRENCH,
+    label: "enum.language_french",
+    iconUrl: new URL("../img/flag-fr.svg", import.meta.url).toString(),
+  },
+  {
+    value: Language.SPANISH,
+    label: "enum.language_spanish",
+    iconUrl: new URL("../img/flag-es.svg", import.meta.url).toString(),
   },
 ];
 

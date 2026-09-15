@@ -176,7 +176,7 @@ onUnmounted(() => {
       <h1 class="text-3xl font-bold">{{ t('list.title') }}</h1>
       <button 
         @click="$router.push({ name: 'record-new' })" 
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        class="ui-button ui-button--primary px-4 py-2"
       >
         {{ t('list.create_button') }}
       </button>
@@ -187,19 +187,19 @@ onUnmounted(() => {
         v-model="searchQuery"
         type="search"
         :placeholder="t('list.search_placeholder')"
-        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        class="ui-field w-full px-4 py-3 text-base transition"
       />
     </div>
 
-    <div v-if="loading" class="text-center py-8 text-gray-500">
+    <div v-if="loading" class="ui-muted text-center py-8">
       {{ t('list.loading') }}
     </div>
 
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    <div v-else-if="error" class="ui-error px-4 py-3">
       Error: {{ error }}
     </div>
 
-    <div v-else-if="records.length === 0" class="text-center py-8 text-gray-500">
+    <div v-else-if="records.length === 0" class="ui-muted text-center py-8">
       {{ t('list.no_records') }}
     </div>
 
@@ -207,7 +207,7 @@ onUnmounted(() => {
       type="button"
       :aria-label="t('list.scroll_to_top')"
       :title="t('list.scroll_to_top')"
-      class="fixed right-6 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg transition-all duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
+      class="ui-button ui-button--primary ui-button--icon fixed right-6 z-20 flex h-12 w-12 items-center justify-center shadow-sm transition-all duration-200"
       :class="showScrollToTop ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-2 opacity-0'"
       :style="{ top: scrollToTopButtonOffset }"
       @click="scrollToTop"
@@ -238,14 +238,14 @@ onUnmounted(() => {
         <button
           v-if="hasMoreRecords"
           type="button"
-          class="rounded-full border border-blue-200 bg-white/90 px-5 py-2 text-sm font-medium text-blue-600 shadow-sm transition hover:border-blue-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          class="ui-button px-5 py-2 text-sm font-medium shadow-sm transition"
           :disabled="loadingMore"
           @click="loadMoreRecords"
         >
           {{ loadingMore ? t('list.loading_more') : t('list.load_more') }}
         </button>
 
-        <p v-else class="text-center text-sm text-gray-500/60">
+        <p v-else class="ui-muted text-center text-sm opacity-70">
           {{ t('list.end_of_list') }}
         </p>
       </div>

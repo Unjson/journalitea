@@ -85,7 +85,7 @@ const pieChartData = computed<PieItem[]>(() => {
 			displayValue: formatValue(item.value),
 			path,
 			startAngle,
-			color: TeaColors[item.type] || '#D3D3D3',
+			color: TeaColors[item.type] || 'var(--color-chart-tea-other)',
 			percentage: percentage.toFixed(1)
 		};
 	});
@@ -131,7 +131,7 @@ const separatorLines = computed<SeparatorLine[]>(() => {
 							:y1="line.y1"
 							:x2="line.x2"
 							:y2="line.y2"
-							stroke="white"
+							stroke="var(--color-surface)"
 							stroke-width="2"
 							stroke-linecap="round"
 						/>

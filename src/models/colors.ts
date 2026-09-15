@@ -13,13 +13,13 @@ export const TeaColors: Record<TeaType, string> = {
 };
 
 export const TeaGradientStops = [
-	"#e2f9db",
-	"#c8eba8",
-	"#c2ca4c",
-	"#edcb7a",
-	"#e78747",
-	"#8f4116",
-	"#463c28"
+  "#e2f9db",
+  "#c8eba8",
+  "#c2ca4c",
+  "#edcb7a",
+  "#e78747",
+  "#8f4116",
+  "#463c28",
 ];
 
 export const teaColorGradientCss = `linear-gradient(90deg, ${TeaGradientStops.join(", ")})`;

@@ -79,7 +79,7 @@ const byTeaType = computed(() => {
 
 <template>
 	<div class="space-y-8">
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+		<div class="ui-surface p-6">
 			<h2 class="text-2xl font-semibold mb-4">{{ t('stats.aromas_overall_title') }}</h2>
 			<RadarPlot
 					:data-points="overallAromas"
@@ -87,18 +87,18 @@ const byTeaType = computed(() => {
 			/>
 		</div>
 
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+		<div class="ui-surface p-6">
 			<h2 class="text-2xl font-semibold mb-4">{{ t('stats.aromas_type_title') }}</h2>
 			<div v-if="byTeaType.length > 0" class="space-y-3">
 				<details
 					v-for="group in byTeaType"
 					:key="group.type"
-					class="border rounded-lg"
+					class="aroma-details border"
 					@toggle="handleToggle(group.type, $event)"
 				>
 					<summary class="flex items-center justify-between cursor-pointer select-none px-4 py-3">
 						<span class="text-lg font-semibold">{{ group.label }}</span>
-						<span class="text-sm text-gray-500">{{ group.count }} records</span>
+						<span class="ui-muted text-sm">{{ group.count }} records</span>
 					</summary>
 					<div class="px-4 pb-4">
 						<RadarPlot
@@ -110,7 +110,14 @@ const byTeaType = computed(() => {
 					</div>
 				</details>
 			</div>
-			<div v-else class="text-gray-500">No aroma data</div>
+			<div v-else class="ui-muted">No aroma data</div>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.aroma-details {
+	border-color: var(--color-border);
+	border-radius: var(--radius-control);
+}
+</style>

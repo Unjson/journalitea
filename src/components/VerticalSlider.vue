@@ -27,7 +27,7 @@ const sliderStyle = computed(() => {
   const percent = ((value - min) / range) * 100;
 
   return {
-    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${percent}%, #e5e7eb ${percent}%, #e5e7eb 100%)`,
+    background: `linear-gradient(to right, var(--color-chart-primary) 0%, var(--color-chart-primary) ${percent}%, var(--color-chart-grid) ${percent}%, var(--color-chart-grid) 100%)`,
   };
 });
 
@@ -81,8 +81,8 @@ const onInput = (event: Event) => {
   width: 140px;
   height: 20px;
   transform: rotate(-90deg);
-  background: #e5e7eb;
-  border-radius: 4px;
+  background: var(--color-chart-grid);
+  border-radius: var(--radius-control);
   outline: none;
   margin: 0;
 }
@@ -92,16 +92,16 @@ const onInput = (event: Event) => {
   appearance: none;
   width: 4px;
   height: 20px;
-  background: #3b82f6;
-  border-radius: 4px;
+  background: var(--color-chart-primary);
+  border-radius: var(--radius-control);
   cursor: pointer;
 }
 
 .vertical-slider::-moz-range-thumb {
   width: 4px;
   height: 20px;
-  background: #3b82f6;
-  border-radius: 4px;
+  background: var(--color-chart-primary);
+  border-radius: var(--radius-control);
   cursor: pointer;
   border: none;
 }
@@ -110,7 +110,7 @@ const onInput = (event: Event) => {
   margin-top: 8px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-ink);
   text-align: center;
   line-height: 1.2;
 }
@@ -118,6 +118,6 @@ const onInput = (event: Event) => {
 .slider-value {
   margin-top: 4px;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-ink-muted);
 }
 </style>

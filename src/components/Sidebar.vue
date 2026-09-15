@@ -27,7 +27,6 @@ const isActive = (path: string) => route.path === path;
 <template>
 	<aside 
 		:class="['sidebar', { 'collapsed': collapsed }]"
-		class="bg-gray-800 text-white transition-all duration-300"
 	>		
 		<div class="sidebar-content p-4 flex flex-col h-full">
 			<h2 v-if="!collapsed" class="text-xl font-bold mb-6">Navigation</h2>
@@ -36,21 +35,21 @@ const isActive = (path: string) => route.path === path;
 				<button 
 					type="button"
 					@click="navigateMain('/')"
-					:class="['nav-link', 'flex', 'items-center', 'gap-3', 'px-3', 'py-2', 'rounded', 'hover:bg-gray-700', 'transition-colors', { 'router-link-active': isActive('/') }]"
+					:class="['nav-link', { 'router-link-active': isActive('/') }]"
 				>
 					<span v-if="!collapsed">📋 {{t('menu.item_my_teas')}}</span>
 				</button>
 				<button 
 					type="button"
 					@click="navigateMain('/timer')"
-					:class="['nav-link', 'flex', 'items-center', 'gap-3', 'px-3', 'py-2', 'rounded', 'hover:bg-gray-700', 'transition-colors', { 'router-link-active': isActive('/timer') }]"
+					:class="['nav-link', { 'router-link-active': isActive('/timer') }]"
 				>
 				<span v-if="!collapsed">⏱️ {{t('menu.item_timer')}}</span>
 				</button>
 				<button 
 					type="button"
 					@click="navigateMain('/stats')"
-					:class="['nav-link', 'flex', 'items-center', 'gap-3', 'px-3', 'py-2', 'rounded', 'hover:bg-gray-700', 'transition-colors', { 'router-link-active': isActive('/stats') }]"
+					:class="['nav-link', { 'router-link-active': isActive('/stats') }]"
 				>
 				<span v-if="!collapsed">📊 {{t('menu.item_stats')}}</span>
 				</button>
@@ -59,14 +58,14 @@ const isActive = (path: string) => route.path === path;
 				<button 
 					type="button"
 					@click="navigateMain('/settings')" 
-					:class="['nav-link', 'flex', 'items-center', 'gap-3', 'px-3', 'py-2', 'rounded', 'hover:bg-gray-700', 'transition-colors', { 'router-link-active': isActive('/settings') }]"
+					:class="['nav-link', { 'router-link-active': isActive('/settings') }]"
 				>
 					<span v-if="!collapsed">⚙️ {{t('menu.item_settings')}}</span>
 				</button>
 				<button 
 					type="button"
 					@click="navigateMain('/about')"
-					:class="['nav-link', 'flex', 'items-center', 'gap-3', 'px-3', 'py-2', 'rounded', 'hover:bg-gray-700', 'transition-colors', { 'router-link-active': isActive('/about') }]"
+					:class="['nav-link', { 'router-link-active': isActive('/about') }]"
 				>
 					<span v-if="!collapsed">ℹ️ {{t('menu.item_about')}}</span>
 				</button>
@@ -85,6 +84,9 @@ const isActive = (path: string) => route.path === path;
 	z-index: 60;
 	transition: transform 0.3s ease-in-out;
 	transform: translateX(0);
+	background-color: var(--color-sidebar);
+	color: var(--color-ink);
+	border-right: 1px solid var(--color-border);
 }
 
 .sidebar-content {
@@ -100,15 +102,30 @@ const isActive = (path: string) => route.path === path;
 
 .nav-link {
 	text-decoration: none;
-	color: inherit;
+	color: var(--color-ink-muted);
+	font-weight: 500;
 	background: transparent;
-	border: none;
+	border: 1px solid transparent;
 	text-align: left;
 	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0.75rem;
+	border-radius: var(--radius-control);
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+	background-color: var(--color-chrome-hover);
+	border-color: var(--color-border);
+	color: var(--color-ink);
 }
 
 .nav-link.router-link-active {
-	background-color: #374151;
+	background-color: var(--color-primary-soft);
+	border-color: var(--color-border-strong);
+	color: var(--color-primary-hover);
 	font-weight: 600;
 }
 

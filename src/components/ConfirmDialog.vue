@@ -57,11 +57,11 @@ const isSingleAction = () =>
 	<teleport to="body">
 		<div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center">
 			<div class="absolute inset-0 bg-black/50" @click="onBackdropClick"></div>
-			<div class="relative w-full max-w-md rounded-lg bg-white dark:bg-gray-800 shadow-lg p-6">
+			<div class="ui-surface relative w-full max-w-md p-6">
 				<h3 class="text-lg font-semibold mb-2">
 					{{ title ?? 'Confirm' }}
 				</h3>
-				<p class="mb-6 whitespace-pre-line text-sm text-gray-600 dark:text-gray-300">
+				<p class="ui-muted mb-6 whitespace-pre-line text-sm">
 					{{ message ?? 'Are you sure?' }}
 				</p>
 				<div
@@ -72,27 +72,27 @@ const isSingleAction = () =>
 					aria-valuemax="100"
 					:aria-valuenow="progress"
 				>
-					<div class="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+					<div class="ui-progress-track h-2 overflow-hidden rounded-full">
 						<div
-							class="h-full rounded-full bg-blue-600 transition-[width] duration-300"
+							class="ui-progress-value h-full rounded-full transition-[width] duration-300"
 							:style="{ width: `${Math.min(100, Math.max(0, progress))}%` }"
 						></div>
 					</div>
-					<div class="mt-2 text-right text-xs font-semibold text-gray-600 dark:text-gray-300">
+					<div class="ui-muted mt-2 text-right text-xs font-semibold">
 						{{ Math.round(progress) }}%
 					</div>
 				</div>
 				<div class="flex justify-end gap-3">
 					<button
 						v-if="showCancel"
-						class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+						class="ui-button px-4 py-2"
 						@click="onCancel"
 					>
 						{{ cancelText ?? 'Cancel' }}
 					</button>
 					<button
 						v-if="secondaryText"
-						class="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700"
+						class="ui-button ui-button--primary px-4 py-2"
 						@click="onSecondary"
 					>
 						{{ secondaryText }}
@@ -100,7 +100,7 @@ const isSingleAction = () =>
 					<button
 						v-if="showConfirm"
 						:class="[
-							'px-4 py-2 rounded-lg text-white',
+							'ui-button px-4 py-2',
 							confirmNeutral || isSingleAction()
 								? 'dialog-button-neutral'
 								: 'dialog-button-danger',
@@ -117,18 +117,24 @@ const isSingleAction = () =>
 
 <style scoped>
 .dialog-button-danger {
-	background-color: #dc2626;
+	background-color: var(--color-danger);
+	border-color: var(--color-danger);
+	color: #ffffff;
 }
 
 .dialog-button-danger:hover {
-	background-color: #b91c1c;
+	background-color: var(--color-danger-hover);
+	border-color: var(--color-danger-hover);
 }
 
 .dialog-button-neutral {
-	background-color: #1f2937;
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: #ffffff;
 }
 
 .dialog-button-neutral:hover {
-	background-color: #374151;
+	background-color: var(--color-primary-hover);
+	border-color: var(--color-primary-hover);
 }
 </style>

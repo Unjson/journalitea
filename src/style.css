@@ -1,9 +1,206 @@
 @import "tailwindcss";
 
-html.mobile-ui-scale {
-  font-size: 0.8rem;
+@font-face {
+  font-family: 'Ahellya';
+  src: url('./fonts/ahellya.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ahellya';
+  src: url('./fonts/ahellya italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Min Sans';
+  src: url('./fonts/MinSansVF.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Min Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-title: 'Ahellya', 'Min Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
+  --color-canvas: #fcfff0;
+  --color-surface: #f2f6e8;
+  --color-field: #fff9e8;
+  --color-record-card: #f7f5e9;
+  --color-record-card-hover: #efeee2;
+  --color-surface-green: #f5fff0;
+  --color-surface-warm: #fffbf0;
+  --color-chrome: #e8f0ee;
+  --color-chrome-hover: #d8e5e2;
+  --color-sidebar: var(--color-chrome);
+  --color-ink: #29332a;
+  --color-ink-muted: #586258;
+  --color-border: rgb(89 102 88 / 0.18);
+  --color-border-strong: rgb(89 102 88 / 0.32);
+  --color-primary: #64716f;
+  --color-primary-hover: #505c5a;
+  --color-primary-soft: #e8edec;
+  --color-chart-primary: #526d6b;
+  --color-chart-secondary: #7d8e76;
+  --color-chart-grid: #d5ddd0;
+  --color-chart-axis: #becab9;
+  --color-chart-tea-green: #7d8e76;
+  --color-chart-tea-black: #5d6965;
+  --color-chart-tea-oolong: #73908e;
+  --color-chart-tea-white: #c9cfaa;
+  --color-chart-tea-dark: #665b50;
+  --color-chart-tea-yellow: #ad9c63;
+  --color-chart-tea-puer: #967462;
+  --color-chart-tea-herbal: #9e8d9a;
+  --color-chart-tea-other: #9ba59d;
+  --color-danger: #a94a43;
+  --color-danger-hover: #843a35;
+  --color-focus: #7c9995;
+  --radius-control: 0.325rem;
+  --radius-surface: 0.4rem;
+  --shadow-surface: 0 1px 2px rgb(41 51 42 / 0.05);
   color-scheme: light;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+button,
+input,
+textarea,
+select {
+  border-radius: var(--radius-control);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.ui-surface {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-surface);
+}
+
+.ui-button {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ui-button:hover:not(:disabled) {
+  background-color: var(--color-surface-green);
+  border-color: var(--color-border-strong);
+}
+
+.ui-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ui-button--icon {
+  border-radius: 9999px;
+}
+
+.ui-button--primary,
+.ui-button--selected {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.ui-button--primary:hover:not(:disabled),
+.ui-button--selected:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.ui-button--danger {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #ffffff;
+}
+
+.ui-button--danger:hover:not(:disabled) {
+  background-color: var(--color-danger-hover);
+  border-color: var(--color-danger-hover);
+}
+
+.ui-field {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background-color: var(--color-field);
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+.ui-field:hover {
+  border-color: var(--color-border-strong);
+}
+
+.ui-field:focus {
+  border-color: var(--color-focus);
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(107 152 99 / 0.2);
+}
+
+.ui-muted {
+  color: var(--color-ink-muted);
+}
+
+.app-link {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  text-underline-offset: 0.15em;
+}
+
+.app-link:hover {
+  color: var(--color-primary);
+}
+
+.ui-error {
+  border: 1px solid #d8a09b;
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface-warm);
+  color: #7d3934;
+}
+
+.ui-progress-track {
+  background-color: var(--color-primary-soft);
+}
+
+.ui-progress-value {
+  background-color: var(--color-primary);
+}
+
+/* Ahellya only ships in a single static weight. The text-stroke trick below
+   paints a hairline ring in the background color over the glyph edges, which
+   visually thins the strokes on the app's white background. */
+h1, h2, h3, h4, h5, h6,
+.font-title {
+  font-family: var(--font-title);
+  -webkit-text-stroke: #333333;
+  letter-spacing: 0.04em;
+}
+
+html.mobile-ui-scale {
+  font-size: 0.8rem;
 }

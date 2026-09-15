@@ -351,20 +351,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="edit-screen p-6">
     <h1 class="text-3xl font-bold mb-6">
       {{ isNewRecord ? t('create.title') : t('edit.title') }}
     </h1>
 
-    <div v-if="loading && !isNewRecord" class="text-center py-8 text-gray-500">
+    <div v-if="loading && !isNewRecord" class="ui-muted text-center py-8">
       Loading record...
     </div>
 
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <div v-else-if="error" class="ui-error px-4 py-3 mb-4">
       Error: {{ error }}
     </div>
 
-    <form @submit.prevent="saveRecord" class="bg-white border rounded-lg shadow-lg p-6 space-y-6">
+    <form @submit.prevent="saveRecord" class="edit-form ui-surface p-6 space-y-6">
       <!-- Basic Information -->
       <section>
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Basic Information</h2>
@@ -477,11 +477,11 @@ onMounted(() => {
                 v-for="option in preparationMethodLabels"
                 :key="option.value"
                 type="button"
-                class="px-3 flex items-center py-2 rounded-lg border text-sm transition-colors whitespace-nowrap"
+                class="ui-button px-3 flex items-center py-2 text-sm whitespace-nowrap"
                 :class="
                   record.preparationMethod === option.value
-                    ? 'bg-blue-500 text-white border-blue-500'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    ? 'ui-button--selected'
+                    : ''
                 "
                 @click="record.preparationMethod = option.value"
               >
@@ -572,7 +572,7 @@ onMounted(() => {
               <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ui-button px-3 py-2 text-sm font-medium"
                   :disabled="loading || photoBusy"
                   @click="choosePhoto"
                 >
@@ -581,7 +581,7 @@ onMounted(() => {
                 <button
                   v-if="canCapturePhoto"
                   type="button"
-                  class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ui-button px-3 py-2 text-sm font-medium"
                   :disabled="loading || photoBusy"
                   @click="capturePhoto"
                 >
@@ -590,7 +590,7 @@ onMounted(() => {
                 <button
                   v-if="hasPhoto"
                   type="button"
-                  class="px-3 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ui-button ui-button--danger px-3 py-2 text-sm font-medium"
                   :disabled="loading || photoBusy"
                   @click="removePhoto"
                 >
@@ -599,21 +599,21 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 overflow-hidden">
+            <div class="photo-well rounded-2xl overflow-hidden">
               <ZoomablePhoto
                 v-if="photoPreviewUrl"
                 :src="photoPreviewUrl"
                 :alt="record.name || t('edit.photo_label')"
                 :aria-label="t('photo.open_viewer')"
                 :disabled="loading || photoBusy"
-                class="relative aspect-4/3 bg-gray-100"
+                class="relative aspect-4/3"
                 image-class="h-full w-full object-cover"
               >
-                <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/55 to-transparent px-4 py-3 text-sm text-white">
+                <div class="photo-caption absolute inset-x-0 bottom-0 px-4 py-3 text-sm text-white">
                   {{ record.name || t('edit.photo_label') }}
                 </div>
               </ZoomablePhoto>
-              <div v-else class="px-4 py-10 text-center text-sm text-gray-500">
+              <div v-else class="ui-muted px-4 py-10 text-center text-sm">
                 {{ t('edit.photo_empty') }}
               </div>
             </div>
@@ -640,14 +640,14 @@ onMounted(() => {
         <button
           type="button"
           @click="cancel"
-          class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          class="ui-button px-6 py-2"
         >
           {{ t('edit.cancel_button') }}
         </button>
         <button
           type="submit"
           :disabled="loading"
-          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          class="ui-button ui-button--primary font-semibold py-2 px-6"
         >
           {{ loading ? 'Saving...' : (isNewRecord ? t('edit.create_button') : t('edit.update_button')) }}
         </button>
@@ -665,3 +665,41 @@ onMounted(() => {
     @cancel="cancelCancel"
   />
 </template>
+
+<style scoped>
+.edit-form :is(label, .text-gray-700) {
+  color: var(--color-ink);
+}
+
+.edit-form :is(input, textarea) {
+  border-color: var(--color-border);
+  border-radius: var(--radius-control);
+  background-color: var(--color-field);
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+.edit-form :is(input, textarea):focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px rgb(107 152 99 / 0.2);
+}
+
+.edit-form h2,
+.edit-form .border-t,
+.edit-form .border-b {
+  border-color: var(--color-border);
+}
+
+.edit-form .text-gray-500 {
+  color: var(--color-ink-muted);
+}
+
+.photo-well {
+  border: 1px dashed var(--color-border-strong);
+  background-color: var(--color-surface-green);
+}
+
+.photo-caption {
+  background-color: rgb(41 51 42 / 0.72);
+}
+</style>

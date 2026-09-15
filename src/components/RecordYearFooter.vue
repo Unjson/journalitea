@@ -60,8 +60,8 @@ watch(
 </script>
 
 <template>
-  <footer class="sticky bottom-0 bg-white/90 backdrop-blur border-t pt-4 pb-3">
-    <div class="text-sm font-medium text-gray-600 mb-2 text-center" :class="props.disabled ? 'opacity-60' : ''">
+  <footer class="year-footer sticky bottom-0 pt-4 pb-3">
+    <div class="ui-muted text-sm font-medium mb-2 text-center" :class="props.disabled ? 'opacity-60' : ''">
       {{ label }}
     </div>
     <div
@@ -72,11 +72,11 @@ watch(
       <div class="shrink-0 w-[50vw]" aria-hidden="true"></div>
       <button
         :ref="(el) => setChipRef('all', el as HTMLButtonElement | null)"
-        class="shrink-0 px-4 py-2 rounded-full border text-sm transition snap-center"
+        class="ui-button shrink-0 px-4 py-2 text-sm transition snap-center"
         :class="
           selectedYear === null
-            ? 'bg-blue-500 text-white border-blue-500'
-            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+            ? 'ui-button--selected'
+            : ''
         "
         :disabled="props.disabled"
         @click="onSelect(null)"
@@ -87,11 +87,11 @@ watch(
         v-for="year in years"
         :key="year"
         :ref="(el) => setChipRef(String(year), el as HTMLButtonElement | null)"
-        class="shrink-0 px-4 py-2 rounded-full border text-sm transition snap-center"
+        class="ui-button shrink-0 px-4 py-2 text-sm transition snap-center"
         :class="
           selectedYear === year
-            ? 'bg-blue-500 text-white border-blue-500'
-            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+            ? 'ui-button--selected'
+            : ''
         "
         :disabled="props.disabled"
         @click="onSelect(year)"
@@ -104,6 +104,12 @@ watch(
 </template>
 
 <style scoped>
+.year-footer {
+  background-color: color-mix(in srgb, var(--color-canvas) 92%, transparent);
+  border-top: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
+}
+
 .year-footer-scroll {
   scrollbar-width: none;
   -ms-overflow-style: none;

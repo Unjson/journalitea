@@ -601,7 +601,7 @@ onMounted(async() => {
 </script>
 
 <template>
-	<div class="pb-[calc(6rem+env(safe-area-inset-bottom))]">
+	<div class="settings-screen pb-[calc(6rem+env(safe-area-inset-bottom))]">
 	<h1 class="text-3xl font-bold">Settings Page</h1>
 	<div class="mt-6">
 		<div class="mb-4">
@@ -618,7 +618,7 @@ onMounted(async() => {
 
 		<div class="mb-6">
 			<h2 class="text-xl font-bold mb-3">{{ t('settings.currency_settings_title') }}</h2>
-			<div class="rounded-lg border border-gray-200 p-4">
+			<div class="settings-panel ui-surface p-4">
 			<label class="block text-gray-700 font-bold mb-2" for="currency">
 				{{ t('settings.currency_title') }}
 			</label>
@@ -717,14 +717,14 @@ onMounted(async() => {
 					:aria-checked="showOriginCountry"
 					:aria-label="t('settings.origin_country_display_title')"
 					:class="[
-						'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2',
-						showOriginCountry ? 'bg-gray-800' : 'bg-gray-300',
+						'settings-switch relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200',
+						showOriginCountry ? 'settings-switch--on' : '',
 					]"
 					@click="showOriginCountry = !showOriginCountry; onOriginCountryDisplayChanged()"
 				>
 					<span
 						:class="[
-							'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200',
+							'settings-switch-thumb inline-block h-6 w-6 transform rounded-full transition-transform duration-200',
 							showOriginCountry ? 'translate-x-7' : 'translate-x-1',
 						]"
 					></span>
@@ -741,7 +741,7 @@ onMounted(async() => {
 					<input
 						id="histogramBuckets"
 						v-model.number="histogramBuckets"
-						class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
+						class="settings-range h-2 w-full cursor-pointer appearance-none rounded-lg"
 						type="range"
 						min="5"
 						max="50"
@@ -763,7 +763,7 @@ onMounted(async() => {
 
 		<div class="mt-8">
 			<h2 class="text-xl font-bold mb-3">{{ t('sync.section_title') }}</h2>
-			<div class="rounded-lg border border-gray-200 p-4">
+			<div class="settings-panel ui-surface p-4">
 				<div class="flex items-start justify-between gap-4">
 					<div>
 						<div class="text-sm font-medium text-gray-700">
@@ -780,14 +780,14 @@ onMounted(async() => {
 						:aria-label="t('sync.enable_label')"
 						:disabled="syncBusy"
 						:class="[
-							'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-							syncEnabled ? 'bg-gray-800' : 'bg-gray-300',
+							'settings-switch relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50',
+							syncEnabled ? 'settings-switch--on' : '',
 						]"
 						@click="toggleSyncEnabled"
 					>
 						<span
 							:class="[
-								'inline-block h-6 w-6 rounded-full bg-white shadow transition-transform duration-200',
+								'settings-switch-thumb inline-block h-6 w-6 rounded-full transition-transform duration-200',
 								syncEnabled ? 'translate-x-7' : 'translate-x-1',
 							]"
 						></span>
@@ -810,14 +810,14 @@ onMounted(async() => {
 						:aria-label="t('sync.pictures_label')"
 						:disabled="syncBusy"
 						:class="[
-							'relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-							syncPictures ? 'bg-gray-800' : 'bg-gray-300',
+							'settings-switch relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50',
+							syncPictures ? 'settings-switch--on' : '',
 						]"
 						@click="toggleSyncPictures"
 					>
 						<span
 							:class="[
-								'inline-block h-6 w-6 rounded-full bg-white shadow transition-transform duration-200',
+								'settings-switch-thumb inline-block h-6 w-6 rounded-full transition-transform duration-200',
 								syncPictures ? 'translate-x-7' : 'translate-x-1',
 							]"
 						></span>
@@ -869,7 +869,7 @@ onMounted(async() => {
 					</div>
 				</div>
 
-				<div class="mt-4 rounded bg-gray-50 px-4 py-3 text-sm text-gray-700">
+				<div class="settings-info mt-4 px-4 py-3 text-sm">
 					<div class="font-medium">{{ t('sync.connection_title') }}</div>
 					<div class="mt-1">{{ hasStoredSyncSecret ? t('sync.status_connected') : t('sync.status_not_connected') }}</div>
 					<div v-if="syncLoginName" class="mt-1">
@@ -897,21 +897,21 @@ onMounted(async() => {
 
 				<div
 					v-if="syncError"
-					class="mt-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+					class="ui-error mt-4 px-4 py-3"
 				>
 					{{ syncError }}
 				</div>
 
 				<div class="mt-4 flex flex-col gap-3 sm:flex-row">
 					<button
-						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+						class="ui-button ui-button--primary px-4 py-2"
 						:disabled="syncBusy || syncServerUrl.trim().length === 0"
 						@click="onConnectNextcloud"
 					>
 						{{ t('sync.connect') }}
 					</button>
 					<button
-						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+						class="ui-button ui-button--primary px-4 py-2"
 						:disabled="syncBusy || !hasStoredSyncSecret || syncSourceChoiceRequired"
 						@click="onSyncNow"
 					>
@@ -919,14 +919,14 @@ onMounted(async() => {
 					</button>
 					<button
 						v-if="syncSourceChoiceRequired"
-						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+						class="ui-button ui-button--primary px-4 py-2"
 						:disabled="syncBusy || !hasStoredSyncSecret"
 						@click="openSourceChoiceDialog()"
 					>
 						{{ t('sync.choose_source') }}
 					</button>
 					<button
-						class="rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+						class="ui-button px-4 py-2"
 						:disabled="syncBusy || !hasStoredSyncSecret"
 						@click="showDisconnectConfirm = true"
 					>
@@ -938,16 +938,16 @@ onMounted(async() => {
 
 		<div class="mt-6">
 			<h2 class="text-xl font-bold mb-3">{{ t('settings.database_title') }}</h2>
-			<div class="rounded-lg border border-gray-200 p-4">
+			<div class="settings-panel ui-surface p-4">
 				<div class="flex flex-col gap-3 sm:flex-row">
 					<button
-						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700"
+						class="ui-button ui-button--primary px-4 py-2"
 						@click="onImportDatabase"
 					>
 						{{ t('settings.database_import') }}
 					</button>
 					<button
-						class="rounded bg-gray-800 px-4 py-2 text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+						class="ui-button ui-button--primary px-4 py-2"
 						:disabled="exportBusy"
 						@click="onExportDatabase"
 					>
@@ -1019,3 +1019,59 @@ onMounted(async() => {
 		@cancel="onCancelSourceChoiceConfirm"
 	/>
 </template>
+
+<style scoped>
+.settings-screen :is(label, .text-gray-700) {
+	color: var(--color-ink);
+}
+
+.settings-screen :is(.text-gray-500, .text-gray-600) {
+	color: var(--color-ink-muted);
+}
+
+.settings-screen input:not([type='range']) {
+	border-color: var(--color-border);
+	border-radius: var(--radius-control);
+	background-color: var(--color-field);
+	color: var(--color-ink);
+}
+
+.settings-screen input:not([type='range']):focus {
+	border-color: var(--color-focus);
+	outline: none;
+	box-shadow: 0 0 0 2px rgb(107 152 99 / 0.2);
+}
+
+.settings-panel :is(.border-t, .border-gray-200) {
+	border-color: var(--color-border);
+}
+
+.settings-switch {
+	border: 1px solid var(--color-border-strong);
+	border-radius: 9999px;
+	background-color: var(--color-primary-soft);
+}
+
+.settings-switch--on {
+	border-color: var(--color-primary);
+	background-color: var(--color-primary);
+}
+
+.settings-switch-thumb {
+	border-radius: 9999px;
+	background-color: var(--color-surface);
+	box-shadow: var(--shadow-surface);
+}
+
+.settings-range {
+	background-color: var(--color-primary-soft);
+	accent-color: var(--color-primary);
+}
+
+.settings-info {
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-control);
+	background-color: var(--color-surface-green);
+	color: var(--color-ink);
+}
+</style>

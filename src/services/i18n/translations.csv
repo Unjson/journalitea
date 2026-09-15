@@ -1,301 +1,305 @@
-key;en;de
-app.title;Journalitea;Journalitea
-header.title_my_teas;My Teas;Meine Tees
-header.title_create_record;New Record;Neuer Eintrag
-header.title_edit_record;Edit Record;Eintrag bearbeiten
-header.title_view_record;View Record;Eintrag ansehen
-header.title_stats;Stats for Nerds;Statistiken für Nerds
-header.title_timer;Tea Timer;Teetimer
-header.title_settings;Settings;Einstellungen
-header.title_about;About;Über
-menu.item_my_teas;My Teas;Meine Tees
-menu.item_stats;Stats for Nerds;Statistiken für Nerds
-menu.item_timer;Tea Timer;Teetimer
-menu.item_settings;Settings;Einstellungen
-menu.item_about;About;Über diese App
-create.title;Create new Record;Neuen Eintrag erstellen
-list.title;My Tea Records;Meine Tee-Einträge
-list.create_button;Create;Erstellen
-list.loading;Loading records...;Lade Einträge...
-list.no_records;No records found. Click the "Create" button to add your first tea;Keine Einträge gefunden. Klicke auf die Schaltfläche "Erstellen", um deinen ersten Tee hinzuzufügen
-list.search_placeholder;Search teas;Tees suchen
-list.filter_year_label;Filter by date;Nach Datum filtern
-list.filter_year_all;All years;Alle Jahre
-list.scroll_to_top;Scroll to top;Nach oben scrollen
-list.load_more;Load more tea;Mehr Tee laden
-list.loading_more;Loading more tea...;Lade mehr Tee...
-list.end_of_list;no more tea :(;kein Tee mehr :(
-edit.title;Edit Record;Eintrag bearbeiten
-edit.name_label;Name;Name
-edit.type_label;Type;Typ
-edit.subtype_label;Subtype;Untertyp
-edit.seller_label;Seller;Verkäufer
-edit.origin_label;Origin;Herkunft
-edit.year_label;Year;Jahr
-edit.price_label;Price;Preis
-edit.weight_label;Net Weight;Menge
-edit.preparation_label;Preparation;Zubereitung
-edit.preparation_method_label;Method;Methode
-edit.preparation_notes_label;Preparation Notes;Zubereitungsnotizen
-edit.dry_leaves_label;Dry Leaves;Trockene Blätter
-edit.wet_leaves_label;Wet Leaves;Nasse Blätter
-edit.liquor_label;Liquor;Aufguss
-edit.color_label;Color;Farbe
-edit.aromas_label;Aromas;Aromen
-edit.notes_rating_title;Notes & Rating;Notizen & Bewertung
-edit.photo_label;Photo;Foto
-edit.photo_hint;One photo per record for now. You can replace it at any time.;Vorerst ist pro Eintrag nur ein Foto moeglich. Sie koennen es jederzeit ersetzen.
-photo.open_viewer;Open photo fullscreen;Foto im Vollbild oeffnen
-photo.close_viewer;Close photo viewer;Fotoansicht schliessen
-photo.zoom_viewer;Zoom photo;Foto zoomen
-photo.image_error;The photo cannot be loaded.;Das Foto kann nicht geladen werden.
-edit.photo_add_button;Add photo;Foto hinzufuegen
-edit.photo_replace_button;Replace photo;Foto ersetzen
-edit.photo_take_button;Take photo;Foto aufnehmen
-edit.photo_remove_button;Remove photo;Foto entfernen
-edit.photo_empty;No photo selected yet.;Noch kein Foto ausgewaehlt.
-edit.photo_error_generic;Photo action failed.;Fotoaktion fehlgeschlagen.
-edit.notes_label;Notes;Notizen
-edit.rating_label;Rating;Bewertung
-edit.cancel_button;Cancel;Abbrechen
-edit.create_button;Create;Erstellen
-edit.update_button;Update;Aktualisieren
-edit.cancel_confirm_title;Discard changes?;Änderungen verwerfen?
-edit.cancel_confirm_message;You have unsaved changes. Do you want to leave without saving?;Sie haben ungespeicherte Änderungen. Möchten Sie die Seite ohne Speichern verlassen?
-edit.cancel_confirm_confirm;Leave;Verlassen
-edit.cancel_confirm_cancel;Stay;Bleiben
-enum.type_green;Green;Grün
-enum.type_black;Black;Schwarz
-enum.type_oolong;Oolong;Oolong
-enum.type_white;White;Weiß
-enum.type_dark;Dark;Dunkel
-enum.type_yellow;Yellow;Gelb
-enum.type_puer;Pu'er;Pu'er
-enum.type_herbal;Herbal;Kräuter
-enum.type_other;Other;Andere
-enum.preparation_western;Western;Westlich
-enum.preparation_gaiwan;Gaiwan;Gaiwan
-enum.preparation_teapot;Teapot;Teekännchen
-enum.preparation_teabag;Teabag;Teebeutel
-enum.preparation_coldbrew;Cold Brew;Cold Brew
-enum.preparation_other;Other;Andere Zubereitung
-enum.aromas_sweet;Sweet;Süß
-enum.aromas_floral;Floral;Blumig
-enum.aromas_nutty;Nutty;Nussig
-enum.aromas_spicy;Spicy;Würzig
-enum.aromas_fruity;Fruity;Fruchtig
-enum.aromas_fire;Fire / Animal;Feuer / Tierisch
-enum.aromas_vegetal;Vegetables / Plants;Gemüse / Pflanzlich
-enum.aromas_earthy;Earthy;Erdig
-enum.aromas_minerals;Mineral;Mineralisch
-enum.aromas_marine;Marine;Maritim
-enum.language_english;English;Englisch
-enum.language_german;German;Deutsch
-enum.weightunit_g;Grams;Gramm
-enum.weightunit_oz;Ounces;Unzen
-enum.currency_eur;Euro (€);Euro (€)
-enum.currency_usd;US Dollar ($);US Dollar ($)
-enum.currency_gbp;British Pound (£);Britisches Pfund (£)
-enum.currency_cny;Chinese Yuan (¥);Chinesischer Yuan (¥)
-enum.currency_jpy;Japanese Yen (¥);Japanischer Yen (¥)
-enum.currency_inr;Indian Rupee (₹);Indische Rupie (₹)
-enum.currency_hkd;Hong Kong Dollar (HK$);Hongkong-Dollar (HK$)
-enum.currency_other;Other;Andere Währung
-settings.language_title;Language;Sprache
-settings.currency_settings_title;Currency Settings;Währungseinstellungen
-settings.currency_title;Preferred Currency;Hauptwährung
-settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit
-settings.origin_country_display_title;Display origin country separately;Herkunftsland getrennt anzeigen
-settings.origin_country_display_hint;When enabled, the last comma-separated entry is extracted as the origin country.;Wenn aktiviert, wird der letzte durch Kommas getrennte Eintrag als Herkunftsland verwendet.
-settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets
-settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl für die Statistik-Histogramme anpassen
-settings.custom_currency_name;Custom currency name;Name der benutzerdefinierten Währung
-settings.custom_currency_name_placeholder;e.g. Tea Token;z. B. Tee-Taler
-settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol
-settings.custom_currency_symbol_placeholder;e.g. TT;z. B. TT
-settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$)
-settings.custom_currency_rate_placeholder;e.g. 1.25;z. B. 1,25
-settings.database_title;Local Database Import/Export;Lokaler Datenbank-Import/Export
-settings.database_export;Export database;Datenbank exportieren
-settings.database_import;Import database;Datenbank importieren
-settings.database_export_success_cap;Database export completed. The database and photo archive were saved in Documents. Would you like to share them?;Datenbank-Export abgeschlossen. Die Datenbank und das Fotoarchiv wurden in Dokumente gespeichert. Möchten Sie sie teilen?
-settings.database_export_success;Database export completed. You can find the exported file at;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie unter
-settings.database_export_photo_archive;Photo archive: {path};Fotoarchiv: {path}
-settings.database_export_success_title;Export complete;Export abgeschlossen
-settings.database_export_error_title;Export failed;Export fehlgeschlagen
-settings.database_export_error;Database export failed.;Datenbank-Export fehlgeschlagen.
-settings.database_export_progress_title;Exporting database;Datenbank wird exportiert
-settings.database_export_progress_preparing;Preparing the database and photo archive...;Datenbank und Fotoarchiv werden vorbereitet...
-settings.database_export_progress_database;Choose where to save the database file.;Wählen Sie einen Speicherort für die Datenbankdatei.
-settings.database_export_progress_photos;Choose the same location for the photo archive.;Wählen Sie denselben Speicherort für das Fotoarchiv.
-settings.database_export_share_database;Save Journalitea database;Journalitea-Datenbank speichern
-settings.database_export_share_photos;Save Journalitea photo archive;Journalitea-Fotoarchiv speichern
-settings.database_export_share_ready;Share exports;Exporte teilen
-settings.dialog_ok;OK;OK
-settings.dialog_close;Close;Schließen
-settings.database_import_prompt_title;Import database;Datenbank importieren
-settings.database_import_prompt_message;Append the records from the selected database to your current data, or replace your database entirely?;Möchten Sie die Einträge aus der ausgewählten Datenbank anfügen oder die Datenbank vollständig ersetzen?
-settings.database_import_append;Append records;Einträge anfügen
-settings.database_import_replace;Replace database;Datenbank ersetzen
-settings.database_import_cancel;Cancel;Abbrechen
-settings.database_import_success_append;Database import completed (records appended).;Datenbankimport abgeschlossen (Einträge angefügt).
-settings.database_import_success_replace;Database import completed (database replaced).;Datenbankimport abgeschlossen (Datenbank ersetzt).
-settings.database_import_photos_restored;Sibling photo archive imported from: {path};Zugehöriges Fotoarchiv importiert von: {path}
-settings.database_import_photos_missing;No sibling photo archive was found.;Kein zugehöriges Fotoarchiv gefunden.
-sync.section_title;Nextcloud Sync;Nextcloud-Synchronisierung
-sync.enable_label;Enable Nextcloud sync;Nextcloud-Sync aktivieren
-sync.disable_hint;The app only checks and uploads when sync is enabled.;Die App prüft und lädt nur hoch, wenn die Synchronisierung aktiviert ist.
-sync.pictures_label;Sync pictures;Bilder synchronisieren
-sync.pictures_hint;Upload and download record photos together with the database. Already uploaded remote pictures stay untouched when disabled.;Fotos zusammen mit der Datenbank hoch- und herunterladen. Bereits hochgeladene Remote-Bilder bleiben beim Deaktivieren unverändert.
-sync.server_url;Server URL;Server-URL
-sync.folder_path;Remote folder;Remote-Ordner
-sync.backup_retention;Rolling backups;Rotierende Backups
-sync.connection_title;Connection;Verbindung
-sync.connect;Connect account;Konto verbinden
-sync.disconnect;Disconnect account;Konto trennen
-sync.disconnect_title;Disconnect Nextcloud;Nextcloud trennen
-sync.disconnect_message;Disconnect this Nextcloud account from Journalitea? The remote files will stay on the server.;Dieses Nextcloud-Konto von Journalitea trennen? Die Dateien auf dem Server bleiben erhalten.
-sync.disconnect_confirm;Disconnect;Trennen
-sync.sync_now;Sync now;Jetzt synchronisieren
-sync.status_not_connected;Not connected;Nicht verbunden
-sync.status_connected;Connected;Verbunden
-sync.status_waiting_browser;Waiting for browser approval...;Warte auf Freigabe im Browser...
-sync.status_syncing;Syncing database...;Datenbank wird synchronisiert...
-sync.status_source_choice_required;Choose which database should be used for sync before continuing.;Wählen Sie zuerst aus, welche Datenbank für die Synchronisierung verwendet werden soll.
-sync.status_last_sync_prefix;Last sync:;Letzte Synchronisierung:
-sync.status_dirty;Local changes are waiting to be uploaded.;Lokale Änderungen warten auf den Upload.
-sync.progress_prepare_sync;Preparing sync...;Synchronisierung wird vorbereitet...
-sync.progress_snapshot_database;Creating database snapshot...;Datenbank-Schnappschuss wird erstellt...
-sync.progress_archive_photos;Preparing photo archive...;Fotoarchiv wird vorbereitet...
-sync.progress_upload_database;Uploading database...;Datenbank wird hochgeladen...
-sync.progress_upload_photos;Uploading changed photos...;Geaenderte Fotos werden hochgeladen...
-sync.progress_check_photos;Checking photos...;Fotos werden geprueft...
-sync.progress_cleanup_photos;Removing unreferenced photos...;Nicht mehr referenzierte Fotos werden entfernt...
-sync.progress_backup_remote_database;Backing up remote database...;Remote-Datenbank wird gesichert...
-sync.progress_backup_remote_photos;Backing up remote photo archive...;Remote-Fotoarchiv wird gesichert...
-sync.progress_publish_remote;Finalizing remote sync...;Remote-Synchronisierung wird abgeschlossen...
-sync.progress_write_manifest;Updating sync manifest...;Synchronisationsmanifest wird aktualisiert...
-sync.progress_prune_backups;Cleaning up old backups...;Alte Backups werden bereinigt...
-sync.progress_download_database;Downloading database...;Datenbank wird heruntergeladen...
-sync.progress_restore_database;Restoring database...;Datenbank wird wiederhergestellt...
-sync.progress_download_photos;Downloading changed photos...;Geaenderte Fotos werden heruntergeladen...
-sync.progress_restore_photos;Applying synced photos...;Synchronisierte Fotos werden uebernommen...
-sync.progress_keep_local_photos;Keeping local photos because no remote synced photos were found.;Lokale Fotos bleiben erhalten, da keine synchronisierten Remote-Fotos gefunden wurden.
-sync.progress_restore_missing_photos;Restoring available local photo references...;Verfügbare lokale Fotoreferenzen werden wiederhergestellt...
-sync.progress_complete;Sync complete.;Synchronisierung abgeschlossen.
-sync.connected_account;Connected account;Verbundenes Konto
-sync.last_sync_never;Never;Nie
-sync.choose_source;Choose source database;Quelldatenbank wählen
-sync.source_choice_title;Choose sync source;Synchronisationsquelle wählen
-sync.source_choice_intro;Nextcloud already contains a database for this folder. Choose which database should become the source of truth for future syncs.;In diesem Nextcloud-Ordner existiert bereits eine Datenbank. Wählen Sie aus, welche Datenbank künftig die maßgebliche Quelle für die Synchronisierung sein soll.
-sync.source_choice_local_summary;Local database: {count} record(s).;Lokale Datenbank: {count} Einträge.
-sync.source_choice_remote_summary;Nextcloud database: existing file, last changed {date}.;Nextcloud-Datenbank: vorhandene Datei, zuletzt geändert am {date}.
-sync.source_choice_remote_unknown;unknown date;unbekanntes Datum
-sync.source_choice_use_local;Use local database;Lokale Datenbank verwenden
-sync.source_choice_use_remote;Use Nextcloud database;Nextcloud-Datenbank verwenden
-sync.source_choice_confirm_button;Confirm choice;Auswahl bestätigen
-sync.source_choice_confirm_local_title;Confirm local database;Lokale Datenbank bestätigen
-sync.source_choice_confirm_remote_title;Confirm Nextcloud database;Nextcloud-Datenbank bestätigen
-sync.source_choice_confirm_local_message;This will overwrite the current Nextcloud database and use your current local database as the source of truth for future syncs. Continue?;Dadurch wird die aktuelle Nextcloud-Datenbank überschrieben und Ihre lokale Datenbank wird künftig die maßgebliche Quelle für die Synchronisierung. Fortfahren?
-sync.source_choice_confirm_remote_message;This will replace your current local database with the Nextcloud database and use the Nextcloud copy as the source of truth for future syncs. Continue?;Dadurch wird Ihre lokale Datenbank durch die Nextcloud-Datenbank ersetzt und die Nextcloud-Kopie wird künftig die maßgebliche Quelle für die Synchronisierung. Fortfahren?
-sync.error_generic;Nextcloud sync failed.;Nextcloud-Synchronisierung fehlgeschlagen.
-sync.startup_checking;Checking Nextcloud sync...;Prüfe Nextcloud-Synchronisierung...
-sync.startup_restoring;Restoring database from Nextcloud...;Stelle Datenbank von Nextcloud wieder her...
-sync.startup_update_title;Remote database available;Remote-Datenbank verfügbar
-sync.startup_update_message;A newer database is available on Nextcloud. Replace your local database with the server copy?;Auf Nextcloud ist eine neuere Datenbank verfügbar. Möchten Sie Ihre lokale Datenbank durch die Serverkopie ersetzen?
-sync.startup_conflict_message;A newer database is available on Nextcloud, but you also have local changes that are not uploaded yet. Replace your local database with the server copy?;Auf Nextcloud ist eine neuere Datenbank verfügbar, aber Sie haben auch lokale Änderungen, die noch nicht hochgeladen wurden. Möchten Sie Ihre lokale Datenbank durch die Serverkopie ersetzen?
-sync.startup_update_confirm;Update from server;Vom Server aktualisieren
-sync.startup_update_cancel;Keep local database;Lokale Datenbank behalten
-detail.loading;Loading record...;Lade Eintrag...
-detail.error_prefix;Error:;Fehler:
-detail.details_title;Details;Details
-detail.type_label;Type:;Typ:
-detail.subtype_label;Subtype:;Untertyp:
-detail.origin_country_label;Country:;Land:
-detail.origin_detail_label;Origin:;Herkunft:
-detail.origin_label;Origin:;Herkunft:
-detail.year_label;Year:;Jahr:
-detail.seller_label;Seller:;Verkäufer:
-detail.date_added_label;Date Added:;Hinzugefügt am:
-detail.price_label;Price:;Preis:
-detail.weight_label;Weight:;Menge:
-detail.preparation_title;Preparation;Zubereitung
-detail.method_label;Method:;Methode:
-detail.notes_label;Notes:;Notizen:
-detail.tasting_notes_title;Tasting Notes;Verkostungsnotizen
-detail.dry_leaves_label;Dry Leaves:;Trockene Blätter:
-detail.wet_leaves_label;Wet Leaves:;Nasse Blätter:
-detail.liquor_label;Liquor:;Aufguss:
-detail.color_label;Color:;Farbe:
-detail.color_aria;Tea color;Teefarbe
-detail.plot_show;Show Plot;Diagramm anzeigen
-detail.plot_hide;Hide Plot;Diagramm ausblenden
-detail.notes_rating_title;Notes & Rating;Notizen & Bewertung
-detail.overall_rating_label;Overall Rating:;Gesamtbewertung:
-detail.delete_button;Delete Record;Eintrag löschen
-detail.back_button;Back to Records List;Zurück zur Eintragsliste
-detail.edit_button;Edit Record;Eintrag bearbeiten
-detail.delete_confirm_title;Delete record?;Eintrag löschen?
-detail.delete_confirm_message;This action cannot be undone.;Diese Aktion kann nicht rückgängig gemacht werden.
-detail.delete_confirm_confirm;Delete;Löschen
-detail.delete_confirm_cancel;Cancel;Abbrechen
-record.type_label;Type:;Typ:
-record.subtype_label;Subtype:;Untertyp:
-record.origin_country_label;Country:;Land:
-record.origin_detail_label;Origin:;Herkunft:
-record.origin_label;Origin:;Herkunft:
-record.year_label;Year:;Jahr:
-record.seller_label;Seller:;Verkäufer:
-record.rating_label;Rating:;Bewertung:
-record.notes_label;Notes:;Notizen:
-stats.title;Stats for Nerds;Statistiken für Nerds
-stats.tab_summary;Summary;Übersicht
-stats.tab_histograms;Histograms;Histogramme
-stats.tab_aromas;Aromas;Aromen
-stats.tab_origins;Origins;Herkünfte
-stats.cumulative_title;Cumulative Statistics;Kumulative Statistiken
-stats.total_money_spent_label;Total Money Spent:;Insgesamt ausgegeben:
-stats.total_weight_label;Total Weight of Tea:;Gesamtmenge Tee:
-stats.avg_price_per_weight_label;Average price per Weight:;Durchschnittspreis pro Menge:
-stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:
-stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:
-stats.no_data;No data;Keine Daten
-stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte
-stats.tea_collection_metric_label;Slice size by;Segmentgroesse nach
-stats.tea_collection_metric_absolute;Absolute records;Absolute Eintraege
-stats.tea_collection_metric_weight;Tea weight;Teemenge
-stats.tea_collection_metric_spending;Money spent;Ausgaben
-stats.average_rating_label;Average Rating;Durchschnittsbewertung
-stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung
-stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar
-stats.loading;Loading statistics...;Statistiken werden geladen...
-stats.histogram_total_price;Total Prices;Gesamtpreise
-stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm
-stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze
-stats.average_value;Average;Durchschnitt
-stats.median_value;Median;Median
-stats.count_value;Count;Anzahl
-stats.no_price_data;No price data available;Keine Preisdaten verfügbar
-stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen
-stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte
-stats.origins_title;Tea Origins;Tee-Herkünfte
-stats.origin_countries_title;Most Common Origin Countries;Häufigste Herkunftsländer
-stats.origin_countries_no_data;No origin countries available;Keine Herkunftsländer verfügbar
-stats.origin_details_title;Specific Origins;Spezifische Herkünfte
-stats.origin_details_no_data;No specific origins available;Keine spezifischen Herkünfte verfügbar
-stats.origin_details_show_more;Show more origins;Mehr Herkünfte anzeigen
-stats.origin_details_show_less;Show fewer origins;Weniger Herkünfte anzeigen
-stats.origins_no_data;No origins available;Keine Herkünfte verfügbar
-timer.title;Tea Timer;Teetimer
-timer.presets_title;Steeping presets;Ziehzeiten
-timer.preset_western;Western style;Westlicher Stil
-timer.preset_gongfu;Gongfu style;Gongfu-Stil
-timer.progress_label;Progress: {percent}%;Fortschritt: {percent}%
-timer.start_button;Start;Start
-timer.pause_button;Pause;Pause
-timer.reset_button;Reset;Zurücksetzen
-about.title;About this App;Über diese App
-about.versionNumber;Version number;Versionsnummer
-about.body1;Journalitea is free software, licensed under the;Journalitea ist freie Software, lizenziert unter der
-about.body2;The complete source code can be found through the link below:;Der vollständige Quellcode ist über den untenstehenden Link verfügbar:
-about.body3;I made Journalitea because I wanted to build it, not because I am trying to make any money off of it. If you like the app, I encourage you to also build things you enjoy making and share them with the community.;Ich habe Journalitea gebaut weil ich wollte dass die App existiert, nicht um damit später Geld zu verdienen. Wenn du die App magst, ermutige ich dich ebenfalls Dinge zu bauen die dir gefallen, und sie mit deiner Community zu teilen.
+key;en;de;fr;es
+app.title;Journalitea;Journalitea;Journalitea;Journalitea
+header.title_my_teas;My Teas;Meine Tees;Mes thés;Mis tés
+header.title_create_record;New Record;Neuer Eintrag;Nouvelle fiche;Nuevo registro
+header.title_edit_record;Edit Record;Eintrag bearbeiten;Modifier la fiche;Editar registro
+header.title_view_record;View Record;Eintrag ansehen;Voir la fiche;Ver registro
+header.title_stats;Stats for Nerds;Statistiken für Nerds;Stats pour les passionnés;Estadísticas para frikis
+header.title_timer;Tea Timer;Teetimer;Minuteur à thé;Temporizador de té
+header.title_settings;Settings;Einstellungen;Paramètres;Ajustes
+header.title_about;About;Über;À propos;Acerca de
+menu.item_my_teas;My Teas;Meine Tees;Mes thés;Mis tés
+menu.item_stats;Stats for Nerds;Statistiken für Nerds;Stats pour les passionnés;Estadísticas para frikis
+menu.item_timer;Tea Timer;Teetimer;Minuteur à thé;Temporizador de té
+menu.item_settings;Settings;Einstellungen;Paramètres;Ajustes
+menu.item_about;About;Über diese App;À propos de cette appli;Acerca de esta aplicación
+create.title;Create new Record;Neuen Eintrag erstellen;Créer une nouvelle fiche;Crear un nuevo registro
+list.title;My Tea Records;Meine Tee-Einträge;Mes fiches de thé;Mis registros de té
+list.create_button;Create;Erstellen;Créer;Crear
+list.loading;Loading records...;Lade Einträge...;Chargement des fiches...;Cargando registros...
+list.no_records;No records found. Click the "Create" button to add your first tea;Keine Einträge gefunden. Klicke auf die Schaltfläche "Erstellen", um deinen ersten Tee hinzuzufügen;Aucune fiche trouvée. Cliquez sur « Créer » pour ajouter votre premier thé;No se encontraron registros. Pulsa « Crear » para añadir tu primer té
+list.search_placeholder;Search teas;Tees suchen;Rechercher des thés;Buscar tés
+list.filter_year_label;Filter by date;Nach Datum filtern;Filtrer par date;Filtrar por fecha
+list.filter_year_all;All years;Alle Jahre;Toutes les années;Todos los años
+list.scroll_to_top;Scroll to top;Nach oben scrollen;Retour en haut;Ir arriba
+list.load_more;Load more tea;Mehr Tee laden;Charger plus de thés;Cargar más té
+list.loading_more;Loading more tea...;Lade mehr Tee...;Chargement de plus de thés...;Cargando más té...
+list.end_of_list;no more tea :(;kein Tee mehr :(;plus de thé :(;no hay más té :(
+edit.title;Edit Record;Eintrag bearbeiten;Modifier la fiche;Editar registro
+edit.name_label;Name;Name;Nom;Nombre
+edit.type_label;Type;Typ;Type;Tipo
+edit.subtype_label;Subtype;Untertyp;Sous-type;Subtipo
+edit.seller_label;Seller;Verkäufer;Vendeur;Vendedor
+edit.origin_label;Origin;Herkunft;Origine;Origen
+edit.year_label;Year;Jahr;Année;Año
+edit.price_label;Price;Preis;Prix;Precio
+edit.weight_label;Net Weight;Menge;Poids net;Peso neto
+edit.preparation_label;Preparation;Zubereitung;Préparation;Preparación
+edit.preparation_method_label;Method;Methode;Méthode;Método
+edit.preparation_notes_label;Preparation Notes;Zubereitungsnotizen;Notes de préparation;Notas de preparación
+edit.dry_leaves_label;Dry Leaves;Trockene Blätter;Feuilles sèches;Hojas secas
+edit.wet_leaves_label;Wet Leaves;Nasse Blätter;Feuilles infusées;Hojas húmedas
+edit.liquor_label;Liquor;Aufguss;Liqueur;Licor
+edit.color_label;Color;Farbe;Couleur;Color
+edit.aromas_label;Aromas;Aromen;Arômes;Aromas
+edit.notes_rating_title;Notes & Rating;Notizen & Bewertung;Notes et note;Notas y valoración
+edit.photo_label;Photo;Foto;Photo;Foto
+edit.photo_hint;One photo per record for now. You can replace it at any time.;Vorerst ist pro Eintrag nur ein Foto moeglich. Sie koennen es jederzeit ersetzen.;Pour le moment une seule photo par fiche. Vous pouvez la remplacer à tout moment.;Por ahora solo se puede añadir una foto por registro. Puedes sustituirla en cualquier momento.
+photo.open_viewer;Open photo fullscreen;Foto im Vollbild oeffnen;Ouvrir la photo en plein écran;Abrir foto a pantalla completa
+photo.close_viewer;Close photo viewer;Fotoansicht schliessen;Fermer la visionneuse;Cerrar visor de fotos
+photo.zoom_viewer;Zoom photo;Foto zoomen;Zoomer sur la photo;Ampliar foto
+photo.image_error;The photo cannot be loaded.;Das Foto kann nicht geladen werden.;Impossible de charger la photo.;No se puede cargar la foto.
+edit.photo_add_button;Add photo;Foto hinzufuegen;Ajouter une photo;Añadir foto
+edit.photo_replace_button;Replace photo;Foto ersetzen;Remplacer la photo;Sustituir foto
+edit.photo_take_button;Take photo;Foto aufnehmen;Prendre une photo;Tomar foto
+edit.photo_remove_button;Remove photo;Foto entfernen;Supprimer la photo;Eliminar foto
+edit.photo_empty;No photo selected yet.;Noch kein Foto ausgewaehlt.;Aucune photo sélectionnée.;Aún no se ha seleccionado ninguna foto.
+edit.photo_error_generic;Photo action failed.;Fotoaktion fehlgeschlagen.;L’action sur la photo a échoué.;La acción de foto ha fallado.
+edit.notes_label;Notes;Notizen;Notes;Notas
+edit.rating_label;Rating;Bewertung;Note;Valoración
+edit.cancel_button;Cancel;Abbrechen;Annuler;Cancelar
+edit.create_button;Create;Erstellen;Créer;Crear
+edit.update_button;Update;Aktualisieren;Mettre à jour;Actualizar
+edit.cancel_confirm_title;Discard changes?;Änderungen verwerfen?;Abandonner les modifications ?;¿Descartar los cambios?
+edit.cancel_confirm_message;You have unsaved changes. Do you want to leave without saving?;Sie haben ungespeicherte Änderungen. Möchten Sie die Seite ohne Speichern verlassen?;Vous avez des modifications non enregistrées. Voulez-vous quitter sans les enregistrer ?;Tienes cambios sin guardar. ¿Quieres salir sin guardarlos?
+edit.cancel_confirm_confirm;Leave;Verlassen;Quitter;Salir
+edit.cancel_confirm_cancel;Stay;Bleiben;Rester;Quedarse
+enum.type_green;Green;Grün;Vert;Verde
+enum.type_black;Black;Schwarz;Noir;Negro
+enum.type_oolong;Oolong;Oolong;Oolong;Oolong
+enum.type_white;White;Weiß;Blanc;Blanco
+enum.type_dark;Dark;Dunkel;Sombre;Oscuro
+enum.type_yellow;Yellow;Gelb;Jaune;Amarillo
+enum.type_puer;Pu'er;Pu'er;Pu-erh;Pu-erh
+enum.type_herbal;Herbal;Kräuter;Tisane;Infusión
+enum.type_other;Other;Andere;Autre;Otro
+enum.preparation_western;Western;Westlich;Occidentale;Occidental
+enum.preparation_gaiwan;Gaiwan;Gaiwan;Gaiwan;Gaiwan
+enum.preparation_teapot;Teapot;Teekännchen;Théière;Tetera
+enum.preparation_teabag;Teabag;Teebeutel;Sachet de thé;Bolsa de té
+enum.preparation_coldbrew;Cold Brew;Cold Brew;Infusion à froid;Infusión en frío
+enum.preparation_other;Other;Andere Zubereitung;Autre méthode;Otro método
+enum.aromas_sweet;Sweet;Süß;Sucré;Dulce
+enum.aromas_floral;Floral;Blumig;Floral;Floral
+enum.aromas_nutty;Nutty;Nussig;Noisette;Frutos secos
+enum.aromas_spicy;Spicy;Würzig;Épicé;Especiado
+enum.aromas_fruity;Fruity;Fruchtig;Fruité;Afrutado
+enum.aromas_fire;Fire / Animal;Feuer / Tierisch;Fumé / animal;Fuego / animal
+enum.aromas_vegetal;Vegetables / Plants;Gemüse / Pflanzlich;Végétal;Vegetal
+enum.aromas_earthy;Earthy;Erdig;Terreux;Terroso
+enum.aromas_minerals;Mineral;Mineralisch;Minéral;Mineral
+enum.aromas_marine;Marine;Maritim;Marin;Marino
+enum.language_english;English;Englisch;Anglais;Inglés
+enum.language_german;German;Deutsch;Allemand;Alemán
+enum.language_french;French;Französisch;Français;Francés
+enum.language_spanish;Spanish;Spanisch;Espagnol;Español
+enum.weightunit_g;Grams;Gramm;Grammes;Gramos
+enum.weightunit_oz;Ounces;Unzen;Onces;Onzas
+enum.currency_eur;Euro (€);Euro (€);Euro (€);Euro (€)
+enum.currency_usd;US Dollar ($);US Dollar ($);Dollar américain ($);Dólar estadounidense ($)
+enum.currency_gbp;British Pound (£);Britisches Pfund (£);Livre sterling (£);Libra esterlina (£)
+enum.currency_cny;Chinese Yuan (¥);Chinesischer Yuan (¥);Yuan chinois (¥);Yuan chino (¥)
+enum.currency_jpy;Japanese Yen (¥);Japanischer Yen (¥);Yen japonais (¥);Yen japonés (¥)
+enum.currency_inr;Indian Rupee (₹);Indische Rupie (₹);Roupie indienne (₹);Rupia india (₹)
+enum.currency_hkd;Hong Kong Dollar (HK$);Hongkong-Dollar (HK$);Dollar de Hong Kong (HK$);Dólar de Hong Kong (HK$)
+enum.currency_other;Other;Andere Währung;Autre devise;Otra moneda
+settings.language_title;Language;Sprache;Langue;Idioma
+settings.currency_settings_title;Currency Settings;Währungseinstellungen;Paramètres de devise;Ajustes de moneda
+settings.currency_title;Preferred Currency;Hauptwährung;Devise préférée;Moneda preferida
+settings.weightunit_title;Preferred Weight Unit;Bevorzugte Gewichtseinheit;Unité de poids préférée;Unidad de peso preferida
+settings.origin_country_display_title;Display origin country separately;Herkunftsland getrennt anzeigen;Afficher le pays d’origine séparément;Mostrar el país de origen por separado
+settings.origin_country_display_hint;When enabled, the last comma-separated entry is extracted as the origin country.;Wenn aktiviert, wird der letzte durch Kommas getrennte Eintrag als Herkunftsland verwendet.;Si cette option est activée la dernière entrée séparée par une virgule est utilisée comme pays d’origine.;Al activar esta opción la última entrada separada por comas se usa como país de origen.
+settings.histogram_buckets_title;Histogram buckets;Histogramm-Buckets;Classes d’histogramme;Intervalos del histograma
+settings.histogram_buckets_hint;Adjust bucket count for the Stats histograms;Bucket-Anzahl für die Statistik-Histogramme anpassen;Ajustez le nombre de classes des histogrammes de statistiques;Ajusta el número de intervalos de los histogramas de estadísticas
+settings.custom_currency_name;Custom currency name;Name der benutzerdefinierten Währung;Nom de la devise personnalisée;Nombre de moneda personalizada
+settings.custom_currency_name_placeholder;e.g. Tea Token;z. B. Tee-Taler;p. ex. Jeton de thé;p. ej. Ficha de té
+settings.custom_currency_symbol;Custom currency symbol;Benutzerdefiniertes Währungssymbol;Symbole de devise personnalisée;Símbolo de moneda personalizada
+settings.custom_currency_symbol_placeholder;e.g. TT;z. B. TT;p. ex. JT;p. ej. FT
+settings.custom_currency_rate;Custom currency rate (to US$);Benutzerdefinierter Wechselkurs (zu US$);Taux de change personnalisé (vers US$);Tipo de cambio personalizado (a US$)
+settings.custom_currency_rate_placeholder;e.g. 1.25;z. B. 1,25;p. ex. 1,25;p. ej. 1,25
+settings.database_title;Local Database Import/Export;Lokaler Datenbank-Import/Export;Importation/exportation de la base locale;Importación/exportación de base de datos local
+settings.database_export;Export database;Datenbank exportieren;Exporter la base de données;Exportar base de datos
+settings.database_import;Import database;Datenbank importieren;Importer une base de données;Importar base de datos
+settings.database_export_success_cap;Database export completed. The database and photo archive were saved in Documents. Would you like to share them?;Datenbank-Export abgeschlossen. Die Datenbank und das Fotoarchiv wurden in Dokumente gespeichert. Möchten Sie sie teilen?;Exportation terminée. La base de données et l’archive photo ont été enregistrées dans Documents. Voulez-vous les partager ?;La exportación ha terminado. La base de datos y el archivo de fotos se han guardado en Documentos. ¿Quieres compartirlos?
+settings.database_export_success;Database export completed. You can find the exported file at;Datenbank-Export abgeschlossen. Die exportierte Datei finden Sie unter;Exportation terminée. Vous trouverez le fichier exporté ici :;La exportación ha terminado. Puedes encontrar el archivo exportado en
+settings.database_export_photo_archive;Photo archive: {path};Fotoarchiv: {path};Archive photo : {path};Archivo de fotos: {path}
+settings.database_export_success_title;Export complete;Export abgeschlossen;Exportation terminée;Exportación terminada
+settings.database_export_error_title;Export failed;Export fehlgeschlagen;Échec de l’exportation;Error de exportación
+settings.database_export_error;Database export failed.;Datenbank-Export fehlgeschlagen.;L’exportation de la base de données a échoué.;La exportación de la base de datos ha fallado.
+settings.database_export_progress_title;Exporting database;Datenbank wird exportiert;Exportation de la base de données;Exportando base de datos
+settings.database_export_progress_preparing;Preparing the database and photo archive...;Datenbank und Fotoarchiv werden vorbereitet...;Préparation de la base de données et de l’archive photo...;Preparando la base de datos y el archivo de fotos...
+settings.database_export_progress_database;Choose where to save the database file.;Wählen Sie einen Speicherort für die Datenbankdatei.;Choisissez où enregistrer le fichier de base de données.;Elige dónde guardar el archivo de base de datos.
+settings.database_export_progress_photos;Choose the same location for the photo archive.;Wählen Sie denselben Speicherort für das Fotoarchiv.;Choisissez le même emplacement pour l’archive photo.;Elige la misma ubicación para el archivo de fotos.
+settings.database_export_share_database;Save Journalitea database;Journalitea-Datenbank speichern;Enregistrer la base Journalitea;Guardar base de datos de Journalitea
+settings.database_export_share_photos;Save Journalitea photo archive;Journalitea-Fotoarchiv speichern;Enregistrer l’archive photo Journalitea;Guardar archivo de fotos de Journalitea
+settings.database_export_share_ready;Share exports;Exporte teilen;Partager les exportations;Compartir exportaciones
+settings.dialog_ok;OK;OK;OK;Aceptar
+settings.dialog_close;Close;Schließen;Fermer;Cerrar
+settings.database_import_prompt_title;Import database;Datenbank importieren;Importer une base de données;Importar base de datos
+settings.database_import_prompt_message;Append the records from the selected database to your current data, or replace your database entirely?;Möchten Sie die Einträge aus der ausgewählten Datenbank anfügen oder die Datenbank vollständig ersetzen?;Ajouter les fiches de la base sélectionnée à vos données actuelles ou remplacer entièrement votre base de données ?;¿Añadir los registros de la base de datos seleccionada a tus datos actuales o sustituir toda la base de datos?
+settings.database_import_append;Append records;Einträge anfügen;Ajouter les fiches;Añadir registros
+settings.database_import_replace;Replace database;Datenbank ersetzen;Remplacer la base de données;Sustituir base de datos
+settings.database_import_cancel;Cancel;Abbrechen;Annuler;Cancelar
+settings.database_import_success_append;Database import completed (records appended).;Datenbankimport abgeschlossen (Einträge angefügt).;Importation terminée (fiches ajoutées).;Importación terminada (registros añadidos).
+settings.database_import_success_replace;Database import completed (database replaced).;Datenbankimport abgeschlossen (Datenbank ersetzt).;Importation terminée (base de données remplacée).;Importación terminada (base de datos sustituida).
+settings.database_import_photos_restored;Sibling photo archive imported from: {path};Zugehöriges Fotoarchiv importiert von: {path};Archive photo associée importée depuis : {path};Archivo de fotos asociado importado desde: {path}
+settings.database_import_photos_missing;No sibling photo archive was found.;Kein zugehöriges Fotoarchiv gefunden.;Aucune archive photo associée n’a été trouvée.;No se ha encontrado ningún archivo de fotos asociado.
+sync.section_title;Nextcloud Sync;Nextcloud-Synchronisierung;Synchronisation Nextcloud;Sincronización de Nextcloud
+sync.enable_label;Enable Nextcloud sync;Nextcloud-Sync aktivieren;Activer la synchronisation Nextcloud;Activar sincronización de Nextcloud
+sync.disable_hint;The app only checks and uploads when sync is enabled.;Die App prüft und lädt nur hoch, wenn die Synchronisierung aktiviert ist.;L’appli vérifie et envoie des données uniquement lorsque la synchronisation est activée.;La aplicación solo comprueba y sube datos cuando la sincronización está activada.
+sync.pictures_label;Sync pictures;Bilder synchronisieren;Synchroniser les photos;Sincronizar fotos
+sync.pictures_hint;Upload and download record photos together with the database. Already uploaded remote pictures stay untouched when disabled.;Fotos zusammen mit der Datenbank hoch- und herunterladen. Bereits hochgeladene Remote-Bilder bleiben beim Deaktivieren unverändert.;Envoyez et téléchargez les photos des fiches avec la base de données. Les photos distantes déjà envoyées restent intactes lorsque cette option est désactivée.;Sube y descarga las fotos de los registros junto con la base de datos. Las fotos remotas ya subidas no se modifican al desactivar esta opción.
+sync.server_url;Server URL;Server-URL;URL du serveur;URL del servidor
+sync.folder_path;Remote folder;Remote-Ordner;Dossier distant;Carpeta remota
+sync.backup_retention;Rolling backups;Rotierende Backups;Sauvegardes tournantes;Copias de seguridad rotativas
+sync.connection_title;Connection;Verbindung;Connexion;Conexión
+sync.connect;Connect account;Konto verbinden;Connecter un compte;Conectar cuenta
+sync.disconnect;Disconnect account;Konto trennen;Déconnecter le compte;Desconectar cuenta
+sync.disconnect_title;Disconnect Nextcloud;Nextcloud trennen;Déconnecter Nextcloud;Desconectar Nextcloud
+sync.disconnect_message;Disconnect this Nextcloud account from Journalitea? The remote files will stay on the server.;Dieses Nextcloud-Konto von Journalitea trennen? Die Dateien auf dem Server bleiben erhalten.;Déconnecter ce compte Nextcloud de Journalitea ? Les fichiers distants resteront sur le serveur.;¿Desconectar esta cuenta de Nextcloud de Journalitea? Los archivos remotos permanecerán en el servidor.
+sync.disconnect_confirm;Disconnect;Trennen;Déconnecter;Desconectar
+sync.sync_now;Sync now;Jetzt synchronisieren;Synchroniser maintenant;Sincronizar ahora
+sync.status_not_connected;Not connected;Nicht verbunden;Non connecté;Sin conexión
+sync.status_connected;Connected;Verbunden;Connecté;Conectado
+sync.status_waiting_browser;Waiting for browser approval...;Warte auf Freigabe im Browser...;En attente de l’autorisation dans le navigateur...;Esperando aprobación en el navegador...
+sync.status_syncing;Syncing database...;Datenbank wird synchronisiert...;Synchronisation de la base de données...;Sincronizando base de datos...
+sync.status_source_choice_required;Choose which database should be used for sync before continuing.;Wählen Sie zuerst aus, welche Datenbank für die Synchronisierung verwendet werden soll.;Choisissez la base de données à utiliser pour la synchronisation avant de continuer.;Elige qué base de datos usar para la sincronización antes de continuar.
+sync.status_last_sync_prefix;Last sync:;Letzte Synchronisierung:;Dernière synchronisation :;Última sincronización:
+sync.status_dirty;Local changes are waiting to be uploaded.;Lokale Änderungen warten auf den Upload.;Des modifications locales attendent d’être envoyées.;Hay cambios locales pendientes de subir.
+sync.progress_prepare_sync;Preparing sync...;Synchronisierung wird vorbereitet...;Préparation de la synchronisation...;Preparando sincronización...
+sync.progress_snapshot_database;Creating database snapshot...;Datenbank-Schnappschuss wird erstellt...;Création d’un instantané de la base de données...;Creando instantánea de la base de datos...
+sync.progress_archive_photos;Preparing photo archive...;Fotoarchiv wird vorbereitet...;Préparation de l’archive photo...;Preparando archivo de fotos...
+sync.progress_upload_database;Uploading database...;Datenbank wird hochgeladen...;Envoi de la base de données...;Subiendo base de datos...
+sync.progress_upload_photos;Uploading changed photos...;Geaenderte Fotos werden hochgeladen...;Envoi des photos modifiées...;Subiendo fotos modificadas...
+sync.progress_check_photos;Checking photos...;Fotos werden geprueft...;Vérification des photos...;Comprobando fotos...
+sync.progress_cleanup_photos;Removing unreferenced photos...;Nicht mehr referenzierte Fotos werden entfernt...;Suppression des photos non référencées...;Eliminando fotos sin referencias...
+sync.progress_backup_remote_database;Backing up remote database...;Remote-Datenbank wird gesichert...;Sauvegarde de la base de données distante...;Respaldando base de datos remota...
+sync.progress_backup_remote_photos;Backing up remote photo archive...;Remote-Fotoarchiv wird gesichert...;Sauvegarde de l’archive photo distante...;Respaldando archivo de fotos remoto...
+sync.progress_publish_remote;Finalizing remote sync...;Remote-Synchronisierung wird abgeschlossen...;Finalisation de la synchronisation distante...;Finalizando sincronización remota...
+sync.progress_write_manifest;Updating sync manifest...;Synchronisationsmanifest wird aktualisiert...;Mise à jour du manifeste de synchronisation...;Actualizando manifiesto de sincronización...
+sync.progress_prune_backups;Cleaning up old backups...;Alte Backups werden bereinigt...;Nettoyage des anciennes sauvegardes...;Limpiando copias de seguridad antiguas...
+sync.progress_download_database;Downloading database...;Datenbank wird heruntergeladen...;Téléchargement de la base de données...;Descargando base de datos...
+sync.progress_restore_database;Restoring database...;Datenbank wird wiederhergestellt...;Restauration de la base de données...;Restaurando base de datos...
+sync.progress_download_photos;Downloading changed photos...;Geaenderte Fotos werden heruntergeladen...;Téléchargement des photos modifiées...;Descargando fotos modificadas...
+sync.progress_restore_photos;Applying synced photos...;Synchronisierte Fotos werden uebernommen...;Application des photos synchronisées...;Aplicando fotos sincronizadas...
+sync.progress_keep_local_photos;Keeping local photos because no remote synced photos were found.;Lokale Fotos bleiben erhalten, da keine synchronisierten Remote-Fotos gefunden wurden.;Les photos locales sont conservées car aucune photo distante synchronisée n’a été trouvée.;Se conservan las fotos locales porque no se encontraron fotos remotas sincronizadas.
+sync.progress_restore_missing_photos;Restoring available local photo references...;Verfügbare lokale Fotoreferenzen werden wiederhergestellt...;Restauration des références photo locales disponibles...;Restaurando referencias de fotos locales disponibles...
+sync.progress_complete;Sync complete.;Synchronisierung abgeschlossen.;Synchronisation terminée.;Sincronización terminada.
+sync.connected_account;Connected account;Verbundenes Konto;Compte connecté;Cuenta conectada
+sync.last_sync_never;Never;Nie;Jamais;Nunca
+sync.choose_source;Choose source database;Quelldatenbank wählen;Choisir la base source;Elegir base de datos de origen
+sync.source_choice_title;Choose sync source;Synchronisationsquelle wählen;Choisir la source de synchronisation;Elegir fuente de sincronización
+sync.source_choice_intro;Nextcloud already contains a database for this folder. Choose which database should become the source of truth for future syncs.;In diesem Nextcloud-Ordner existiert bereits eine Datenbank. Wählen Sie aus, welche Datenbank künftig die maßgebliche Quelle für die Synchronisierung sein soll.;Nextcloud contient déjà une base de données pour ce dossier. Choisissez quelle base doit devenir la source de référence des prochaines synchronisations.;Nextcloud ya contiene una base de datos para esta carpeta. Elige qué base de datos será la fuente de referencia para futuras sincronizaciones.
+sync.source_choice_local_summary;Local database: {count} record(s).;Lokale Datenbank: {count} Einträge.;Base de données locale : {count} fiche(s).;Base de datos local: {count} registro(s).
+sync.source_choice_remote_summary;Nextcloud database: existing file, last changed {date}.;Nextcloud-Datenbank: vorhandene Datei, zuletzt geändert am {date}.;Base de données Nextcloud : fichier existant, dernière modification le {date}.;Base de datos de Nextcloud: archivo existente, última modificación el {date}.
+sync.source_choice_remote_unknown;unknown date;unbekanntes Datum;date inconnue;fecha desconocida
+sync.source_choice_use_local;Use local database;Lokale Datenbank verwenden;Utiliser la base de données locale;Usar base de datos local
+sync.source_choice_use_remote;Use Nextcloud database;Nextcloud-Datenbank verwenden;Utiliser la base de données Nextcloud;Usar base de datos de Nextcloud
+sync.source_choice_confirm_button;Confirm choice;Auswahl bestätigen;Confirmer le choix;Confirmar elección
+sync.source_choice_confirm_local_title;Confirm local database;Lokale Datenbank bestätigen;Confirmer la base de données locale;Confirmar base de datos local
+sync.source_choice_confirm_remote_title;Confirm Nextcloud database;Nextcloud-Datenbank bestätigen;Confirmer la base de données Nextcloud;Confirmar base de datos de Nextcloud
+sync.source_choice_confirm_local_message;This will overwrite the current Nextcloud database and use your current local database as the source of truth for future syncs. Continue?;Dadurch wird die aktuelle Nextcloud-Datenbank überschrieben und Ihre lokale Datenbank wird künftig die maßgebliche Quelle für die Synchronisierung. Fortfahren?;Cela écrasera la base de données Nextcloud actuelle et utilisera votre base locale comme source de référence pour les prochaines synchronisations. Continuer ?;Esto sobrescribirá la base de datos actual de Nextcloud y usará tu base de datos local como fuente de referencia para futuras sincronizaciones. ¿Continuar?
+sync.source_choice_confirm_remote_message;This will replace your current local database with the Nextcloud database and use the Nextcloud copy as the source of truth for future syncs. Continue?;Dadurch wird Ihre lokale Datenbank durch die Nextcloud-Datenbank ersetzt und die Nextcloud-Kopie wird künftig die maßgebliche Quelle für die Synchronisierung. Fortfahren?;Cela remplacera votre base de données locale par la base Nextcloud et utilisera la copie Nextcloud comme source de référence pour les prochaines synchronisations. Continuer ?;Esto sustituirá tu base de datos local por la base de datos de Nextcloud y usará la copia de Nextcloud como fuente de referencia para futuras sincronizaciones. ¿Continuar?
+sync.error_generic;Nextcloud sync failed.;Nextcloud-Synchronisierung fehlgeschlagen.;La synchronisation Nextcloud a échoué.;La sincronización de Nextcloud ha fallado.
+sync.startup_checking;Checking Nextcloud sync...;Prüfe Nextcloud-Synchronisierung...;Vérification de la synchronisation Nextcloud...;Comprobando sincronización de Nextcloud...
+sync.startup_restoring;Restoring database from Nextcloud...;Stelle Datenbank von Nextcloud wieder her...;Restauration de la base de données depuis Nextcloud...;Restaurando base de datos desde Nextcloud...
+sync.startup_update_title;Remote database available;Remote-Datenbank verfügbar;Base de données distante disponible;Base de datos remota disponible
+sync.startup_update_message;A newer database is available on Nextcloud. Replace your local database with the server copy?;Auf Nextcloud ist eine neuere Datenbank verfügbar. Möchten Sie Ihre lokale Datenbank durch die Serverkopie ersetzen?;Une base de données plus récente est disponible sur Nextcloud. Remplacer votre base locale par la copie du serveur ?;Hay una base de datos más reciente disponible en Nextcloud. ¿Sustituir tu base de datos local por la copia del servidor?
+sync.startup_conflict_message;A newer database is available on Nextcloud, but you also have local changes that are not uploaded yet. Replace your local database with the server copy?;Auf Nextcloud ist eine neuere Datenbank verfügbar, aber Sie haben auch lokale Änderungen, die noch nicht hochgeladen wurden. Möchten Sie Ihre lokale Datenbank durch die Serverkopie ersetzen?;Une base de données plus récente est disponible sur Nextcloud, mais vous avez aussi des modifications locales non envoyées. Remplacer votre base locale par la copie du serveur ?;Hay una base de datos más reciente disponible en Nextcloud, pero también tienes cambios locales que aún no se han subido. ¿Sustituir tu base de datos local por la copia del servidor?
+sync.startup_update_confirm;Update from server;Vom Server aktualisieren;Mettre à jour depuis le serveur;Actualizar desde el servidor
+sync.startup_update_cancel;Keep local database;Lokale Datenbank behalten;Conserver la base locale;Conservar base de datos local
+detail.loading;Loading record...;Lade Eintrag...;Chargement de la fiche...;Cargando registro...
+detail.error_prefix;Error:;Fehler:;Erreur :;Error:
+detail.details_title;Details;Details;Détails;Detalles
+detail.type_label;Type:;Typ:;Type :;Tipo:
+detail.subtype_label;Subtype:;Untertyp:;Sous-type :;Subtipo:
+detail.origin_country_label;Country:;Land:;Pays :;País:
+detail.origin_detail_label;Origin:;Herkunft:;Origine :;Origen:
+detail.origin_label;Origin:;Herkunft:;Origine :;Origen:
+detail.year_label;Year:;Jahr:;Année :;Año:
+detail.seller_label;Seller:;Verkäufer:;Vendeur :;Vendedor:
+detail.date_added_label;Date Added:;Hinzugefügt am:;Date d’ajout :;Fecha de alta:
+detail.price_label;Price:;Preis:;Prix :;Precio:
+detail.weight_label;Weight:;Menge:;Poids :;Peso:
+detail.preparation_title;Preparation;Zubereitung;Préparation;Preparación
+detail.method_label;Method:;Methode:;Méthode :;Método:
+detail.notes_label;Notes:;Notizen:;Notes :;Notas:
+detail.tasting_notes_title;Tasting Notes;Verkostungsnotizen;Notes de dégustation;Notas de cata
+detail.dry_leaves_label;Dry Leaves:;Trockene Blätter:;Feuilles sèches :;Hojas secas:
+detail.wet_leaves_label;Wet Leaves:;Nasse Blätter:;Feuilles infusées :;Hojas húmedas:
+detail.liquor_label;Liquor:;Aufguss:;Liqueur :;Licor:
+detail.color_label;Color:;Farbe:;Couleur :;Color:
+detail.color_aria;Tea color;Teefarbe;Couleur du thé;Color del té
+detail.plot_show;Show Plot;Diagramm anzeigen;Afficher le graphique;Mostrar gráfico
+detail.plot_hide;Hide Plot;Diagramm ausblenden;Masquer le graphique;Ocultar gráfico
+detail.notes_rating_title;Notes & Rating;Notizen & Bewertung;Notes et note;Notas y valoración
+detail.overall_rating_label;Overall Rating:;Gesamtbewertung:;Note globale :;Valoración general:
+detail.delete_button;Delete Record;Eintrag löschen;Supprimer la fiche;Eliminar registro
+detail.back_button;Back to Records List;Zurück zur Eintragsliste;Retour à la liste des fiches;Volver a la lista de registros
+detail.edit_button;Edit Record;Eintrag bearbeiten;Modifier la fiche;Editar registro
+detail.delete_confirm_title;Delete record?;Eintrag löschen?;Supprimer la fiche ?;¿Eliminar registro?
+detail.delete_confirm_message;This action cannot be undone.;Diese Aktion kann nicht rückgängig gemacht werden.;Cette action est irréversible.;Esta acción no se puede deshacer.
+detail.delete_confirm_confirm;Delete;Löschen;Supprimer;Eliminar
+detail.delete_confirm_cancel;Cancel;Abbrechen;Annuler;Cancelar
+record.type_label;Type:;Typ:;Type :;Tipo:
+record.subtype_label;Subtype:;Untertyp:;Sous-type :;Subtipo:
+record.origin_country_label;Country:;Land:;Pays :;País:
+record.origin_detail_label;Origin:;Herkunft:;Origine :;Origen:
+record.origin_label;Origin:;Herkunft:;Origine :;Origen:
+record.year_label;Year:;Jahr:;Année :;Año:
+record.seller_label;Seller:;Verkäufer:;Vendeur :;Vendedor:
+record.rating_label;Rating:;Bewertung:;Note :;Valoración:
+record.notes_label;Notes:;Notizen:;Notes :;Notas:
+stats.title;Stats for Nerds;Statistiken für Nerds;Stats pour les passionnés;Estadísticas para frikis
+stats.tab_summary;Summary;Übersicht;Résumé;Resumen
+stats.tab_histograms;Histograms;Histogramme;Histogrammes;Histogramas
+stats.tab_aromas;Aromas;Aromen;Arômes;Aromas
+stats.tab_origins;Origins;Herkünfte;Origines;Orígenes
+stats.cumulative_title;Cumulative Statistics;Kumulative Statistiken;Statistiques cumulées;Estadísticas acumuladas
+stats.total_money_spent_label;Total Money Spent:;Insgesamt ausgegeben:;Total dépensé :;Total gastado:
+stats.total_weight_label;Total Weight of Tea:;Gesamtmenge Tee:;Poids total de thé :;Peso total de té:
+stats.avg_price_per_weight_label;Average price per Weight:;Durchschnittspreis pro Menge:;Prix moyen par poids :;Precio medio por peso:
+stats.most_expensive_label;Most Expensive Tea:;Teuerster Tee:;Thé le plus cher :;Té más caro:
+stats.most_expensive_by_weight_label;Most Expensive Tea by weight:;Teuerster Tee pro Menge:;Thé le plus cher au poids :;Té más caro por peso:
+stats.no_data;No data;Keine Daten;Aucune donnée;Sin datos
+stats.tea_collection_by_type_title;Tea Collection by Type;Teesammlung nach Sorte;Collection de thés par type;Colección de té por tipo
+stats.tea_collection_metric_label;Slice size by;Segmentgroesse nach;Taille des parts par;Tamaño de porción por
+stats.tea_collection_metric_absolute;Absolute records;Absolute Eintraege;Nombre de fiches;Número de registros
+stats.tea_collection_metric_weight;Tea weight;Teemenge;Poids de thé;Peso de té
+stats.tea_collection_metric_spending;Money spent;Ausgaben;Montant dépensé;Dinero gastado
+stats.average_rating_label;Average Rating;Durchschnittsbewertung;Note moyenne;Valoración media
+stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung;Répartition des notes;Distribución de valoraciones
+stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar;Aucune note disponible;No hay valoraciones disponibles
+stats.loading;Loading statistics...;Statistiken werden geladen...;Chargement des statistiques...;Cargando estadísticas...
+stats.histogram_total_price;Total Prices;Gesamtpreise;Prix totaux;Precios totales
+stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm;Prix par gramme;Precio por gramo
+stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze;Prix par once;Precio por onza
+stats.average_value;Average;Durchschnitt;Moyenne;Media
+stats.median_value;Median;Median;Médiane;Mediana
+stats.count_value;Count;Anzahl;Nombre;Cantidad
+stats.no_price_data;No price data available;Keine Preisdaten verfügbar;Aucune donnée de prix disponible;No hay datos de precios disponibles
+stats.aromas_overall_title;Overall Aroma Profile;Gesamtprofil der Aromen;Profil aromatique global;Perfil aromático general
+stats.aromas_type_title;Aroma Profile by Type;Aromenprofil nach Sorte;Profil aromatique par type;Perfil aromático por tipo
+stats.origins_title;Tea Origins;Tee-Herkünfte;Origines des thés;Orígenes del té
+stats.origin_countries_title;Most Common Origin Countries;Häufigste Herkunftsländer;Pays d’origine les plus fréquents;Países de origen más frecuentes
+stats.origin_countries_no_data;No origin countries available;Keine Herkunftsländer verfügbar;Aucun pays d’origine disponible;No hay países de origen disponibles
+stats.origin_details_title;Specific Origins;Spezifische Herkünfte;Origines précises;Orígenes específicos
+stats.origin_details_no_data;No specific origins available;Keine spezifischen Herkünfte verfügbar;Aucune origine précise disponible;No hay orígenes específicos disponibles
+stats.origin_details_show_more;Show more origins;Mehr Herkünfte anzeigen;Afficher plus d’origines;Mostrar más orígenes
+stats.origin_details_show_less;Show fewer origins;Weniger Herkünfte anzeigen;Afficher moins d’origines;Mostrar menos orígenes
+stats.origins_no_data;No origins available;Keine Herkünfte verfügbar;Aucune origine disponible;No hay orígenes disponibles
+timer.title;Tea Timer;Teetimer;Minuteur à thé;Temporizador de té
+timer.presets_title;Steeping presets;Ziehzeiten;Préréglages d’infusion;Preajustes de infusión
+timer.preset_western;Western style;Westlicher Stil;Style occidental;Estilo occidental
+timer.preset_gongfu;Gongfu style;Gongfu-Stil;Style gongfu;Estilo gongfu
+timer.progress_label;Progress: {percent}%;Fortschritt: {percent}%;Progression : {percent}%;Progreso: {percent}%
+timer.start_button;Start;Start;Démarrer;Iniciar
+timer.pause_button;Pause;Pause;Pause;Pausa
+timer.reset_button;Reset;Zurücksetzen;Réinitialiser;Restablecer
+about.title;About this App;Über diese App;À propos de cette appli;Acerca de esta aplicación
+about.versionNumber;Version number;Versionsnummer;Numéro de version;Número de versión
+about.body1;Journalitea is free software, licensed under the;Journalitea ist freie Software, lizenziert unter der;Journalitea est un logiciel libre, sous licence;Journalitea es software libre, bajo la licencia
+about.developedBy;Developed by;Entwickelt von;Développé par;Desarrollado por
+about.fonts;Fonts used:;Benutzte Schriftarten:;Polices utilisées :;Fuentes utilizadas:
+about.body2;The complete source code can be found through the link below:;Der vollständige Quellcode ist über den untenstehenden Link verfügbar:;Le code source complet est disponible via le lien ci-dessous :;El código fuente completo está disponible en el enlace de abajo:
+about.body3;I made Journalitea because I wanted to build it, not because I am trying to make any money off of it. If you like the app, I encourage you to also build things you enjoy making and share them with the community.;Ich habe Journalitea gebaut weil ich wollte dass die App existiert, nicht um damit später Geld zu verdienen. Wenn du die App magst, ermutige ich dich ebenfalls Dinge zu bauen die dir gefallen, und sie mit deiner Community zu teilen.;J’ai créé Journalitea parce que je voulais qu’il existe, pas pour gagner de l’argent. Si cette appli vous plaît, je vous encourage à créer vous aussi des choses qui vous font plaisir et à les partager avec la communauté.;Hice Journalitea porque quería que existiera, no para ganar dinero con ella. Si te gusta la aplicación, te animo a crear también cosas que disfrutes y a compartirlas con la comunidad.
