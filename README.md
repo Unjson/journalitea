@@ -24,10 +24,12 @@ Before its first run, create a local signing keystore and configure the reposito
 ```bash
 npm run android:keystore
 cp android/keystore.properties.example android/keystore.properties
-base64 -w 0 android/app/journalitea-release.jks
+base64 -w 0 android/app/journalitea-release.jks | clip.exe
 ```
 
-Enter the passwords chosen during `npm run android:keystore` in `android/keystore.properties` for local signed builds. Keep both the `.jks` file and this properties file private; they are ignored by Git. Add the base64 output and the credentials as repository secrets named `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD`. The generated alias defaults to `journalitea`.
+Enter the passwords chosen during `npm run android:keystore` in `android/keystore.properties` for local signed builds. Keep both the `.jks` file and this properties file private; they are ignored by Git. The last command copies the one-line Base64 keystore payload directly to the Windows clipboard. Paste it into the `ANDROID_KEYSTORE_BASE64` repository secret, then add the credentials as `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD`. The generated alias defaults to `journalitea`.
+
+Do not copy the value from the terminal display. If the release workflow reports `base64: invalid input`, delete and recreate `ANDROID_KEYSTORE_BASE64` by rerunning the clipboard command from the current `android/app/journalitea-release.jks` file; a nonempty secret with that error is malformed rather than missing.
 
 ## Roadmap
 - iOS support (If i can be bothered. Mobile dev is hard, and I don't have an iPhone/Mac at hand...)
