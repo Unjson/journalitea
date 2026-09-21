@@ -57,11 +57,10 @@ const saveCurrentPhoto = async () => {
 
 	try {
 		const result = await photoService.saveToDownloads(photoPath);
-		if (result?.cancelled) {
+		if ('cancelled' in result && result.cancelled) {
 			return;
 		}
-		if (result?.success !== true) {
-			throw new Error(t('photo.save_error'));
+		if (!('success' in result) || result.success !== true) {
 		}
 
 		const savedLocation = result.location === 'Downloads'
