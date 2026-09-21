@@ -27,6 +27,7 @@ const showAllSpecificOrigins = ref(false);
 const years = ref<number[]>([]);
 const selectedYear = ref<number | null>(null);
 const histogramBuckets = ref<number>(DEFAULT_PREFS.HISTOGRAM_BUCKETS);
+const histogramResetKey = ref(0);
 
 const pieValuesByType = computed<Record<string, number> | undefined>(() => {
 	if (!cumulativeStats.value) {
@@ -215,7 +216,10 @@ onMounted(async () => {
 	await loadYears();
 	await loadStats();
 });
-onActivated(loadStats);
+onActivated(() => {
+	histogramResetKey.value += 1;
+	return loadStats();
+});
 
 </script>
 
@@ -408,6 +412,7 @@ onActivated(loadStats);
 
 			<div v-else-if="activeTab === 'histograms'" class="ui-surface p-6">
 				<BarChart
+					:key="histogramResetKey"
 					:records="records"
 					:preferredCurrency="preferredCurrency"
 					:preferredWeightUnit="preferredWeightUnit"

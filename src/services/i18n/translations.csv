@@ -272,8 +272,12 @@ stats.rating_distribution_title;Ratings Distribution;Bewertungsverteilung;Répar
 stats.rating_distribution_no_data;No ratings available;Keine Bewertungen verfügbar;Aucune note disponible;No hay valoraciones disponibles
 stats.loading;Loading statistics...;Statistiken werden geladen...;Chargement des statistiques...;Cargando estadísticas...
 stats.histogram_total_price;Total Prices;Gesamtpreise;Prix totaux;Precios totales
+stats.histogram_total_price_range;Total price range;Bereich für Gesamtpreise;Plage de prix total;Rango de precio total
 stats.histogram_price_per_weight_g;Price per gram;Preis pro Gramm;Prix par gramme;Precio por gramo
 stats.histogram_price_per_weight_oz;Price per ounce;Preis pro Unze;Prix par once;Precio por onza
+stats.histogram_price_per_weight_range;Price per unit range;Bereich für Preis pro Einheit;Plage de prix unitaire;Rango de precio por unidad
+stats.histogram_range_min;Minimum price;Mindestpreis;Prix minimum;Precio mínimo
+stats.histogram_range_max;Maximum price;Höchstpreis;Prix maximum;Precio máximo
 stats.average_value;Average;Durchschnitt;Moyenne;Media
 stats.median_value;Median;Median;Médiane;Mediana
 stats.count_value;Count;Anzahl;Nombre;Cantidad

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Record as TeaRecord } from '../../models/record';
 import { CurrencyType, WeightUnit, weightUnitSymbols, currencySymbols } from '../../models/enums';
 import { getPriceInMainCurrency, convertToPricePerDesiredUnit, formatPriceString } from '../../models/teaStats';
 import { useI18n } from 'vue-i18n';
 import { platformBridge } from '../../services/platformBridge';
+import RangeSlider from '../RangeSlider.vue';
 
 const props = defineProps<{
 	records: TeaRecord[];
@@ -99,16 +100,65 @@ const pricePerUnitValues = computed(() => {
 	return values;
 });
 
-const buildHistogram = (values: number[], roundToWholeUnits = false): HistogramData => {
+const totalPriceLowerValue = ref(0);
+const totalPriceUpperValue = ref(0);
+const pricePerUnitLowerValue = ref(0);
+const pricePerUnitUpperValue = ref(0);
+
+const getValueBounds = (values: number[]) => {
+	if (values.length === 0) {
+		return { min: 0, max: 0 };
+	}
+
+	return {
+		min: Math.min(...values),
+		max: Math.max(...values),
+	};
+};
+
+const totalPriceBounds = computed(() => getValueBounds(totalPriceValues.value));
+const pricePerUnitBounds = computed(() => getValueBounds(pricePerUnitValues.value));
+
+const resetPriceRanges = ([totalPrices, pricesPerUnit]: [number[], number[]]) => {
+	const totalPriceRange = getValueBounds(totalPrices);
+	totalPriceLowerValue.value = totalPriceRange.min;
+	totalPriceUpperValue.value = totalPriceRange.max;
+
+	const pricePerUnitRange = getValueBounds(pricesPerUnit);
+	pricePerUnitLowerValue.value = pricePerUnitRange.min;
+	pricePerUnitUpperValue.value = pricePerUnitRange.max;
+};
+
+watch([totalPriceValues, pricePerUnitValues], resetPriceRanges, { immediate: true });
+
+const filterValues = (values: number[], lowerValue: number, upperValue: number) =>
+	values.filter(value => value >= lowerValue && value <= upperValue);
+
+const filteredTotalPriceValues = computed(() => filterValues(
+	totalPriceValues.value,
+	totalPriceLowerValue.value,
+	totalPriceUpperValue.value,
+));
+
+const filteredPricePerUnitValues = computed(() => filterValues(
+	pricePerUnitValues.value,
+	pricePerUnitLowerValue.value,
+	pricePerUnitUpperValue.value,
+));
+
+const buildHistogram = (
+	values: number[],
+	rangeMin: number,
+	rangeMax: number,
+	roundToWholeUnits = false,
+): HistogramData => {
 	if (values.length === 0) {
 		return { bins: [], maxCount: 0, min: 0, max: 0, step: 1 };
 	}
 
-	const actualMin = Math.min(...values);
-	const actualMax = Math.max(...values);
 	if (!roundToWholeUnits) {
-		const min = actualMin;
-		const max = actualMax;
+		const min = rangeMin;
+		const max = Math.max(rangeMin, rangeMax);
 		const step = (max - min || 1) / binsCount.value;
 		const bins = Array.from({ length: binsCount.value }, (_, index) => {
 			const start = min + index * step;
@@ -125,10 +175,10 @@ const buildHistogram = (values: number[], roundToWholeUnits = false): HistogramD
 		return { bins, maxCount, min, max, step };
 	}
 
-	const idealStep = (actualMax - actualMin || 1) / binsCount.value;
+	const idealStep = (rangeMax - rangeMin || 1) / binsCount.value;
 	const step = Math.max(1, Math.round(idealStep));
-	const min = Math.floor(actualMin / step) * step;
-	let max = Math.ceil(actualMax / step) * step;
+	const min = Math.floor(rangeMin / step) * step;
+	let max = Math.ceil(rangeMax / step) * step;
 
 	if (max <= min) {
 		max = min + step;
@@ -150,8 +200,17 @@ const buildHistogram = (values: number[], roundToWholeUnits = false): HistogramD
 	return { bins, maxCount, min, max: min + (binTotal * step), step };
 };
 
-const totalPriceHistogram = computed(() => buildHistogram(totalPriceValues.value, true));
-const pricePerUnitHistogram = computed(() => buildHistogram(pricePerUnitValues.value));
+const totalPriceHistogram = computed(() => buildHistogram(
+	filteredTotalPriceValues.value,
+	totalPriceLowerValue.value,
+	totalPriceUpperValue.value,
+	true,
+));
+const pricePerUnitHistogram = computed(() => buildHistogram(
+	filteredPricePerUnitValues.value,
+	pricePerUnitLowerValue.value,
+	pricePerUnitUpperValue.value,
+));
 
 const getValueSummary = (values: number[]): ValueSummary | null => {
 	if (values.length === 0) {
@@ -374,7 +433,7 @@ const toggleTooltip = (chart: HistogramChartKey, index: number, lines: string[],
 };
 
 const totalPriceSummary = computed(() => {
-	const summary = getValueSummary(totalPriceValues.value);
+	const summary = getValueSummary(filteredTotalPriceValues.value);
 	if (!summary) {
 		return null;
 	}
@@ -388,7 +447,7 @@ const totalPriceSummary = computed(() => {
 });
 
 const pricePerUnitSummary = computed(() => {
-	const summary = getValueSummary(pricePerUnitValues.value);
+	const summary = getValueSummary(filteredPricePerUnitValues.value);
 	if (!summary) {
 		return null;
 	}
@@ -406,66 +465,85 @@ const pricePerUnitSummary = computed(() => {
 	<div class="space-y-8">
 		<div>
 			<h3 class="text-xl font-semibold mb-3">{{ t('stats.histogram_total_price') }}</h3>
-			<div v-if="totalPriceSummary" class="relative w-full" @click="clearTooltip('totalPrice')">
-				<svg ref="totalPriceSvg" class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
-					<g v-for="(bin, index) in totalPriceHistogram.bins" :key="index">
-						<rect
-							:x="getBarX(index, totalPriceHistogram.bins.length)"
-							:y="220 - (bin.count / (totalPriceHistogram.maxCount || 1)) * 200"
-							:width="getBarWidth(totalPriceHistogram.bins.length)"
-							:height="(bin.count / (totalPriceHistogram.maxCount || 1)) * 200"
-							class="cursor-pointer"
-							fill="var(--color-chart-primary)"
-							opacity="0.8"
-							role="button"
-							:aria-label="`${formatBucketRange(bin.start, bin.end, formatWholePriceValue)}. ${formatCountLabel(bin.count)}`"
-							tabindex="0"
-							@pointerenter="handlePointerEnter('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
-							@pointermove="handlePointerMove('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
-							@pointerdown.stop="handlePointerDown('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
-							@pointerleave="handlePointerLeave('totalPrice', index, $event)"
-							@click.stop="toggleTooltip('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
-							@focus="handleFocus('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], totalPriceHistogram.bins.length)"
-							@blur="handleBlur('totalPrice', index)"
-							@keydown.enter.prevent="showTooltipAtBar('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], totalPriceHistogram.bins.length)"
-							@keydown.space.prevent="showTooltipAtBar('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], totalPriceHistogram.bins.length)"
-						/>
-					</g>
-				</svg>
-				<div
-					v-if="activeTooltip?.chart === 'totalPrice'"
-					class="pointer-events-none absolute z-10 flex flex-col items-center justify-center bg-gray-900/92 px-3 text-center text-white shadow"
-					:style="{
-						left: `${activeTooltip.x}px`,
-						top: `${activeTooltip.y}px`,
-						width: `${activeTooltip.width}px`,
-						height: `${activeTooltip.height}px`,
-						borderRadius: `${TOOLTIP_BORDER_RADIUS}px`,
-						fontSize: `${TOOLTIP_FONT_SIZE}px`,
-						lineHeight: `${TOOLTIP_LINE_HEIGHT}px`,
-					}"
-				>
-					<span v-for="(line, lineIndex) in activeTooltip.lines" :key="`total-tooltip-line-${lineIndex}`">
-						{{ line }}
-					</span>
-				</div>
-				<div class="mt-2 w-full">
-					<div class="flex w-full items-center gap-3 px-1 text-[10px] text-gray-500 dark:text-gray-400">
-						<span class="shrink-0">{{ totalPriceSummary.min }}</span>
-						<div class="h-px flex-1 bg-gray-300 dark:bg-gray-600"></div>
-						<span class="shrink-0 text-right">{{ totalPriceSummary.max }}</span>
+			<div v-if="totalPriceValues.length > 0">
+				<div v-if="totalPriceSummary" class="relative w-full" @click="clearTooltip('totalPrice')">
+					<svg ref="totalPriceSvg" class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
+						<g v-for="(bin, index) in totalPriceHistogram.bins" :key="index">
+							<rect
+								:x="getBarX(index, totalPriceHistogram.bins.length)"
+								:y="220 - (bin.count / (totalPriceHistogram.maxCount || 1)) * 200"
+								:width="getBarWidth(totalPriceHistogram.bins.length)"
+								:height="(bin.count / (totalPriceHistogram.maxCount || 1)) * 200"
+								class="cursor-pointer"
+								fill="var(--color-chart-primary)"
+								opacity="0.8"
+								role="button"
+								:aria-label="`${formatBucketRange(bin.start, bin.end, formatWholePriceValue)}. ${formatCountLabel(bin.count)}`"
+								tabindex="0"
+								@pointerenter="handlePointerEnter('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
+								@pointermove="handlePointerMove('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
+								@pointerdown.stop="handlePointerDown('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
+								@pointerleave="handlePointerLeave('totalPrice', index, $event)"
+								@click.stop="toggleTooltip('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], $event)"
+								@focus="handleFocus('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], totalPriceHistogram.bins.length)"
+								@blur="handleBlur('totalPrice', index)"
+								@keydown.enter.prevent="showTooltipAtBar('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], totalPriceHistogram.bins.length)"
+								@keydown.space.prevent="showTooltipAtBar('totalPrice', index, [formatBucketRange(bin.start, bin.end, formatWholePriceValue), formatCountLabel(bin.count)], totalPriceHistogram.bins.length)"
+							/>
+						</g>
+					</svg>
+					<div
+						v-if="activeTooltip?.chart === 'totalPrice'"
+						class="pointer-events-none absolute z-10 flex flex-col items-center justify-center bg-gray-900/92 px-3 text-center text-white shadow"
+						:style="{
+							left: `${activeTooltip.x}px`,
+							top: `${activeTooltip.y}px`,
+							width: `${activeTooltip.width}px`,
+							height: `${activeTooltip.height}px`,
+							borderRadius: `${TOOLTIP_BORDER_RADIUS}px`,
+							fontSize: `${TOOLTIP_FONT_SIZE}px`,
+							lineHeight: `${TOOLTIP_LINE_HEIGHT}px`,
+						}"
+					>
+						<span v-for="(line, lineIndex) in activeTooltip.lines" :key="`total-tooltip-line-${lineIndex}`">
+							{{ line }}
+						</span>
+					</div>
+					<div class="mt-2 w-full">
+						<div class="flex w-full items-center gap-3 px-1 text-[10px] text-gray-500 dark:text-gray-400">
+							<span class="shrink-0">{{ formatTotalPriceValue(totalPriceLowerValue) }}</span>
+							<div class="h-px flex-1 bg-gray-300 dark:bg-gray-600"></div>
+							<span class="shrink-0 text-right">{{ formatTotalPriceValue(totalPriceUpperValue) }}</span>
+						</div>
+					</div>
+					<div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
+						<span>{{ t('stats.average_value') }}: {{ totalPriceSummary.average }}</span>
+						<span>{{ t('stats.median_value') }}: {{ totalPriceSummary.median }}</span>
 					</div>
 				</div>
-				<div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
-					<span>{{ t('stats.average_value') }}: {{ totalPriceSummary.average }}</span>
-					<span>{{ t('stats.median_value') }}: {{ totalPriceSummary.median }}</span>
-				</div>
+				<div v-else class="text-gray-500">{{ t('stats.no_price_data') }}</div>
+				<RangeSlider
+					class="mt-5"
+					:min="totalPriceBounds.min"
+					:max="totalPriceBounds.max"
+					:lower-value="totalPriceLowerValue"
+					:upper-value="totalPriceUpperValue"
+					:step="0.01"
+					:label="t('stats.histogram_total_price_range')"
+					:lower-label="t('stats.histogram_range_min')"
+					:upper-label="t('stats.histogram_range_max')"
+					:lower-value-label="formatTotalPriceValue(totalPriceLowerValue)"
+					:upper-value-label="formatTotalPriceValue(totalPriceUpperValue)"
+					@update:lower-value="totalPriceLowerValue = $event"
+					@update:upper-value="totalPriceUpperValue = $event"
+				/>
 			</div>
 			<div v-else class="text-gray-500">{{ t('stats.no_price_data') }}</div>
 		</div>
 
 		<div>
 			<h3 class="text-xl font-semibold mb-3">{{ (props.preferredWeightUnit === WeightUnit.METRIC_GRAM) ? t('stats.histogram_price_per_weight_g') : t('stats.histogram_price_per_weight_oz') }}</h3>
+			<div v-if="pricePerUnitValues.length > 0">
 			<div v-if="pricePerUnitSummary" class="relative w-full" @click="clearTooltip('pricePerUnit')">
 				<svg ref="pricePerUnitSvg" class="w-full" viewBox="0 0 600 240" preserveAspectRatio="none">
 					<g v-for="(bin, index) in pricePerUnitHistogram.bins" :key="index">
@@ -509,15 +587,32 @@ const pricePerUnitSummary = computed(() => {
 				</div>
 				<div class="mt-2 w-full">
 					<div class="flex w-full items-center gap-3 px-1 text-[10px] text-gray-500 dark:text-gray-400">
-						<span class="shrink-0">{{ pricePerUnitSummary.min }}</span>
+						<span class="shrink-0">{{ formatPricePerUnitValue(pricePerUnitLowerValue) }}</span>
 						<div class="h-px flex-1 bg-gray-300 dark:bg-gray-600"></div>
-						<span class="shrink-0 text-right">{{ pricePerUnitSummary.max }}</span>
+						<span class="shrink-0 text-right">{{ formatPricePerUnitValue(pricePerUnitUpperValue) }}</span>
 					</div>
 				</div>
 				<div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-300">
 					<span>{{ t('stats.average_value') }}: {{ pricePerUnitSummary.average }}</span>
 					<span>{{ t('stats.median_value') }}: {{ pricePerUnitSummary.median }}</span>
 				</div>
+			</div>
+			<div v-else class="text-gray-500">{{ t('stats.no_price_data') }}</div>
+			<RangeSlider
+				class="mt-5"
+				:min="pricePerUnitBounds.min"
+				:max="pricePerUnitBounds.max"
+				:lower-value="pricePerUnitLowerValue"
+				:upper-value="pricePerUnitUpperValue"
+				:step="0.01"
+				:label="t('stats.histogram_price_per_weight_range')"
+				:lower-label="t('stats.histogram_range_min')"
+				:upper-label="t('stats.histogram_range_max')"
+				:lower-value-label="formatPricePerUnitValue(pricePerUnitLowerValue)"
+				:upper-value-label="formatPricePerUnitValue(pricePerUnitUpperValue)"
+				@update:lower-value="pricePerUnitLowerValue = $event"
+				@update:upper-value="pricePerUnitUpperValue = $event"
+			/>
 			</div>
 			<div v-else class="text-gray-500">{{ t('stats.no_price_data') }}</div>
 		</div>
