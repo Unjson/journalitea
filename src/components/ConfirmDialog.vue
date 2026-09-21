@@ -55,7 +55,7 @@ const isSingleAction = () =>
 
 <template>
 	<teleport to="body">
-		<div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center">
+		<div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center p-4">
 			<div class="absolute inset-0 bg-black/50" @click="onBackdropClick"></div>
 			<div class="ui-surface relative w-full max-w-md p-6">
 				<h3 class="text-lg font-semibold mb-2">

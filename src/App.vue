@@ -313,7 +313,7 @@ onBeforeUnmount(() => {
 			<Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :header-title="headerTitle" />
 			<div
 				v-if="syncProgressState.active"
-				class="sync-ribbon sticky top-0 z-20 px-6 py-3"
+				class="sync-ribbon sticky top-0 z-20 px-6 pt-4 pb-3"
 			>
 				<div class="flex items-center justify-between gap-4 text-sm">
 					<div class="font-medium">{{ syncProgressLabel }}</div>

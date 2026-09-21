@@ -16,6 +16,17 @@ export type PhotoArchiveResult = {
   exists: boolean;
 };
 
+export type PhotoSaveResult =
+  | {
+      success: true;
+      path?: string;
+      location?: string;
+      fileName?: string;
+    }
+  | {
+      cancelled: true;
+    };
+
 export type PhotoImportIdMapEntry = {
   sourceId: number;
   targetId: number;

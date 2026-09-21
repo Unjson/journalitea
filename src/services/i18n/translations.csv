@@ -49,6 +49,12 @@ photo.open_viewer;Open photo fullscreen;Foto im Vollbild oeffnen;Ouvrir la photo
 photo.close_viewer;Close photo viewer;Fotoansicht schliessen;Fermer la visionneuse;Cerrar visor de fotos
 photo.zoom_viewer;Zoom photo;Foto zoomen;Zoomer sur la photo;Ampliar foto
 photo.image_error;The photo cannot be loaded.;Das Foto kann nicht geladen werden.;Impossible de charger la photo.;No se puede cargar la foto.
+photo.save_to_downloads;Save image;Bild speichern;Enregistrer l’image;Guardar imagen
+photo.save_success_title;Image saved;Bild gespeichert;Image enregistrée;Imagen guardada
+photo.save_success_message;The image was saved to {path}.;Das Bild wurde unter {path} gespeichert.;L’image a été enregistrée sous {path}.;La imagen se guardó en {path}.
+photo.downloads_location;Downloads;Downloads;Téléchargements;Descargas
+photo.save_error_title;Image save failed;Speichern des Bildes fehlgeschlagen;Échec de l’enregistrement de l’image;Error al guardar la imagen
+photo.save_error;The image could not be saved.;Das Bild konnte nicht gespeichert werden.;L’image n’a pas pu être enregistrée.;No se pudo guardar la imagen.
 edit.photo_add_button;Add photo;Foto hinzufuegen;Ajouter une photo;Añadir foto
 edit.photo_replace_button;Replace photo;Foto ersetzen;Remplacer la photo;Sustituir foto
 edit.photo_take_button;Take photo;Foto aufnehmen;Prendre une photo;Tomar foto

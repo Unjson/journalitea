@@ -209,6 +209,29 @@ class PhotoStorageNodeService {
     return buildPhotoPreviewUrl(primaryPath);
   }
 
+  copyManagedPhotoToDestination(
+    relativePath: string,
+    destinationPath: string,
+  ): string {
+    const normalizedPath = normalizePhotoRelativePath(relativePath);
+    if (
+      !normalizedPath ||
+      !isManagedPhotoPath(normalizedPath) ||
+      !isSafePhotoRelativePath(normalizedPath)
+    ) {
+      throw new Error("Invalid managed photo path.");
+    }
+
+    const sourcePath = this.resolveAbsolutePath(normalizedPath);
+    if (!fs.existsSync(sourcePath) || !fs.statSync(sourcePath).isFile()) {
+      throw new Error("The selected photo could not be found.");
+    }
+
+    const targetPath = path.resolve(destinationPath);
+    fs.copyFileSync(sourcePath, targetPath);
+    return targetPath;
+  }
+
   finalizeRecordPhoto(
     recordId: number,
     photoRaw: string,

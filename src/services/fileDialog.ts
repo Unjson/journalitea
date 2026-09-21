@@ -1,4 +1,6 @@
-import { dialog } from "electron";
+import { app, dialog } from "electron";
+import path from "node:path";
+import { createTimestampPhotoFileName } from "./photoStorageShared.js";
 
 const fileFilters = [
   {
@@ -22,6 +24,8 @@ const imageFilters = [
   },
 ];
 
+const imageFilePattern = /\.(jpg|jpeg|png|gif|webp|bmp)$/i;
+
 export const pickSaveFilePath = async (): Promise<string | null> => {
   try {
     const { canceled, filePath } = await dialog.showSaveDialog({
@@ -33,6 +37,28 @@ export const pickSaveFilePath = async (): Promise<string | null> => {
     if (canceled || !filePath) return null;
     if (filePath.match(/\.(db|db3|sqlite|sqlite3)$/i)) return filePath;
     return `${filePath}.db`;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const pickSavePhotoFilePath = async (
+  sourceName: string,
+): Promise<string | null> => {
+  try {
+    const defaultFileName = createTimestampPhotoFileName(
+      path.basename(sourceName || "photo"),
+      ".jpg",
+    );
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: "Save photo",
+      buttonLabel: "Save",
+      filters: imageFilters,
+      defaultPath: path.join(app.getPath("downloads"), defaultFileName),
+    });
+    if (canceled || !filePath) return null;
+    if (imageFilePattern.test(filePath)) return filePath;
+    return `${filePath}${path.extname(defaultFileName) || ".jpg"}`;
   } catch (error) {
     return null;
   }
