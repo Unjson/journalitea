@@ -5,6 +5,7 @@ import {
   pickImageFilePath,
   pickOpenFilePath,
   pickSaveFilePath,
+  pickSavePhotoFilePath,
 } from "./services/fileDialog.js";
 import { parseTranslationsFromCSVFile } from "./services/i18n/csvParser.node.js";
 import { photoStorage } from "./services/photoStorage.node.js";
@@ -222,6 +223,31 @@ export const setupIpcHandlers = (): void => {
       throw error;
     }
   });
+
+  ipcMain.handle(
+    "photo:saveToDownloads",
+    async (event, photoPath: string) => {
+      try {
+        const destinationPath = await pickSavePhotoFilePath(photoPath);
+        if (!destinationPath) {
+          return { cancelled: true };
+        }
+
+        const savedPath = photoStorage.copyManagedPhotoToDestination(
+          photoPath,
+          destinationPath,
+        );
+        return {
+          success: true,
+          path: savedPath,
+          fileName: path.basename(savedPath),
+        };
+      } catch (error) {
+        console.error("Error saving photo:", error);
+        throw error;
+      }
+    },
+  );
 
   ipcMain.handle(
     "photo:finalizeRecordPhoto",

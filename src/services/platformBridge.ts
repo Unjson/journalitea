@@ -39,7 +39,10 @@ import type {
   SyncHttpResponse,
   SyncUploadRequest,
 } from "./syncTypes";
-import { buildSiblingPhotoArchivePath } from "./photoStorageShared";
+import {
+  buildSiblingPhotoArchivePath,
+  createTimestampPhotoFileName,
+} from "./photoStorageShared";
 
 export type BridgeListener = (...args: any[]) => void;
 export type BackButtonListener = (event: { canGoBack: boolean }) => void;
@@ -55,6 +58,15 @@ type JournaliteaFilesPlugin = {
     path: string;
     hasPhotos: boolean;
     exists: boolean;
+  }>;
+  savePhotoToDownloads(options: {
+    relativePath: string;
+    fileName: string;
+  }): Promise<{
+    success: boolean;
+    path?: string;
+    location?: string;
+    fileName?: string;
   }>;
 };
 
@@ -474,6 +486,26 @@ const handleCapacitorInvoke = async (
       return captureAndStagePhoto();
     case "photo:resolveUrl":
       return resolvePhotoUrl(String(args[0] ?? ""));
+    case "photo:saveToDownloads": {
+      if (!isAndroid) {
+        throw new Error("Saving photos to Downloads is only supported on Android.");
+      }
+
+      const relativePath = String(args[0] ?? "").trim();
+      if (!relativePath) {
+        throw new Error("Photo path is missing.");
+      }
+
+      const result = await journaliteaFiles.savePhotoToDownloads({
+        relativePath,
+        fileName: createTimestampPhotoFileName(relativePath, ".jpg"),
+      });
+      return {
+        ...result,
+        success: result.success === true,
+        location: result.location ?? "Downloads",
+      };
+    }
     case "photo:finalizeRecordPhoto":
       return finalizeRecordPhoto(Number(args[0] ?? -1), String(args[1] ?? ""));
     case "photo:commitSavedRecordPhoto":

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Record, getRecordOriginCountry, getRecordOriginSummary, getRecordSpecificOrigin } from '../models/record';
+import { Record, getPrimaryRecordPhotoPath, getRecordOriginCountry, getRecordOriginSummary, getRecordSpecificOrigin } from '../models/record';
 import { getColorForRating } from '../models/colors';
 import RadarPlot from '../components/charts/RadarPlot.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
@@ -136,6 +136,7 @@ onMounted(() => {
         <div class="photo-well overflow-hidden rounded-2xl">
           <ZoomablePhoto
             :src="photoPreviewUrl"
+            :photo-path="getPrimaryRecordPhotoPath(record.photo)"
             :alt="record.name || t('edit.photo_label')"
             :aria-label="t('photo.open_viewer')"
             class="relative aspect-4/3"

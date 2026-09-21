@@ -3,6 +3,7 @@ import type {
   PhotoArchiveResult,
   PhotoAssetResult,
   PhotoImportIdMapEntry,
+  PhotoSaveResult,
   PhotoSyncImportResult,
   PhotoSelectionResult,
   SyncablePhotoFile,
@@ -17,6 +18,9 @@ export const photoService = {
   },
   resolveUrl(photoRaw: string): Promise<string> {
     return platformBridge.invoke("photo:resolveUrl", photoRaw);
+  },
+  saveToDownloads(photoPath: string): Promise<PhotoSaveResult> {
+    return platformBridge.invoke("photo:saveToDownloads", photoPath);
   },
   finalizeRecordPhoto(
     recordId: number,

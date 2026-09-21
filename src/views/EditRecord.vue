@@ -603,6 +603,7 @@ onMounted(() => {
               <ZoomablePhoto
                 v-if="photoPreviewUrl"
                 :src="photoPreviewUrl"
+                :photo-path="getPrimaryRecordPhotoPath(record.photo)"
                 :alt="record.name || t('edit.photo_label')"
                 :aria-label="t('photo.open_viewer')"
                 :disabled="loading || photoBusy"
