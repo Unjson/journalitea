@@ -13,6 +13,16 @@ import { setupIpcHandlers } from "./src/ipcHandlers.js";
 
 const isDev = process.env.NODE_ENV === "development";
 const VITE_DEV_SERVER_URL = "http://localhost:5173";
+const WINDOW_ICON_PATH = isDev
+  ? path.join(
+      app.getAppPath(),
+      "src",
+      "img",
+      "app-icons",
+      "desktop",
+      "icon_32.png",
+    )
+  : path.join(app.getAppPath(), "dist-electron", "app-icons", "icon_32.png");
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -163,6 +173,7 @@ const createWindow = (): void => {
   mainWindow = new BrowserWindow({
     width: 720,
     height: 960,
+    icon: WINDOW_ICON_PATH,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

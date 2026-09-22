@@ -1,7 +1,7 @@
 {
   "name": "journalitea",
   "description": "Personal Tea Journal",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "main": "dist-electron/main.js",
   "engines": {
@@ -77,14 +77,17 @@
       "**/*.node"
     ],
     "mac": {
+      "icon": "src/img/app-icons/android/logo_full_512.png",
       "category": "public.app-category.productivity"
     },
     "win": {
+      "icon": "src/img/app-icons/desktop/icon_256.png",
       "target": [
         "nsis"
       ]
     },
     "linux": {
+      "icon": "src/img/app-icons/desktop/icon_256.png",
       "category": "Productivity",
       "target": [
         "deb",

@@ -7,8 +7,14 @@ const root = path.resolve(scriptsDir, '..');
 const sourceFile = path.join(root, 'src', 'sfx', 'singing-bowl.ogg');
 const targetDir = path.join(root, 'dist-electron', 'sfx');
 const targetFile = path.join(targetDir, 'singing-bowl.ogg');
+const windowIconSourceFile = path.join(root, 'src', 'img', 'app-icons', 'desktop', 'icon_32.png');
+const windowIconTargetDir = path.join(root, 'dist-electron', 'app-icons');
+const windowIconTargetFile = path.join(windowIconTargetDir, 'icon_32.png');
 
 await mkdir(targetDir, { recursive: true });
 await copyFile(sourceFile, targetFile);
+await mkdir(windowIconTargetDir, { recursive: true });
+await copyFile(windowIconSourceFile, windowIconTargetFile);
 
 console.log('Copied singing-bowl.ogg to dist-electron.');
+console.log('Copied window icon to dist-electron.');
