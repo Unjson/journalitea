@@ -77,7 +77,7 @@
       "**/*.node"
     ],
     "mac": {
-      "icon": "src/img/app-icons/desktop/icon_256.png",
+      "icon": "src/img/app-icons/logo_1024.png",
       "category": "public.app-category.productivity"
     },
     "win": {
